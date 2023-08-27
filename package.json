@@ -1,0 +1,22 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "api:dev": "turbo run dev --filter=api",
+    "admin:dev": "turbo run dev --filter=admin",
+    "web:dev": "turbo run dev --filter=web --filter=api",
+    "lint": "turbo run lint",
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "upall": "pnpm up --filter @timotte-app/* --latest && pnpm up --latest"
+  },
+  "devDependencies": {
+    "@turbo/gen": "^1.9.7",
+    "eslint": "^7.32.0",
+    "@timotte-app/eslint-config": "workspace:*",
+    "prettier": "^2.5.1",
+    "turbo": "latest"
+  },
+  "packageManager": "pnpm@8.6.10",
+  "name": "timotte-app"
+}

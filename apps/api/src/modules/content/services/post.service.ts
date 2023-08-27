@@ -1,0 +1,95 @@
+import { BadRequestException, Injectable } from '@nestjs/common';
+import { PostRepository } from '../repositories';
+import { isNil, omit } from 'lodash';
+import { IsNull, Not, SelectQueryBuilder } from 'typeorm';
+import { PostEntity } from '../entities';
+import { PaginateOptions, QueryHook } from '@/modules/database/types';
+import { PostOrderType } from '../constants';
+import { paginate } from '@/modules/database/helpers';
+
+@Injectable()
+export class PostService {
+    constructor(protected postRepo: PostRepository) {}
+
+    async paginate(options: PaginateOptions, callback?: QueryHook<PostEntity>) {
+        let qb = this.postRepo.buildBaseQB();
+        qb = await this.buildListQuery(qb, options, callback);
+        return paginate(qb, options);
+    }
+
+    async detail(id: string) {
+        let qb = this.postRepo.buildBaseQB();
+        qb = qb.andWhere(`post.id = :id`, { id });
+        const item = await qb.getOne();
+        if (isNil(item)) {
+            throw new BadRequestException(`post of id: ${id} does not exist`);
+        }
+        return item;
+    }
+
+    async create(data: Record<string, any>) {
+        const res = await this.postRepo.save(data);
+        return this.detail(res.id);
+    }
+
+    async update(data: Record<string, any>) {
+        await this.postRepo.update(data.id, omit(data, ['id']));
+        return this.detail(data.id);
+    }
+
+    async delete(id: string) {
+        const item = await this.postRepo.findOne({
+            where: {
+                id,
+            },
+        });
+        if (isNil(item)) {
+            throw new BadRequestException(`post of id ${id} does not exist`);
+        }
+        await this.postRepo.delete(id);
+    }
+
+    protected async buildListQuery(
+        qb: SelectQueryBuilder<PostEntity>,
+        options: Record<string, any>,
+        queryHook?: QueryHook<PostEntity>,
+    ) {
+        const { isPublished, orderBy } = options;
+        if (typeof isPublished === 'boolean') {
+            if (isPublished === true) {
+                qb = qb.andWhere({
+                    publishedAt: Not(IsNull()),
+                });
+            } else {
+                qb = qb.andWhere({
+                    publishedAt: IsNull(),
+                });
+            }
+        }
+        if (!isNil(queryHook)) qb = await queryHook(qb);
+        return this.queryOrderBy(qb, orderBy);
+    }
+
+    protected queryOrderBy(qb: SelectQueryBuilder<PostEntity>, orderBy: PostOrderType) {
+        switch (orderBy) {
+            case PostOrderType.CREATEDAT:
+                qb = qb.addOrderBy('post.createdAt', 'DESC');
+                break;
+            case PostOrderType.UPDATEDAT:
+                qb = qb.addOrderBy('post.updatedAt', 'ASC');
+                break;
+            case PostOrderType.PUBLISHED:
+                qb = qb.addOrderBy('post.publishedAt', 'ASC');
+                break;
+            case PostOrderType.CUSTOM:
+                qb = qb.addOrderBy('post.customOrder', 'DESC');
+                break;
+            default:
+                return qb
+                    .orderBy('post.createdAt', 'DESC')
+                    .addOrderBy('post.updatedAt', 'DESC')
+                    .addOrderBy('post.publishedAt', 'DESC');
+        }
+        return qb;
+    }
+}

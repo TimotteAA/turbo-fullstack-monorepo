@@ -1,0 +1,81 @@
+.layoutMode
+,.layoutTheme {
+    @apply tw-flex tw-items-center tw-justify-around;
+
+    :global {
+        & .item {
+            /* 利用伪类画布局模式的背景，默认灰色 */
+            @apply tw-relative tw-w-14 tw-h-12 tw-mr-4 tw-overflow-hidden 
+                tw-cursor-pointer tw-bg-[color:#f0f2f5] tw-rounded
+                before:tw-absolute before:tw-content-[''] after:tw-absolute after:tw-content-[''];
+                box-shadow: 0 1px 2.5px 0 rgb(0 0 0 / 18%);
+
+            /* hover时的明亮样式 */
+            &:hover,
+            &.active {
+                @apply before:tw-rounded-none before:tw-content-[''] after:tw-rounded-none after:tw-content-[''];
+            }
+
+            &.side, &.dark-light, &.light-dark, &.light-light, &.dark-dark {
+                /* 侧边栏 */
+                &::before {
+                    @apply tw-content-[''] tw-top-0 tw-left-0 tw-z-[1] tw-w-[33%] tw-h-full tw-rounded-l-[0.25rem] tw-rounded-r-none;
+                }
+
+                /* 顶栏 */
+                &::after {
+                    @apply tw-content-[''] tw-top-0 tw-left-0 tw-w-full tw-h-1/4;
+                }
+            }
+
+            /* 侧边栏，dark-light */
+            &.side, &.dark-light {
+                @apply before:tw-content-[''] after:tw-content-[''] before:tw-bg-[color:#273352] after:tw-bg-[color:#fff];
+            }
+
+            &.light-dark {
+                @apply before:tw-content-[''] after:tw-content-[''] before:tw-bg-[color:#fff] after:tw-bg-[color:#273352]
+            }
+
+            &.light-light {
+                @apply before:tw-content-[''] after:tw-content-[''] before:tw-bg-[color:#fff] after:tw-bg-[color:#fff];
+            }
+
+            &.dark-dark {
+                @apply before:tw-content-[''] after:tw-content-[''] before:tw-bg-[color:#273352] after:tw-bg-[color:#273352];
+            }
+
+            /* 模式 */
+            &.content {
+                &::before {
+                    @apply tw-content-[''] tw-left-0 tw-top-0 tw-w-[33%] tw-h-full tw-bg-[color:#273352] tw-rounded-l-[0.25rem] tw-rounded-r-none;
+                }
+
+                &::after {
+                    /* 利用z-index盖掉左侧 */
+                    @apply tw-content-[''] tw-top-0 tw-left-0 tw-z-[1] tw-w-full tw-h-1/4 tw-bg-[color:#fff];
+                }
+            }
+
+            &.top {
+                @apply before:tw-content-[''] after:tw-content-[''] after:tw-left-0 after:tw-top-0 after:tw-w-full after:tw-h-1/4 after:tw-bg-[color:#273352];
+            }
+
+            &.embed {
+                /* sider */
+                &::before {
+                    @apply tw-content-[''] tw-top-0 tw-left-0 tw-z-[1] tw-w-[15%] tw-h-full tw-bg-[color:#273352] tw-rounded-l-[0.25rem] tw-rounded-r-none;
+                }
+                
+                /* header */
+                &::after {
+                    @apply tw-content-[''] tw-top-0 tw-left-0 tw-w-full tw-h-1/4 tw-bg-[#fff];
+                }
+
+                & > .content-sidebar {
+                    @apply tw-absolute tw-left-[15%] tw-z-[2] tw-top-0 tw-w-1/5 tw-h-full tw-bg-[color:#fff2f5]; 
+                }
+            }
+        }
+    }
+}

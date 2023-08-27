@@ -1,0 +1,280 @@
+@import "./mixins.css";
+
+/** 内容模式，上面是header */
+:global(.layout-main) {
+    @apply tw-flex-auto tw-flex;
+
+    & > :global(.ant-layout) {
+        @apply tw-flex-auto;
+    }
+}
+
+/** sider模式下的内容区域  */
+.layoutContent {
+    @apply tw-w-full tw-flex tw-flex-col;
+
+    /** tabs容器 */
+    & > .layoutTabs {
+        @apply tw-flex-none tw-w-full tw-pb-2;
+    }
+
+    & > .layoutKeepAliveContainer {
+        @apply tw-flex-auto;
+    }
+}
+
+.layout-fixed {
+    &:not(:local(.layout-side-sidebar-fixed)) {
+        @apply tw-h-screen tw-overflow-hidden;
+    }
+
+    /** antd header外层类 */
+    & .ant-layout-header {
+        @apply tw-transition-all tw-duration-200;
+    }
+
+    /** sidebar fixed style
+        embed：
+    
+    */
+    &.layout-side-sidebar-fixed,
+    &.layout-side-header-fixed,
+    &.layout-embed-header-fixed,
+    &.layout-embed-embed-fixed,
+    &.layout-embed-sidebar-fixed {
+        & > :global(.ant-layout-sider) {
+            @mixin fixedSidebar;
+        }
+    }
+
+    /** header fixed */
+    &.layout-content-sidebar-fixed,
+    &.layout-content-header-fixed,
+    &.layout-top-header-fixed {
+        & > :global(.ant-layout-header) {
+            @mixin fixedHeader;
+        }
+    }
+
+    /** sider和content模式下，layout-content的ml设定为折叠距离 */
+    &.layout-side-sidebar-fixed
+    > :global(.ant-layout-sider-collapsed + .ant-layout > .ant-layout-content),
+    &.layout-side-header-fixed
+        > :global(.ant-layout-sider-collapsed + .ant-layout > .ant-layout-content),
+    &.layout-content-sidebar-fixed
+        > :global(.layout-main > .ant-layout > .ant-layout-sider-collapsed + .ant-layout-content) {
+        @apply tw-ml-[var(--sidebar-collapse-width)];
+    }
+
+    &.mobile-layout {
+        &.layout-side-sidebar-fixed > :global(.ant-layout > .ant-layout-header),
+        &.layout-side-sidebar-fixed
+            > :global(.ant-layout-sider-collapsed + .ant-layout > .ant-layout-header),
+        &.layout-side-sidebar-fixed > :global(.ant-layout > .ant-layout-content),
+        &.layout-side-sidebar-fixed
+            > :global(.ant-layout-sider-collapsed + .ant-layout > .ant-layout-content),
+        &.layout-side-header-fixed > :global(.ant-layout > .ant-layout-header),
+        &.layout-side-header-fixed
+            > :global(.ant-layout-sider-collapsed + .ant-layout > .ant-layout-header),
+        &.layout-side-header-fixed > :global(.ant-layout > .ant-layout-content),
+        &.layout-side-header-fixed
+            > :global(.ant-layout-sider-collapsed + .ant-layout > .ant-layout-content),
+        &.layout-content-sidebar-fixed > :global(.layout-main > .ant-layout > .ant-layout-content) {
+            @apply tw-w-full tw-ml-0;
+        }
+    }
+}
+
+/** 此处默认side模式下，header更优先，故 header-fixed样式在后面 */
+/** 用margin抵消fixed的距离 */
+/* side模式下的一些样式调整 */
+.layout-side-sidebar-fixed {
+    /* 确保header的宽度和ml，为sider、keepalive tabs留出距离 */
+    & > :global(.ant-layout > .ant-layout-header) {
+        @apply tw-w-[calc(100%_-_var(--sidebar-width))] tw-ml-[var(--sidebar-width)];
+    }
+
+    /* 内容区域为sider留出距离 */
+    & > :global(.ant-layout > .ant-layout-content) {
+        @apply tw-ml-[var(--sidebar-width)];
+    }
+
+    /** 侧边栏折叠后，修改header margin-left */
+    & > :global(.ant-layout-sider-collapsed + .ant-layout > .ant-layout-header) {
+        @apply tw-w-[calc(100%_-_var(--sidebar-collapse-width))] tw-ml-[var(--sidebar-collapse-width)];
+    }
+
+    @mixin fixedKeepAliveTabs;
+}
+
+/** 最外层样式通通加在最外层的Layout上 */ 
+.layout-side-header-fixed {
+    & > :global(.ant-layout > .ant-layout-header) {
+        /* fixedHeader修改宽度 */
+        @mixin fixedHeader calc(100% - var(--sidebar-width));
+    }
+
+    /** 折叠后，设置header宽度 */
+    & > :global(.ant-layout-sider-collapsed + .ant-layout > .ant-layout-header) {
+        @apply tw-w-[calc(100%_-_var(--sidebar-collapse-width))];
+    }
+
+    & > :global(.ant-layout > .ant-layout-content) {
+        @apply tw-mt-[var(--header-height)] tw-ml-[var(--sidebar-width)];
+    }
+
+    @mixin fixedKeepAliveTabs;
+}
+
+.layout-content-sidebar-fixed {
+    & > :global(.layout-main) {
+        /* content模式下，sider在main容器中，故sider相对main容器定位，并修改高度、留出header距离 */
+        @apply tw-relative tw-h-[calc(100vh_-_var(--header-height))] tw-mt-[var(--header-height)];
+    }
+
+    /* antd Layout组件固定 */
+    & > :global(.layout-main > .ant-layout) {
+        @apply tw-h-full;
+    }
+
+    /** sidebar固定 */
+    & > :global(.layout-main > .ant-layout > .ant-layout-sider) {
+        @mixin fixedSidebar;
+    }
+
+    & > :global(.layout-main > .ant-layout > .ant-layout-content) {
+        @apply tw-w-[calc(100%_-_var(--sidebar-width))] tw-max-h-full tw-ml-[var(--sidebar-width)];
+    }
+
+    @mixin fixedKeepAliveTabs;
+}
+
+.layout-content-header-fixed {
+    & > :global(.layout-main) {
+        /* 空出header的margin top */
+        @apply tw-flex-auto tw-mt-[var(--header-height)] tw-overflow-y-auto tw-relative;
+
+        & > [class~='ant-layout'] {
+            min-height: unset;
+        }
+    }
+
+    @mixin fixedKeepAliveTabs;
+}
+
+.layout-top-header-fixed {
+    & > :global(.ant-layout-content) {
+        /* top留出header高度，并且max-height扣掉header高度 */
+        @apply tw-relative tw-max-h-[calc(100vh_-_var(--header-height))] tw-mt-[var(--header-height)];
+    }
+
+    @mixin fixedKeepAliveTabs;
+}
+
+/** embed模式 */
+.layout-embed {
+    /* 左侧侧边栏，main中占据全部内容 */
+    & > :global(.layout-main) {
+        @apply tw-flex tw-flex-auto tw-relative;
+    }
+
+    /* header下的内容区域 */
+    & > :global(.layout-main > .ant-layout > .ant-layout) {
+        @apply tw-w-auto;
+    }
+}
+
+.layout-embed-sidebar-fixed {
+    /* & > embed-sidebar {
+        @mixin fixedSidebar;
+    } */
+
+    /* embed固定侧边栏 */
+    & > :global(.ant-layout-sider) {
+        @mixin fixedSidebar;
+    }
+
+    /* main往左空出折叠宽度（二级菜单在main中） */
+    & > :global(.layout-main) {
+        @apply tw-block tw-max-w-[calc(100%_-_var(--sidebar-collapse-width))] tw-ml-[var(--sidebar-collapse-width)] tw-overflow-hidden;
+    }
+
+    & > :global(.layout-main > .ant-layout) {
+        @apply tw-flex-auto;
+    }
+}
+
+/* 二级菜单也fixed */
+.layout-embed-embed-fixed {
+    /* 一级侧边栏距离 */
+    & > :global(.layout-main) {
+        @apply tw-ml-[var(--sidebar-collapse-width)];
+    }
+
+    /* & > embed-sidebar {
+        @mixin fixedSidebar;
+
+        @apply tw-ml-[var(--sidebar-collapse-width)];
+    } */
+
+    /* &:global(.layout-main > .ant-layout) {
+        @apply tw-ml-[var(--sidebar-collapse-width)];
+    } */
+
+    /* 二级侧边栏 */
+    & :global(.layout-main > .ant-layout > .ant-layout-sider) {
+        @mixin fixedSidebar;
+        @apply tw-left-[var(--siderbar-collapse-width)];
+    }
+
+    /* 内容  */
+    & > :global(.layout-main > .ant-layout > .ant-layout) {
+        @apply tw-overflow-auto tw-ml-[var(--sidebar-width)];
+    }
+}
+
+.layout-embed-header-fixed {
+    & > embed-sidebar {
+        @apply tw-ml-[var(--sidebar-collapse-width)];
+
+        @mixin fixedSidebar;
+    }
+
+    & > :global(.layout-main > .ant-layout > .ant-layout-sider) {
+        @mixin fixedSidebar;
+
+        @apply tw-left-[var(--sidebar-collapse-width)];
+    }
+
+    & > :global(.layout-main > .ant-layout > .ant-layout > .ant-layout-header) {
+        @mixin fixedHeader calc(100% - var(--sidebar-collapse-width) - var(--sidebar-width));
+    }
+
+    & > :global(.layout-main > .ant-layout > .ant-layout > .ant-layout-content) {
+        @apply tw-mt-[var(--header-height)] tw-ml-[calc(var(--sidebar-collapse-width)_+_var(--sidebar-width))] tw-overflow-auto;
+    }
+
+    &
+        > :global(
+            .layout-main
+                > .ant-layout
+                > .ant-layout-sider-collapsed
+                + .ant-layout
+                > .ant-layout-header
+        ) {
+        @apply tw-w-[calc(100%_-_var(--sidebar-collapse-width)_-_var(--sidebar-collapse-width))];
+    }
+
+    &
+        > :global(
+            .layout-main
+                > .ant-layout
+                > .ant-layout-sider-collapsed
+                + .ant-layout
+                > .ant-layout-content
+        ) {
+        @apply tw-ml-[calc(var(--sidebar-collapse-width)_+_var(--sidebar-collapse-width))];
+    }
+
+    @mixin fixedKeepAliveTabs;
+}

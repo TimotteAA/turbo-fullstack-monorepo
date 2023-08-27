@@ -1,0 +1,28 @@
+html,
+body,
+#root {
+    @apply tw-w-full tw-h-full tw-m-0 tw-p-0;
+}
+
+html {
+    font-size: 100%;
+    @apply tw-h-[100vh];
+}
+
+body,
+#root,
+/** 处理antd5新增的App组件 */
+.ant-app {
+    font-size: 0.875rem;
+
+    @apply tw-h-full;
+}
+
+:glbal(.ant-breadcrumb) {
+    @apply tw-bg-red-600;
+
+    & :global(.ant-dropdown-trigger) {
+        @apply tw-flex tw-items-center tw-gap-2;
+    }
+}
+

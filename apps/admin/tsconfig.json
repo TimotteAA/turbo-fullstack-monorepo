@@ -1,0 +1,14 @@
+{
+    "extends": "@timotte-app/ts-config/react",
+    "compilerOptions": {
+        // alias
+        "baseUrl": "./",
+        "outDir": "./dist",
+        "paths": {
+            "@/*": ["./src/*"]
+        },
+        "types": ["unplugin-icons/types/react", "@types/node", "vite/client"]
+    },
+    "include": ["src", "./types/**/*.d.ts", "./mock"],
+    "references": [{ "path": "./tsconfig.node.json" }]
+}

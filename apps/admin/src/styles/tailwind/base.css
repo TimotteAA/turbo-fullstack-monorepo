@@ -1,0 +1,7 @@
+@layer base {
+    /* 原子样式 */
+    html {
+        font-family: var(--font-family-standard);
+        font-size: var(--font-size-base);
+    }
+}

@@ -1,0 +1,46 @@
+@define-mixin fixedSidebar {
+    position: fixed;
+    left: 0;
+    z-index: 99;
+    height: 100vh;
+    overflow: hidden;
+
+    /* 侧边栏真正的内容，一个logo和menu */
+    & > :global(.ant-layout-sider-children) {
+        display: flex;
+        flex-direction: column;
+
+          /* menu外层容器 */
+        & > :global(.fixed-sidebar-content) {
+            flex: auto;
+            overflow: auto;
+
+            &::-webkit-scrollbar {
+                width: 3px;
+                height: 3px;
+            }
+        }
+    }
+}
+/* 
+@define-mixin fixedEmbed {
+    position: fixe
+} */
+
+@define-mixin fixedHeader $width: 100% {
+    position: fixed;
+    right: 0;
+    z-index: 1;
+    width: $width;
+}
+
+@define-mixin fixedKeepAliveTabs {
+    & :global(.ant-layout-content) > .layoutContent {
+        @apply tw-max-h-full tw-overflow-hidden;
+
+        /* KeepAlive外面的容器 */
+        & :global(.keepAlive) {
+            @apply tw-overflow-y-auto;
+        }
+    }
+}

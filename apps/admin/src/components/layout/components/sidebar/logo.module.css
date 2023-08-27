@@ -1,0 +1,15 @@
+.container {
+    @apply tw-flex tw-items-center tw-gap-2 tw-text-white tw-pl-3 tw-text-xl tw-cursor-pointer tw-transition-padding;
+
+    &:global(.logoCollapsed) {
+        @apply tw-justify-center tw-pl-0;
+
+        & > span {
+            @apply tw-hidden;
+        }
+    }
+
+    & > :global(span) {
+        @apply tw-whitespace-nowrap;
+    }
+}

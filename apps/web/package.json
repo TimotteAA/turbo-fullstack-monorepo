@@ -1,0 +1,45 @@
+{
+  "name": "@timotte-app/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "pnpm lint:es && pnpm lint:style",
+    "lint:es": "next lint --fix",
+    "lint:style": "stylelint \"**/*.css\" --fix --cache --cache-location node_modules/.cache/stylelint/"
+  },
+  "dependencies": {
+    "@radix-ui/react-slot": "^1.0.2",
+    "@types/node": "^20.4.4",
+    "@types/react": "^18.2.15",
+    "@types/react-dom": "^18.2.7",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.0.0",
+    "eslint": "8.46.0",
+    "eslint-config-next": "^13.4.12",
+    "lucide-react": "^0.265.0",
+    "next": "13.4.13",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tailwind-merge": "^1.14.0",
+    "tailwindcss-animate": "^1.0.6",
+    "typescript": "^5.1.6"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.27",
+    "postcss-import": "^15.1.0",
+    "postcss-mixins": "^9.0.4",
+    "postcss-nested": "^6.0.1",
+    "postcss-nesting": "^12.0.0",
+    "prettier": "^3.0.0",
+    "stylelint": "^15.10.2",
+    "tailwindcss": "^3.3.3",
+    "@timotte-app/eslint-config": "workspace:*",
+    "@timotte-app/stylelint-config": "workspace:*",
+    "@timotte-app/ts-config": "workspace:*",
+    "eslint": "8.46.0"
+  }
+}

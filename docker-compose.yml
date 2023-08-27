@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+    mysql:
+        image: mysql:latest
+        container_name: mysql-ts-fullstack
+        environment:
+            MYSQL_ROOT_PASSWORD: root
+        ports:
+            - "3307:3306"
+        volumes:
+            - ./init-scripts/:/docker-entrypoint-initdb.d/
+
+    redis:
+        image: redis:latest
+        container_name: redis-ts-fullstack
+        ports:
+            - "6380:6379"

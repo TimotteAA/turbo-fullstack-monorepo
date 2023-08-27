@@ -1,0 +1,22 @@
+.link {
+    @apply !tw-flex tw-items-center tw-gap-2;
+
+    &:hover {
+        @apply !tw-text-[color:var(--colorPrimaryText)];
+    }
+
+    &:global(.breadActive) {
+        @apply !tw-text-[color:var(--colorPrimaryText)];
+    }
+}
+
+.antdLink {
+    ol  {
+        li {
+            /* .ant-dropdown-trigger覆盖不了.... */
+            * {
+                @apply !tw-flex;
+            }
+        }
+    }
+}
