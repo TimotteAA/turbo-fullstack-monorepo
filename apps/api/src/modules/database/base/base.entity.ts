@@ -1,3 +1,4 @@
+import { Expose } from 'class-transformer';
 import { PrimaryColumn, BaseEntity as TypeormBaseEntity } from 'typeorm';
 
 /**
@@ -5,6 +6,7 @@ import { PrimaryColumn, BaseEntity as TypeormBaseEntity } from 'typeorm';
  *
  */
 export class BaseEntity extends TypeormBaseEntity {
+    @Expose()
     @PrimaryColumn({ type: 'varchar', generated: 'uuid', length: 36 })
     id: string;
 }

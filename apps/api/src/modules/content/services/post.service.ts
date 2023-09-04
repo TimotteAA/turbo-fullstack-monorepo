@@ -6,6 +6,7 @@ import { PostEntity } from '../entities';
 import { PaginateOptions, QueryHook } from '@/modules/database/types';
 import { PostOrderType } from '../constants';
 import { paginate } from '@/modules/database/helpers';
+import { CreatePostDto, UpdatePostDto } from '../dtos/post.dto';
 
 @Injectable()
 export class PostService {
@@ -27,12 +28,12 @@ export class PostService {
         return item;
     }
 
-    async create(data: Record<string, any>) {
+    async create(data: CreatePostDto) {
         const res = await this.postRepo.save(data);
         return this.detail(res.id);
     }
 
-    async update(data: Record<string, any>) {
+    async update(data: UpdatePostDto) {
         await this.postRepo.update(data.id, omit(data, ['id']));
         return this.detail(data.id);
     }
