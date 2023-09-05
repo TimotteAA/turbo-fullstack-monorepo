@@ -5,12 +5,19 @@ import {
     DeleteDateColumn,
     Entity,
     Index,
+    JoinTable,
+    ManyToMany,
+    ManyToOne,
+    OneToMany,
     UpdateDateColumn,
 } from 'typeorm';
 
 import { BaseEntity } from '@/modules/database/base';
 
 import { PostBodyType } from '../constants';
+import { CategoryEntity } from './category.entity';
+import { TagEntity } from './tag.entity';
+import { CommentEntity } from './comment.entity';
 
 /**
  * 文章模型
@@ -79,4 +86,30 @@ export class PostEntity extends BaseEntity {
         comment: '删除时间',
     })
     deletedAt: Date;
+
+    @Expose()
+    @ManyToOne(() => CategoryEntity, (c) => c.posts, {
+        // 可以为空
+        nullable: true,
+        // 分类被删除时，文章无分类
+        onDelete: 'SET NULL',
+    })
+    category: CategoryEntity;
+
+    @Expose()
+    @ManyToMany(() => TagEntity, (tag) => tag.posts, {
+        // 新的文章被插入时，如果没有tag则创建到数据库
+        cascade: true,
+    })
+    @JoinTable()
+    tags: TagEntity[];
+
+    @OneToMany(() => CommentEntity, (c) => c.post, {
+        cascade: true,
+    })
+    comments: CommentEntity[];
+
+    @Expose()
+    // 查询时的映射字段
+    commentCount: number;
 }
