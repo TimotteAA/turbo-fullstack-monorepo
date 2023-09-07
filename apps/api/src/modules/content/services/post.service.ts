@@ -1,16 +1,23 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { PostRepository } from '../repositories';
+import { CategoryRepository, PostRepository, TagRepository } from '../repositories';
 import { isNil, omit } from 'lodash';
-import { IsNull, Not, SelectQueryBuilder } from 'typeorm';
+import { In, IsNull, Not, SelectQueryBuilder } from 'typeorm';
 import { PostEntity } from '../entities';
 import { PaginateOptions, QueryHook } from '@/modules/database/types';
 import { PostOrderType } from '../constants';
 import { paginate } from '@/modules/database/helpers';
-import { CreatePostDto, UpdatePostDto } from '../dtos/post.dto';
+import { CreatePostDto, QueryPostDto, UpdatePostDto } from '../dtos/post.dto';
 
+type FindParams = {
+    [key in keyof Omit<QueryPostDto, 'limit' | 'page'>]: QueryPostDto[key];
+};
 @Injectable()
 export class PostService {
-    constructor(protected postRepo: PostRepository) {}
+    constructor(
+        protected postRepo: PostRepository,
+        protected categoryRepo: CategoryRepository,
+        protected tagRepo: TagRepository,
+    ) {}
 
     async paginate(options: PaginateOptions, callback?: QueryHook<PostEntity>) {
         let qb = this.postRepo.buildBaseQB();
@@ -18,9 +25,10 @@ export class PostService {
         return paginate(qb, options);
     }
 
-    async detail(id: string) {
+    async detail(id: string, callback?: QueryHook<PostEntity>) {
         let qb = this.postRepo.buildBaseQB();
         qb = qb.andWhere(`post.id = :id`, { id });
+        qb = !isNil(callback) ? await callback(qb) : qb;
         const item = await qb.getOne();
         if (isNil(item)) {
             throw new BadRequestException(`post of id: ${id} does not exist`);
@@ -29,7 +37,23 @@ export class PostService {
     }
 
     async create(data: CreatePostDto) {
-        const res = await this.postRepo.save(data);
+        const res = await this.postRepo.save({
+            ...data,
+            category: data.category
+                ? await this.categoryRepo.findOneOrFail({
+                      where: {
+                          id: data.category,
+                      },
+                  })
+                : null,
+            tags: data.tags
+                ? await this.tagRepo.find({
+                      where: {
+                          id: In(data.tags),
+                      },
+                  })
+                : [],
+        });
         return this.detail(res.id);
     }
 
@@ -52,10 +76,10 @@ export class PostService {
 
     protected async buildListQuery(
         qb: SelectQueryBuilder<PostEntity>,
-        options: Record<string, any>,
+        options: FindParams = {},
         queryHook?: QueryHook<PostEntity>,
     ) {
-        const { isPublished, orderBy } = options;
+        const { isPublished, orderBy, tag, category } = options;
         if (typeof isPublished === 'boolean') {
             if (isPublished === true) {
                 qb = qb.andWhere({
@@ -67,6 +91,18 @@ export class PostService {
                 });
             }
         }
+        if (!isNil(tag))
+            qb = qb.andWhere({
+                tags: {
+                    id: In([tag]),
+                },
+            });
+        if (!isNil(category))
+            qb = qb.andWhere({
+                category: {
+                    id: category,
+                },
+            });
         if (!isNil(queryHook)) qb = await queryHook(qb);
         return this.queryOrderBy(qb, orderBy);
     }
