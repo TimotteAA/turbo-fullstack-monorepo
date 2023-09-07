@@ -19,7 +19,7 @@ export class PostService {
         protected tagRepo: TagRepository,
     ) {}
 
-    async paginate(options: PaginateOptions, callback?: QueryHook<PostEntity>) {
+    async paginate(options: QueryPostDto, callback?: QueryHook<PostEntity>) {
         let qb = this.postRepo.buildBaseQB();
         qb = await this.buildListQuery(qb, options, callback);
         return paginate(qb, options);
@@ -58,8 +58,25 @@ export class PostService {
     }
 
     async update(data: UpdatePostDto) {
-        await this.postRepo.update(data.id, omit(data, ['id']));
-        return this.detail(data.id);
+        await this.postRepo.update(data.id, omit(data, ['id', 'category', 'tags']));
+        const post = await this.detail(data.id);
+        // 更新tags的关联关系
+        if (Array.isArray(data.tags)) {
+            await this.postRepo
+                .createQueryBuilder('post')
+                .relation(PostEntity, 'tags')
+                .of(post)
+                .addAndRemove(data.tags ?? [], post.tags ?? []);
+        }
+        if (data.category !== undefined) {
+            // null表示顶级分类
+            const category = isNil(data.category)
+                ? null
+                : await this.categoryRepo.findOneByOrFail({ id: data.category });
+            post.category = category;
+            await this.postRepo.save(post);
+        }
+        return this.detail(post.id);
     }
 
     async delete(id: string) {
@@ -97,12 +114,7 @@ export class PostService {
                     id: In([tag]),
                 },
             });
-        if (!isNil(category))
-            qb = qb.andWhere({
-                category: {
-                    id: category,
-                },
-            });
+        if (!isNil(category)) qb = await this.queryByCategory(qb, category);
         if (!isNil(queryHook)) qb = await queryHook(qb);
         return this.queryOrderBy(qb, orderBy);
     }
@@ -127,6 +139,19 @@ export class PostService {
                     .addOrderBy('post.updatedAt', 'DESC')
                     .addOrderBy('post.publishedAt', 'DESC');
         }
+        return qb;
+    }
+
+    protected async queryByCategory(qb: SelectQueryBuilder<PostEntity>, category: string) {
+        const c = await this.categoryRepo.findOneBy({ id: category });
+        const cDesc = await this.categoryRepo.findDescendantsTree(c);
+        const cDesList = await this.categoryRepo.toFlatTrees(cDesc.children);
+        const ids = [c.id, ...cDesList.map(({ id }) => id)];
+        qb = qb.andWhere({
+            category: {
+                id: In(ids),
+            },
+        });
         return qb;
     }
 }
