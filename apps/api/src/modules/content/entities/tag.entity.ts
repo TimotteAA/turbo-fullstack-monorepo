@@ -9,7 +9,7 @@ import { Exclude, Expose } from 'class-transformer';
 export class TagEntity extends BaseEntity {
     @Expose()
     @Column({ comment: '标签名称', nullable: false })
-    tag: string;
+    name: string;
 
     @Expose()
     @Column({ comment: '标签描述', nullable: true })

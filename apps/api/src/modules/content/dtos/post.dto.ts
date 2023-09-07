@@ -44,6 +44,14 @@ export class QueryPostDto implements PaginateOptions {
     })
     @IsOptional()
     orderBy?: PostOrderType;
+
+    @IsUUID(undefined, { message: '标签id不是uuid' })
+    @IsOptional()
+    tag?: string;
+
+    @IsUUID(undefined, { message: '分类id不是uuid' })
+    @IsOptional()
+    category?: string;
 }
 
 export class CreatePostDto {
@@ -79,6 +87,15 @@ export class CreatePostDto {
     @IsNumber()
     @IsOptional({ always: true })
     customOrder?: number;
+
+    @IsUUID(undefined, { message: '分类id不是uuid' })
+    @IsNotEmpty({ groups: ['create'], message: '分类必须设置' })
+    @IsOptional({ groups: ['update'] })
+    category: string;
+
+    @IsUUID(undefined, { each: true, message: '标签id不是uuid' })
+    @IsOptional({ groups: ['update'] })
+    tags?: string[];
 }
 
 export class UpdatePostDto extends PartialType(CreatePostDto) {
