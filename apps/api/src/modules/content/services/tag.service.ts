@@ -1,3 +1,4 @@
+import { Injectable } from '@nestjs/common';
 import { omit } from 'lodash';
 
 import { paginate } from '@/modules/database/helpers';
@@ -5,10 +6,9 @@ import { paginate } from '@/modules/database/helpers';
 import { CreateTagDto, QueryTagDto, UpdateTagDto } from '../dtos';
 import { TagRepository } from '../repositories';
 
+@Injectable()
 export class TagService {
-    constructor(protected repo: TagRepository) {
-        console.log('tagRepo ', repo);
-    }
+    constructor(protected repo: TagRepository) {}
 
     async create(data: CreateTagDto) {
         const res = await this.repo.save(data);
