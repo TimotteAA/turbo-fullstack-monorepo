@@ -1,7 +1,9 @@
-import { FindOptionsUtils, FindTreeOptions, TreeRepository } from 'typeorm';
-import { CategoryEntity } from '../entities';
 import { unset } from 'lodash';
+import { FindOptionsUtils, FindTreeOptions, TreeRepository } from 'typeorm';
+
 import { CUSTOM_REPOSITORY } from '@/modules/database/decorators';
+
+import { CategoryEntity } from '../entities';
 
 @CUSTOM_REPOSITORY(CategoryEntity)
 export class CategoryRepository extends TreeRepository<CategoryEntity> {

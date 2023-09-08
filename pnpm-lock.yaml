@@ -204,6 +204,12 @@ importers:
       '@nestjs/typeorm':
         specifier: ^10.0.0
         version: 10.0.0(@nestjs/common@10.0.1)(@nestjs/core@10.0.1)(reflect-metadata@0.1.13)(rxjs@7.8.1)(typeorm@0.3.17)
+      '@timotte-app/eslint-config':
+        specifier: workspace:*
+        version: link:../../packages/eslint-config
+      '@timotte-app/ts-config':
+        specifier: workspace:*
+        version: link:../../packages/ts-config
       '@types/lodash':
         specifier: ^4.14.195
         version: 4.14.195
@@ -244,12 +250,6 @@ importers:
       '@nestjs/testing':
         specifier: ^10.0.0
         version: 10.0.1(@nestjs/common@10.0.1)(@nestjs/core@10.0.1)(@nestjs/platform-express@10.0.0)
-      '@timotte-app/eslint-config':
-        specifier: workspace:*
-        version: link:../../packages/eslint-config
-      '@timotte-app/ts-config':
-        specifier: workspace:*
-        version: link:../../packages/ts-config
       '@types/deepmerge':
         specifier: ^2.2.0
         version: 2.2.0

@@ -1,5 +1,5 @@
-import { Transform, Type } from 'class-transformer';
 import { PartialType } from '@nestjs/swagger';
+import { Transform, Type } from 'class-transformer';
 import {
     IsBoolean,
     IsDateString,
@@ -16,6 +16,7 @@ import { isNil, toNumber } from 'lodash';
 
 import { toBoolean } from '@/modules/core/utils';
 import { PaginateOptions } from '@/modules/database/types';
+
 import { PostOrderType } from '../constants';
 
 export class QueryPostDto implements PaginateOptions {
@@ -94,7 +95,7 @@ export class CreatePostDto {
     category: string;
 
     @IsUUID(undefined, { each: true, message: '标签id不是uuid' })
-    @IsOptional({ groups: ['update'] })
+    @IsOptional({ always: true })
     tags?: string[];
 }
 

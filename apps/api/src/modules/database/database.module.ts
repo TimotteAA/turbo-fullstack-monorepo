@@ -1,7 +1,9 @@
 import { DynamicModule, Module, ModuleMetadata, Type } from '@nestjs/common';
 import { TypeOrmModule, TypeOrmModuleOptions, getDataSourceToken } from '@nestjs/typeorm';
-import { CUSTOM_REPOSITORY_METADATA } from './constants';
+
 import { DataSource, ObjectType } from 'typeorm';
+
+import { CUSTOM_REPOSITORY_METADATA } from './constants';
 
 @Module({})
 export class DatabaseModule {
@@ -30,7 +32,6 @@ export class DatabaseModule {
             if (!entity) {
                 continue;
             }
-
             // 此处代码模拟Repository注入，see typeorm Repository类
             providers.push({
                 inject: [getDataSourceToken(dataSourceName)],
@@ -41,7 +42,6 @@ export class DatabaseModule {
                 },
             });
         }
-
         return {
             exports: providers,
             module: DatabaseModule,

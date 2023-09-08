@@ -1,3 +1,4 @@
+import { isNil, unset } from 'lodash';
 import {
     FindOptionsUtils,
     FindTreeOptions,
@@ -5,9 +6,10 @@ import {
     TreeRepository,
     TreeRepositoryUtils,
 } from 'typeorm';
-import { CommentEntity } from '../entities';
-import { isNil, unset } from 'lodash';
+
 import { CUSTOM_REPOSITORY } from '@/modules/database/decorators';
+
+import { CommentEntity } from '../entities';
 
 type FindCommentTreeOptions = FindTreeOptions & {
     addQuery?: (
@@ -24,14 +26,14 @@ export class CommentRepository extends TreeRepository<CommentEntity> {
         return qb
             .leftJoinAndSelect('comment.parent', 'parent')
             .leftJoinAndSelect('comment.post', 'post')
-            .orderBy('comment.', 'ASC');
+            .orderBy('comment.customOrder', 'ASC');
     }
 
     /**
      * findTress -> 调用findRoots -> 调用buildBaseQB
      * @param options
      */
-    async findTrees(options?: FindTreeOptions): Promise<CommentEntity[]> {
+    async findTrees(options?: FindCommentTreeOptions): Promise<CommentEntity[]> {
         // comment的relations
         options.relations = ['parent', 'children'];
         const roots = await this.findRoots(options);

@@ -1,5 +1,4 @@
-import { PaginateOptions } from '@/modules/database/types';
-import { PartialType, PickType } from '@nestjs/swagger';
+import { PickType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
     IsNotEmpty,
@@ -11,6 +10,8 @@ import {
     ValidateIf,
 } from 'class-validator';
 import { toNumber } from 'lodash';
+
+import { PaginateOptions } from '@/modules/database/types';
 
 /**
  * 分页查询评论
@@ -36,7 +37,7 @@ export class QueryCommentListDto implements PaginateOptions {
 /**
  * 查询评论树
  */
-export class QueryComemntTreeDto extends PickType(QueryCommentListDto, ['post']) {}
+export class QueryCommentTreeDto extends PickType(QueryCommentListDto, ['post']) {}
 
 export class CreateCommentDto {
     @MaxLength(1000, {

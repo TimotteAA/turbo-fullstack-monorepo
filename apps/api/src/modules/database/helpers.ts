@@ -1,4 +1,5 @@
 import { ObjectLiteral, SelectQueryBuilder } from 'typeorm';
+
 import { PaginateOptions, PaginateReturn } from './types';
 
 /**
@@ -30,7 +31,7 @@ export const paginate = async <E extends ObjectLiteral>(
 };
 
 /**
- * 数据手动分页函数
+ * 树形数据手动分页函数
  * @param options 分页选项
  * @param data 数据列表
  */

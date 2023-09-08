@@ -1,20 +1,21 @@
 import { Module } from '@nestjs/common';
 
-import * as controllerMaps from './controllers';
-import { PostService, SanitizeService } from './services';
-import { PostSubscriber } from './subscribers';
-import { DatabaseModule } from '../database/database.module';
-import * as repoMaps from './repositories';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { PostEntity, CategoryEntity, CommentEntity, TagEntity } from './entities';
+
+import { DatabaseModule } from '../database/database.module';
+
+import * as controllerMaps from './controllers';
+import * as entityMaps from './entities';
+import * as repoMaps from './repositories';
+import * as serviceMaps from './services';
 
 @Module({
     imports: [
+        TypeOrmModule.forFeature(Object.values(entityMaps)),
         DatabaseModule.forRepository(Object.values(repoMaps)),
-        TypeOrmModule.forFeature([PostEntity, CategoryEntity, CommentEntity, TagEntity]),
     ],
     controllers: Object.values(controllerMaps),
-    providers: [PostService, SanitizeService, PostSubscriber],
-    exports: [PostService, DatabaseModule.forRepository(Object.values(repoMaps))],
+    providers: [...Object.values(serviceMaps)],
+    exports: [...Object.values(serviceMaps), DatabaseModule.forRepository(Object.values(repoMaps))],
 })
 export class ContentModule {}

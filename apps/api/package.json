@@ -36,14 +36,14 @@
         "reflect-metadata": "^0.1.13",
         "rxjs": "^7.8.1",
         "sanitize-html": "^2.11.0",
-        "typeorm": "^0.3.17"
+        "typeorm": "^0.3.17",
+        "@timotte-app/eslint-config": "workspace:*",
+        "@timotte-app/ts-config": "workspace:*"
     },
     "devDependencies": {
         "@nestjs/cli": "^10.0.0",
         "@nestjs/schematics": "^10.0.0",
         "@nestjs/testing": "^10.0.0",
-        "@timotte-app/eslint-config": "workspace:*",
-        "@timotte-app/ts-config": "workspace:*",
         "@types/deepmerge": "^2.2.0",
         "@types/express": "^4.17.17",
         "@types/jest": "^29.5.2",

@@ -1,6 +1,8 @@
-import { CUSTOM_REPOSITORY } from '@/modules/database/decorators';
-import { CommentEntity, PostEntity } from '../entities';
 import { Repository } from 'typeorm';
+
+import { CUSTOM_REPOSITORY } from '@/modules/database/decorators';
+
+import { CommentEntity, PostEntity } from '../entities';
 
 // 传入entity，在Database.forRepo时注册
 @CUSTOM_REPOSITORY(PostEntity)

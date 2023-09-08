@@ -1,3 +1,4 @@
+import { Exclude, Expose } from 'class-transformer';
 import {
     Column,
     CreateDateColumn,
@@ -10,8 +11,8 @@ import {
 } from 'typeorm';
 
 import { BaseEntity } from '@/modules/database/base';
+
 import { PostEntity } from './post.entity';
-import { Exclude, Expose } from 'class-transformer';
 
 @Exclude()
 @Tree('materialized-path')

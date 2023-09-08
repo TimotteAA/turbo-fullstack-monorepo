@@ -4,5 +4,5 @@ module.exports = {
         project: 'tsconfig.json',
         tsconfigRootDir: __dirname,
     },
-    extends: ['@3rcu/eslint-config/nestjs'],
+    extends: ['@timotte-app/eslint-config/nestjs.js'],
 };

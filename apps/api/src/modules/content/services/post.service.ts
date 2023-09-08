@@ -1,12 +1,15 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CategoryRepository, PostRepository, TagRepository } from '../repositories';
+
 import { isNil, omit } from 'lodash';
 import { In, IsNull, Not, SelectQueryBuilder } from 'typeorm';
-import { PostEntity } from '../entities';
-import { PaginateOptions, QueryHook } from '@/modules/database/types';
-import { PostOrderType } from '../constants';
+
 import { paginate } from '@/modules/database/helpers';
+import { QueryHook } from '@/modules/database/types';
+
+import { PostOrderType } from '../constants';
 import { CreatePostDto, QueryPostDto, UpdatePostDto } from '../dtos/post.dto';
+import { PostEntity } from '../entities';
+import { CategoryRepository, PostRepository, TagRepository } from '../repositories';
 
 type FindParams = {
     [key in keyof Omit<QueryPostDto, 'limit' | 'page'>]: QueryPostDto[key];
@@ -20,8 +23,8 @@ export class PostService {
     ) {}
 
     async paginate(options: QueryPostDto, callback?: QueryHook<PostEntity>) {
-        let qb = this.postRepo.buildBaseQB();
-        qb = await this.buildListQuery(qb, options, callback);
+        const qb = this.postRepo.buildBaseQB();
+        this.buildListQuery(qb, options, callback);
         return paginate(qb, options);
     }
 
@@ -99,23 +102,23 @@ export class PostService {
         const { isPublished, orderBy, tag, category } = options;
         if (typeof isPublished === 'boolean') {
             if (isPublished === true) {
-                qb = qb.andWhere({
+                qb.andWhere({
                     publishedAt: Not(IsNull()),
                 });
             } else {
-                qb = qb.andWhere({
+                qb.andWhere({
                     publishedAt: IsNull(),
                 });
             }
         }
         if (!isNil(tag))
-            qb = qb.andWhere({
+            qb.andWhere({
                 tags: {
                     id: In([tag]),
                 },
             });
-        if (!isNil(category)) qb = await this.queryByCategory(qb, category);
-        if (!isNil(queryHook)) qb = await queryHook(qb);
+        if (!isNil(category)) await this.queryByCategory(qb, category);
+        if (!isNil(queryHook)) await queryHook(qb);
         return this.queryOrderBy(qb, orderBy);
     }
 
@@ -133,11 +136,15 @@ export class PostService {
             case PostOrderType.CUSTOM:
                 qb = qb.addOrderBy('post.customOrder', 'DESC');
                 break;
+            case PostOrderType.COMMENTCOUNT:
+                qb = qb.addOrderBy('post.commentCount', 'ASC');
+                break;
             default:
                 return qb
                     .orderBy('post.createdAt', 'DESC')
                     .addOrderBy('post.updatedAt', 'DESC')
-                    .addOrderBy('post.publishedAt', 'DESC');
+                    .addOrderBy('post.publishedAt', 'DESC')
+                    .addOrderBy('post.commentCount', 'ASC');
         }
         return qb;
     }

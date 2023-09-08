@@ -1,8 +1,9 @@
+import { Exclude, Expose } from 'class-transformer';
 import { Column, Entity, OneToMany, Relation, Tree, TreeChildren, TreeParent } from 'typeorm';
 
 import { BaseEntity } from '@/modules/database/base';
+
 import { PostEntity } from './post.entity';
-import { Exclude, Expose } from 'class-transformer';
 
 @Exclude()
 @Tree('materialized-path')
