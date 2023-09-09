@@ -25,7 +25,7 @@ type Condition = {
 /**
  * 在更新时验证唯一性,通过指定ignore忽略忽略的字段
  */
-@ValidatorConstraint({ name: 'dataUniqueExist', async: true })
+@ValidatorConstraint({ name: 'uniqueExist', async: true })
 @Injectable()
 export class UniqueExistContraint implements ValidatorConstraintInterface {
     constructor(private dataSource: DataSource) {}

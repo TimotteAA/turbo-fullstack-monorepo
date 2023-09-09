@@ -9,6 +9,7 @@ import {
     UniqueConstraint,
     UniqueExistContraint,
     UniqueTreeConstraint,
+    UniqueTreeExistConstraint,
 } from './constraints';
 
 @Module({})
@@ -52,6 +53,7 @@ export class DatabaseModule {
                 UniqueConstraint,
                 UniqueExistContraint,
                 UniqueTreeConstraint,
+                UniqueTreeExistConstraint,
             );
         }
         return {

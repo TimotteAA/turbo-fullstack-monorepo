@@ -5,3 +5,4 @@ export * from './phone.constaint';
 export * from './unique.constaint';
 export * from './unique-exist.constraint';
 export * from './tree-unique.constraint';
+export * from './tree-unique-exist.constraint';

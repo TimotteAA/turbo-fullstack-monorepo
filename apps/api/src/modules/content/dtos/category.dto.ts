@@ -12,7 +12,7 @@ import {
 import { toNumber } from 'lodash';
 
 import { DTO_VALIDATION } from '@/modules/core/decorators';
-import { IsExists, IsTreeUnique } from '@/modules/database/constraints';
+import { IsExists, IsTreeUnique, IsTreeUniqueExist } from '@/modules/database/constraints';
 import { PaginateOptions } from '@/modules/database/types';
 
 import { CategoryEntity } from '../entities';
@@ -34,10 +34,15 @@ export class QueryCategoryDto implements PaginateOptions {
 
 @DTO_VALIDATION({ groups: ['create'] })
 export class CreateCategoryDto {
+    @IsTreeUniqueExist(
+        { entity: CategoryEntity },
+        { groups: ['update'], message: '同层分类下名称重复' },
+    )
     @IsTreeUnique(
         { entity: CategoryEntity },
         {
             groups: ['create'],
+            message: '同层分类下名称重复',
         },
     )
     @MaxLength(100, { message: '分类名称最长为100' })

@@ -32,6 +32,7 @@ export class UniqueTreeConstraint implements ValidatorConstraintInterface {
 
     async validate(value: any, args: ValidationArguments) {
         // 老样子，首先处理entity
+        // property唯一性检查字段默认是装饰器字段
         const config: Omit<Condition, 'entity'> = {
             parentKey: 'parent',
             property: args.property,
