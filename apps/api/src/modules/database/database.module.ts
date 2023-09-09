@@ -4,6 +4,12 @@ import { TypeOrmModule, TypeOrmModuleOptions, getDataSourceToken } from '@nestjs
 import { DataSource, ObjectType } from 'typeorm';
 
 import { CUSTOM_REPOSITORY_METADATA } from './constants';
+import {
+    IsExistsConstraint,
+    UniqueConstraint,
+    UniqueExistContraint,
+    UniqueTreeConstraint,
+} from './constraints';
 
 @Module({})
 export class DatabaseModule {
@@ -41,6 +47,12 @@ export class DatabaseModule {
                     return new Repo(base.target, base.manager, base.queryRunner);
                 },
             });
+            providers.push(
+                IsExistsConstraint,
+                UniqueConstraint,
+                UniqueExistContraint,
+                UniqueTreeConstraint,
+            );
         }
         return {
             exports: providers,
