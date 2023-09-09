@@ -1,10 +1,12 @@
+import { PartialType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsNumber, IsOptional, IsUUID, MaxLength, Min } from 'class-validator';
 import { toNumber } from 'lodash';
 
+import { DTO_VALIDATION } from '@/modules/core/decorators';
 import { PaginateOptions } from '@/modules/database/types';
-import { PartialType } from '@nestjs/swagger';
 
+@DTO_VALIDATION({ groups: ['query'] })
 export class QueryTagDto implements PaginateOptions {
     @Transform(({ value }) => toNumber(value))
     @Min(1, { message: '$property最小值为1' })
@@ -18,7 +20,7 @@ export class QueryTagDto implements PaginateOptions {
     @IsOptional()
     limit: number;
 }
-
+@DTO_VALIDATION({ groups: ['create'] })
 export class CreateTagDto {
     @MaxLength(30, {
         message: '$property长度不能超过30',
@@ -44,7 +46,7 @@ export class CreateTagDto {
     @IsOptional({ always: true })
     customOrder = 0;
 }
-
+@DTO_VALIDATION({ groups: ['update'] })
 export class UpdateTagDto extends PartialType(CreateTagDto) {
     @IsUUID(undefined, {
         message: '标签id不是uuid格式',

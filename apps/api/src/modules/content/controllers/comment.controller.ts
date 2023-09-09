@@ -8,16 +8,11 @@ import {
     Post,
     Query,
     SerializeOptions,
-    UseInterceptors,
-    ValidationPipe,
 } from '@nestjs/common';
-
-import { AppIntercepter } from '@/modules/core/providers';
 
 import { CreateCommentDto, QueryCommentListDto, QueryCommentTreeDto } from '../dtos';
 import { CommentService } from '../services';
 
-@UseInterceptors(AppIntercepter)
 @Controller('comments')
 export class CommentController {
     constructor(protected service: CommentService) {}
@@ -25,15 +20,7 @@ export class CommentController {
     @Get('tree')
     @SerializeOptions({ groups: ['comment-tree'] })
     async tree(
-        @Query(
-            new ValidationPipe({
-                transform: true,
-                whitelist: true,
-                forbidNonWhitelisted: true,
-                forbidUnknownValues: true,
-                validationError: { target: false },
-            }),
-        )
+        @Query()
         query: QueryCommentTreeDto,
     ) {
         return this.service.findTrees(query);
@@ -42,13 +29,7 @@ export class CommentController {
     @Get()
     @SerializeOptions({ groups: ['comment-list'] })
     async list(
-        @Query(
-            new ValidationPipe({
-                transform: true,
-                forbidUnknownValues: true,
-                validationError: { target: false },
-            }),
-        )
+        @Query()
         query: QueryCommentListDto,
     ) {
         return this.service.paginate(query);
@@ -57,15 +38,7 @@ export class CommentController {
     @Post()
     @SerializeOptions({ groups: ['comment-detail'] })
     async create(
-        @Body(
-            new ValidationPipe({
-                transform: true,
-                whitelist: true,
-                forbidNonWhitelisted: true,
-                forbidUnknownValues: true,
-                validationError: { target: false },
-            }),
-        )
+        @Body()
         data: CreateCommentDto,
     ) {
         return this.service.create(data);

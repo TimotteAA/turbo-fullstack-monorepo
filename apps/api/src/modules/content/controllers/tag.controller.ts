@@ -9,33 +9,22 @@ import {
     Post,
     Query,
     SerializeOptions,
-    UseInterceptors,
-    ValidationPipe,
 } from '@nestjs/common';
 
-import { AppIntercepter } from '@/modules/core/providers';
+import { ResponseMessage } from '@/modules/core/decorators';
 
 import { CreateTagDto, QueryCategoryDto, UpdateTagDto } from '../dtos';
 import { TagService } from '../services';
 
-// apps/api/src/modules/content/controllers/tag.controller.ts
-@UseInterceptors(AppIntercepter)
 @Controller('tags')
 export class TagController {
     constructor(protected service: TagService) {}
 
     @Get()
     @SerializeOptions({})
+    @ResponseMessage('获得数据成功')
     async list(
-        @Query(
-            new ValidationPipe({
-                transform: true,
-                whitelist: true,
-                forbidNonWhitelisted: true,
-                forbidUnknownValues: true,
-                validationError: { target: false },
-            }),
-        )
+        @Query()
         options: QueryCategoryDto,
     ) {
         return this.service.paginate(options);
@@ -53,16 +42,7 @@ export class TagController {
     @Post()
     @SerializeOptions({})
     async create(
-        @Body(
-            new ValidationPipe({
-                transform: true,
-                whitelist: true,
-                forbidNonWhitelisted: true,
-                forbidUnknownValues: true,
-                validationError: { target: false },
-                groups: ['create'],
-            }),
-        )
+        @Body()
         data: CreateTagDto,
     ) {
         return this.service.create(data);
@@ -71,16 +51,7 @@ export class TagController {
     @Patch()
     @SerializeOptions({})
     async update(
-        @Body(
-            new ValidationPipe({
-                transform: true,
-                whitelist: true,
-                forbidNonWhitelisted: true,
-                forbidUnknownValues: true,
-                validationError: { target: false },
-                groups: ['update'],
-            }),
-        )
+        @Body()
         data: UpdateTagDto,
     ) {
         return this.service.update(data);

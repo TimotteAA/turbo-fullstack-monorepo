@@ -3,13 +3,23 @@ import {
     ClassSerializerInterceptor,
     StreamableFile,
     PlainLiteralObject,
+    CallHandler,
+    ExecutionContext,
 } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { ClassTransformOptions } from 'class-transformer';
 
 import { isObject, isNil, isArray } from 'lodash';
+import { Observable, map } from 'rxjs';
+
+import { CustomResponse } from '../types';
 
 @Injectable()
-export class AppIntercepter extends ClassSerializerInterceptor {
+export class AppIntercepter<T> extends ClassSerializerInterceptor {
+    constructor(protected reflector: Reflector) {
+        super(reflector);
+    }
+
     serialize(
         response: PlainLiteralObject | Array<PlainLiteralObject>,
         options: ClassTransformOptions,
@@ -37,5 +47,25 @@ export class AppIntercepter extends ClassSerializerInterceptor {
         }
         // 如果响应是个对象则直接序列化
         return this.transformToPlain(response, options);
+    }
+
+    intercept(context: ExecutionContext, next: CallHandler): Observable<CustomResponse<T>> {
+        // return next.handle().pipe(
+        //     map((data) => ({
+        //         statusCode: context.switchToHttp().getResponse().statusCode,
+        //         message: this.reflector.get<string>('response_message', context.getHandler()) || '',
+        //         data,
+        //     })),
+        // );
+
+        return super.intercept(context, next).pipe(
+            map((data) => ({
+                statusCode: context.switchToHttp().getResponse().statusCode,
+                message:
+                    this.reflector.get<string>('response_message', context.getHandler()) ||
+                    'success',
+                data,
+            })),
+        );
     }
 }

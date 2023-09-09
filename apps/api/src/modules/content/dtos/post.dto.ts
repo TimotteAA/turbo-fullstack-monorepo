@@ -14,11 +14,13 @@ import {
 } from 'class-validator';
 import { isNil, toNumber } from 'lodash';
 
+import { DTO_VALIDATION } from '@/modules/core/decorators';
 import { toBoolean } from '@/modules/core/utils';
 import { PaginateOptions } from '@/modules/database/types';
 
 import { PostOrderType } from '../constants';
 
+@DTO_VALIDATION({ groups: ['query'] })
 export class QueryPostDto implements PaginateOptions {
     @Transform(({ value }) => toNumber(value))
     @Min(1, { message: '$property最小值为1' })
@@ -54,7 +56,7 @@ export class QueryPostDto implements PaginateOptions {
     @IsOptional()
     category?: string;
 }
-
+@DTO_VALIDATION({ groups: ['create'] })
 export class CreatePostDto {
     @MaxLength(30, { message: '$property的长度不能超过30' })
     @IsOptional({ groups: ['update'] })
@@ -98,7 +100,7 @@ export class CreatePostDto {
     @IsOptional({ always: true })
     tags?: string[];
 }
-
+@DTO_VALIDATION({ groups: ['update'] })
 export class UpdatePostDto extends PartialType(CreatePostDto) {
     @IsUUID(undefined, {
         message: '$property不是uuid',
