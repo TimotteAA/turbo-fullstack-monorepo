@@ -27,7 +27,7 @@ export class QueryPostDto implements PaginateOptions {
     page: number;
 
     @Transform(({ value }) => toNumber(value))
-    @Min(10, { message: '$property最小值为1' })
+    @Min(5, { message: '$property最小值为5' })
     @IsNumber()
     @IsOptional()
     limit: number;

@@ -8,10 +8,10 @@ import { TagEntity } from '../entities';
 export class TagRepository extends Repository<TagEntity> {
     buildBaseQB() {
         return this.createQueryBuilder('tag')
+            .addSelect('COUNT(p.id)', 'postCount')
             .leftJoin('tag.posts', 'p')
-            .addSelect('COUNT(p.id) as postCount')
             .groupBy('tag.id')
-            .orderBy('tag.postCount', 'DESC')
-            .loadRelationCountAndMap('tag.postCount', 'tag.posts');
+            .loadRelationCountAndMap('tag.postCount', 'tag.posts')
+            .orderBy('postCount', 'DESC');
     }
 }

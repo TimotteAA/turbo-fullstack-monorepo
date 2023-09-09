@@ -9,6 +9,7 @@ import {
     ManyToMany,
     ManyToOne,
     OneToMany,
+    Relation,
     UpdateDateColumn,
 } from 'typeorm';
 
@@ -32,7 +33,7 @@ export class PostEntity extends BaseEntity {
     title: string;
 
     @Expose({ groups: ['post-detail'] })
-    @Column({ comment: '文章内容', type: 'longtext' })
+    @Column({ comment: '文章内容', type: 'text' })
     @Index({ fulltext: true })
     body: string;
 
@@ -48,8 +49,9 @@ export class PostEntity extends BaseEntity {
     @Expose()
     @Column({
         comment: '文章类型',
-        type: 'enum',
-        enum: PostBodyType,
+        // type: 'enum', slite3不支持
+        type: 'varchar',
+
         default: PostBodyType.MD,
     })
     type: PostBodyType;
@@ -95,7 +97,7 @@ export class PostEntity extends BaseEntity {
         // 分类被删除时，文章无分类
         onDelete: 'SET NULL',
     })
-    category: CategoryEntity;
+    category: Relation<CategoryEntity> | null;
 
     @Expose()
     @ManyToMany(() => TagEntity, (tag) => tag.posts, {
@@ -103,12 +105,12 @@ export class PostEntity extends BaseEntity {
         cascade: true,
     })
     @JoinTable()
-    tags: TagEntity[];
+    tags: Relation<TagEntity[]>;
 
     @OneToMany(() => CommentEntity, (c) => c.post, {
         cascade: true,
     })
-    comments: CommentEntity[];
+    comments: Relation<CommentEntity[]>;
 
     @Expose()
     // 查询时的映射字段

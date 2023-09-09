@@ -37,7 +37,7 @@ export class CommentService {
         const { post, ...query } = dto;
         const addQuery = async (qb: SelectQueryBuilder<CommentEntity>) => {
             const condition: Record<string, any> = {};
-            if (!isNil(post)) condition.post.id = post;
+            if (!isNil(post)) condition.post = { id: post };
             return Object.keys(condition).length > 0 ? qb.andWhere(condition) : qb;
         };
         // 顶级分类

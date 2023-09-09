@@ -27,7 +27,10 @@
         "@nestjs/platform-fastify": "^10.2.1",
         "@nestjs/swagger": "^7.1.10",
         "@nestjs/typeorm": "^10.0.0",
+        "@timotte-app/eslint-config": "workspace:*",
+        "@timotte-app/ts-config": "workspace:*",
         "@types/lodash": "^4.14.195",
+        "better-sqlite3": "^8.6.0",
         "class-transformer": "^0.5.1",
         "class-validator": "^0.14.0",
         "deepmerge": "^4.3.1",
@@ -36,9 +39,7 @@
         "reflect-metadata": "^0.1.13",
         "rxjs": "^7.8.1",
         "sanitize-html": "^2.11.0",
-        "typeorm": "^0.3.17",
-        "@timotte-app/eslint-config": "workspace:*",
-        "@timotte-app/ts-config": "workspace:*"
+        "typeorm": "0.3.16"
     },
     "devDependencies": {
         "@nestjs/cli": "^10.0.0",

@@ -22,4 +22,10 @@ export class TagEntity extends BaseEntity {
     @Expose()
     @Column({ comment: '自定义排序字段', default: 0 })
     customOrder: number;
+
+    /**
+     * 通过queryBuilder生成的文章数量(虚拟字段)
+     */
+    @Expose()
+    postCount: number;
 }

@@ -23,8 +23,8 @@ export class PostService {
     ) {}
 
     async paginate(options: QueryPostDto, callback?: QueryHook<PostEntity>) {
-        const qb = this.postRepo.buildBaseQB();
-        this.buildListQuery(qb, options, callback);
+        let qb = this.postRepo.buildBaseQB();
+        qb = await this.buildListQuery(qb, options, callback);
         return paginate(qb, options);
     }
 
@@ -111,12 +111,7 @@ export class PostService {
                 });
             }
         }
-        if (!isNil(tag))
-            qb.andWhere({
-                tags: {
-                    id: In([tag]),
-                },
-            });
+        if (!isNil(tag)) qb.andWhere('tags.id = :id', { id: tag });
         if (!isNil(category)) await this.queryByCategory(qb, category);
         if (!isNil(queryHook)) await queryHook(qb);
         return this.queryOrderBy(qb, orderBy);
@@ -137,28 +132,25 @@ export class PostService {
                 qb = qb.addOrderBy('post.customOrder', 'DESC');
                 break;
             case PostOrderType.COMMENTCOUNT:
-                qb = qb.addOrderBy('post.commentCount', 'ASC');
+                qb = qb.addOrderBy('commentCount', 'ASC');
                 break;
             default:
                 return qb
                     .orderBy('post.createdAt', 'DESC')
                     .addOrderBy('post.updatedAt', 'DESC')
                     .addOrderBy('post.publishedAt', 'DESC')
-                    .addOrderBy('post.commentCount', 'ASC');
+                    .addOrderBy('commentCount', 'ASC');
         }
         return qb;
     }
 
-    protected async queryByCategory(qb: SelectQueryBuilder<PostEntity>, category: string) {
-        const c = await this.categoryRepo.findOneBy({ id: category });
-        const cDesc = await this.categoryRepo.findDescendantsTree(c);
-        const cDesList = await this.categoryRepo.toFlatTrees(cDesc.children);
-        const ids = [c.id, ...cDesList.map(({ id }) => id)];
-        qb = qb.andWhere({
-            category: {
-                id: In(ids),
-            },
+    protected async queryByCategory(qb: SelectQueryBuilder<PostEntity>, id: string) {
+        const root = await this.categoryRepo.findOneBy({ id });
+        const tree = await this.categoryRepo.findDescendantsTree(root);
+        const flatDes = await this.categoryRepo.toFlatTrees(tree.children);
+        const ids = [tree.id, ...flatDes.map((item) => item.id)];
+        return qb.andWhere('category.id IN (:...ids)', {
+            ids,
         });
-        return qb;
     }
 }

@@ -13,9 +13,10 @@ import {
     ValidationPipe,
 } from '@nestjs/common';
 
-import { PostService } from '../services';
-import { CreatePostDto, QueryPostDto, UpdatePostDto } from '../dtos/post.dto';
 import { AppIntercepter } from '@/modules/core/providers';
+
+import { CreatePostDto, QueryPostDto, UpdatePostDto } from '../dtos/post.dto';
+import { PostService } from '../services';
 
 @UseInterceptors(AppIntercepter)
 @Controller('posts')
@@ -67,7 +68,7 @@ export class PostController {
     @Get(':id')
     @SerializeOptions({ groups: ['post-detail'] })
     async detail(@Param('id', new ParseUUIDPipe()) id: string) {
-        return this.service.delete(id);
+        return this.service.detail(id);
     }
 
     @Get()
