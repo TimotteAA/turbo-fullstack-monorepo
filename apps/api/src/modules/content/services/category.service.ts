@@ -1,11 +1,17 @@
 import { Injectable } from '@nestjs/common';
 
 import { isNil, omit } from 'lodash';
-import { EntityNotFoundError } from 'typeorm';
+import { EntityNotFoundError, In } from 'typeorm';
 
+import { SelectTrashMode } from '@/modules/database/constants';
 import { manualPaginate } from '@/modules/database/helpers';
 
-import { CreateCategoryDto, QueryCategoryDto, UpdateCategoryDto } from '../dtos';
+import {
+    CreateCategoryDto,
+    QueryCategoryDto,
+    QueryCategoryTreeDto,
+    UpdateCategoryDto,
+} from '../dtos';
 import { CategoryEntity } from '../entities';
 import { CategoryRepository } from '../repositories';
 
@@ -13,13 +19,21 @@ import { CategoryRepository } from '../repositories';
 export class CategoryService {
     constructor(protected repo: CategoryRepository) {}
 
-    async findTrees() {
-        const tree = await this.repo.findTrees();
+    async findTrees(options: QueryCategoryTreeDto) {
+        const { trashed } = options;
+        const tree = await this.repo.findTrees({
+            withTrashed: trashed === SelectTrashMode.ALL || trashed === SelectTrashMode.ONLY,
+            onlyTrashed: trashed === SelectTrashMode.ONLY,
+        });
         return tree;
     }
 
     async paginate(options: QueryCategoryDto) {
-        const tree = await this.repo.findTrees();
+        const { trashed = SelectTrashMode.NONE } = options;
+        const tree = await this.repo.findTrees({
+            withTrashed: trashed === SelectTrashMode.ALL || trashed === SelectTrashMode.ONLY,
+            onlyTrashed: trashed === SelectTrashMode.ONLY,
+        });
         const data = await this.repo.toFlatTrees(tree);
         return manualPaginate(options, data);
     }
@@ -58,23 +72,48 @@ export class CategoryService {
         return cate;
     }
 
-    async delete(id: string) {
-        const category = await this.repo.findOneOrFail({
+    async delete(ids: string[], trashed?: boolean) {
+        const items = await this.repo.find({
             where: {
-                id,
+                id: In(ids),
             },
             relations: ['parent', 'children'],
+            // 软删除
+            withDeleted: true,
         });
-        // 把子分类提示一级
-        if (!isNil(category.children) && category.children.length > 0) {
-            const nChildren = category.children.map((child) => {
-                child.parent = category.parent;
-                return child;
-            });
-            await this.repo.save(nChildren);
+        for (const item of items) {
+            // 把子分类提示一级
+            if (!isNil(item.children) && item.children.length > 0) {
+                const nChildren = item.children.map((child) => {
+                    child.parent = item.parent;
+                    return child;
+                });
+                await this.repo.save(nChildren);
+            }
         }
-        await this.repo.remove(category);
-        return category;
+        // 处理软删除
+        if (trashed) {
+            const directs = items.filter((item) => !isNil(item.deletedAt));
+            const softs = items.filter((item) => isNil(item.deletedAt));
+            return [...(await this.repo.remove(directs)), ...(await this.repo.softRemove(softs))];
+        }
+        return this.repo.remove(items);
+    }
+
+    async restore(ids: string[]) {
+        const items = await this.repo.find({
+            where: {
+                id: In(ids),
+            },
+            // 软删除
+            withDeleted: true,
+        });
+        const trasheds = items.filter((item) => !isNil(item)).map((item) => item.id);
+        if (trasheds.length < 1) return [];
+        await this.repo.restore(trasheds);
+        const qb = this.repo.buildBaseQB();
+        qb.andWhereInIds(trasheds);
+        return qb.getMany();
     }
 
     /**

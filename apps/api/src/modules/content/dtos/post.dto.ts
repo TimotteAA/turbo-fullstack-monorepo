@@ -16,6 +16,7 @@ import { isNil, toNumber } from 'lodash';
 
 import { DTO_VALIDATION } from '@/modules/core/decorators';
 import { toBoolean } from '@/modules/core/utils';
+import { SelectTrashMode } from '@/modules/database/constants';
 import { PaginateOptions } from '@/modules/database/types';
 
 import { PostOrderType } from '../constants';
@@ -55,6 +56,12 @@ export class QueryPostDto implements PaginateOptions {
     @IsUUID(undefined, { message: '分类id不是uuid' })
     @IsOptional()
     category?: string;
+
+    @IsEnum(SelectTrashMode, {
+        message: `$property的值必须是${Object.values(SelectTrashMode).join(', ')}中的一个`,
+    })
+    @IsOptional()
+    trashed?: SelectTrashMode;
 }
 @DTO_VALIDATION({ groups: ['create'] })
 export class CreatePostDto {

@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import { isNil } from 'lodash';
 
-import { EntityNotFoundError, SelectQueryBuilder } from 'typeorm';
+import { EntityNotFoundError, In, SelectQueryBuilder } from 'typeorm';
 
 import { manualPaginate } from '@/modules/database/helpers';
 
@@ -71,8 +71,8 @@ export class CommentService {
         return comment;
     }
 
-    async delete(id: string) {
-        const comment = await this.repo.findOneOrFail({ where: { id: id ?? null } });
+    async delete(ids: string[]) {
+        const comment = await this.repo.findBy({ id: In(ids) });
         return this.repo.remove(comment);
     }
 

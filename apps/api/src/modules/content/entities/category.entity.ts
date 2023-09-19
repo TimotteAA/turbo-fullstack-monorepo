@@ -1,5 +1,14 @@
-import { Exclude, Expose } from 'class-transformer';
-import { Column, Entity, OneToMany, Relation, Tree, TreeChildren, TreeParent } from 'typeorm';
+import { Exclude, Expose, Type } from 'class-transformer';
+import {
+    Column,
+    DeleteDateColumn,
+    Entity,
+    OneToMany,
+    Relation,
+    Tree,
+    TreeChildren,
+    TreeParent,
+} from 'typeorm';
 
 import { BaseEntity } from '@/modules/database/base';
 
@@ -37,4 +46,12 @@ export class CategoryEntity extends BaseEntity {
 
     @Expose({ groups: ['category-list'] })
     depth = 0;
+
+    /** 软删除字段 */
+    @Expose()
+    @Type(() => Date)
+    @DeleteDateColumn({
+        comment: '删除时间',
+    })
+    deletedAt: Date;
 }

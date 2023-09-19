@@ -1,6 +1,7 @@
 import { PartialType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
+    IsEnum,
     IsNotEmpty,
     IsNumber,
     IsOptional,
@@ -12,13 +13,24 @@ import {
 import { toNumber } from 'lodash';
 
 import { DTO_VALIDATION } from '@/modules/core/decorators';
+import { SelectTrashMode } from '@/modules/database/constants';
 import { IsExists, IsTreeUnique, IsTreeUniqueExist } from '@/modules/database/constraints';
 import { PaginateOptions } from '@/modules/database/types';
 
 import { CategoryEntity } from '../entities';
 
+/**
+ * 树形分类查询验证
+ */
+@DTO_VALIDATION({ type: 'query' })
+export class QueryCategoryTreeDto {
+    @IsEnum(SelectTrashMode)
+    @IsOptional()
+    trashed?: SelectTrashMode;
+}
+
 @DTO_VALIDATION({ groups: ['query'] })
-export class QueryCategoryDto implements PaginateOptions {
+export class QueryCategoryDto extends QueryCategoryTreeDto implements PaginateOptions {
     @Transform(({ value }) => toNumber(value))
     @Min(1, { message: '$property最小值为1' })
     @IsNumber()

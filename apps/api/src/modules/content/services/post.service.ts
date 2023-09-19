@@ -3,6 +3,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { isNil, omit } from 'lodash';
 import { In, IsNull, Not, SelectQueryBuilder } from 'typeorm';
 
+import { SelectTrashMode } from '@/modules/database/constants';
 import { paginate } from '@/modules/database/helpers';
 import { QueryHook } from '@/modules/database/types';
 
@@ -82,16 +83,48 @@ export class PostService {
         return this.detail(post.id);
     }
 
-    async delete(id: string) {
-        const item = await this.postRepo.findOne({
+    async delete(ids: string[], trahsed?: boolean) {
+        // 待删除的items
+        const items = await this.postRepo.find({
             where: {
-                id,
+                id: In(ids),
             },
+            withDeleted: true,
         });
-        if (isNil(item)) {
-            throw new BadRequestException(`post of id ${id} does not exist`);
+
+        if (trahsed) {
+            // 软删除
+            const soft = [...items.filter((item) => !isNil(item.deletedAt))];
+            // 直接删除
+            const direct = [...items.filter((item) => isNil(item.deletedAt))];
+            return [
+                ...(await this.postRepo.softRemove(soft)),
+                ...(await this.postRepo.remove(direct)),
+            ];
         }
-        await this.postRepo.delete(id);
+
+        return this.postRepo.remove(items);
+    }
+
+    /**
+     * 从回收站中回收
+     * @param ids
+     */
+    async restore(ids: string[]) {
+        const items = await this.postRepo.find({
+            where: {
+                id: In(ids),
+            },
+            withDeleted: true,
+        });
+        // 过滤掉不在回收站中的数据
+        const trasheds = items.filter((item) => !isNil(item)).map((item) => item.id);
+        if (trasheds.length < 1) return [];
+        await this.postRepo.restore(trasheds);
+        const qb = await this.buildListQuery(this.postRepo.buildBaseQB(), {}, async (qbuilder) =>
+            qbuilder.andWhereInIds(trasheds),
+        );
+        return qb.getMany();
     }
 
     protected async buildListQuery(
@@ -99,7 +132,7 @@ export class PostService {
         options: FindParams = {},
         queryHook?: QueryHook<PostEntity>,
     ) {
-        const { isPublished, orderBy, tag, category } = options;
+        const { isPublished, orderBy, tag, category, trashed } = options;
         if (typeof isPublished === 'boolean') {
             if (isPublished === true) {
                 qb.andWhere({
@@ -114,6 +147,17 @@ export class PostService {
         if (!isNil(tag)) qb.andWhere('tags.id = :id', { id: tag });
         if (!isNil(category)) await this.queryByCategory(qb, category);
         if (!isNil(queryHook)) await queryHook(qb);
+
+        if (trashed === SelectTrashMode.ONLY || trashed === SelectTrashMode.ALL) {
+            qb.withDeleted();
+        }
+        if (trashed === SelectTrashMode.NONE) {
+            // 非软删除
+            qb = qb.andWhere({
+                deletedAt: IsNull(),
+            });
+        }
+
         return this.queryOrderBy(qb, orderBy);
     }
 
