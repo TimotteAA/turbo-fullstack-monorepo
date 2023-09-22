@@ -148,14 +148,15 @@ export class PostService {
         if (!isNil(category)) await this.queryByCategory(qb, category);
         if (!isNil(queryHook)) await queryHook(qb);
 
-        if (trashed === SelectTrashMode.ONLY || trashed === SelectTrashMode.ALL) {
-            qb.withDeleted();
-        }
-        if (trashed === SelectTrashMode.NONE) {
-            // 非软删除
-            qb = qb.andWhere({
-                deletedAt: IsNull(),
-            });
+        if (trashed === SelectTrashMode.ALL || trashed === SelectTrashMode.ONLY) {
+            // 查询软删除数据
+            qb = qb.withDeleted();
+            if (trashed === SelectTrashMode.ONLY) {
+                // 仅查询deletedAt不为null的
+                qb = qb.andWhere({
+                    deletedAt: Not(IsNull()),
+                });
+            }
         }
 
         return this.queryOrderBy(qb, orderBy);
