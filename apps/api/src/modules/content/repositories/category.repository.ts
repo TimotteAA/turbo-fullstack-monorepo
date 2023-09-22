@@ -1,5 +1,5 @@
-import { unset } from 'lodash';
-import { FindOptionsUtils, FindTreeOptions, Not, TreeRepository, IsNull } from 'typeorm';
+import { pick, unset } from 'lodash';
+import { FindOptionsUtils, FindTreeOptions, TreeRepository } from 'typeorm';
 
 import { CUSTOM_REPOSITORY } from '@/modules/database/decorators';
 
@@ -20,26 +20,26 @@ export class CategoryRepository extends TreeRepository<CategoryEntity> {
      * 查询顶级分类
      * @param options
      */
-    findRoots(options?: FindTreeOptions & { onlyTrashed?: boolean; withTrashed?: boolean }) {
+    findRoots(
+        options?: FindTreeOptions & {
+            onlyTrashed?: boolean;
+            withTrashed?: boolean;
+        },
+    ) {
         const escapeAlias = (alias: string) => this.manager.connection.driver.escape(alias);
         const escapeColumn = (column: string) => this.manager.connection.driver.escape(column);
 
         const joinColumn = this.metadata.treeParentRelation!.joinColumns[0];
         const parentPropertyName = joinColumn.givenDatabaseName || joinColumn.databaseName;
-        // 构建基础查询器
-        let qb = this.buildBaseQB();
-        FindOptionsUtils.applyOptionsToTreeQueryBuilder(qb, options);
-        if (options.withTrashed) {
-            qb = qb.withDeleted();
-            if (options.onlyTrashed) {
-                qb = qb.andWhere({
-                    deletedAt: Not(IsNull()),
-                });
-            }
+
+        const qb = this.buildBaseQB().orderBy('category.customOrder', 'ASC');
+        qb.where(`${escapeAlias('category')}.${escapeColumn(parentPropertyName)} IS NULL`);
+        FindOptionsUtils.applyOptionsToTreeQueryBuilder(qb, pick(options, ['relations', 'depth']));
+        if (options?.withTrashed) {
+            qb.withDeleted();
+            if (options?.onlyTrashed) qb.where(`category.deletedAt IS NOT NULL`);
         }
-        return qb
-            .where(`${escapeAlias('category')}.${escapeColumn(parentPropertyName)} IS NULL`)
-            .getMany();
+        return qb.getMany();
     }
 
     async findTrees(
