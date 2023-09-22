@@ -13,7 +13,12 @@ import {
 
 import { DeleteWithTrashDto, RestoreDto } from '@/modules/restful/dtos';
 
-import { CreateCategoryDto, QueryCategoryTreeDto, UpdateCategoryDto } from '../dtos';
+import {
+    CreateCategoryDto,
+    QueryCategoryDto,
+    QueryCategoryTreeDto,
+    UpdateCategoryDto,
+} from '../dtos';
 import { CategoryService } from '../services';
 
 @Controller('categories')
@@ -24,6 +29,12 @@ export class CategoryController {
     @SerializeOptions({ groups: ['category-tree'] })
     async tree(@Query() options: QueryCategoryTreeDto) {
         return this.service.findTrees(options);
+    }
+
+    @Get()
+    @SerializeOptions({ groups: ['categoru-list'] })
+    async list(@Query() options: QueryCategoryDto) {
+        return this.service.paginate(options);
     }
 
     @Delete()

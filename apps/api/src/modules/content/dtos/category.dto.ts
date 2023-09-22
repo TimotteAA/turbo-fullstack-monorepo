@@ -26,6 +26,7 @@ import { CategoryEntity } from '../entities';
 export class QueryCategoryTreeDto {
     @IsEnum(SelectTrashMode)
     @IsOptional()
+    // @Type(() => Se)
     trashed?: SelectTrashMode;
 }
 

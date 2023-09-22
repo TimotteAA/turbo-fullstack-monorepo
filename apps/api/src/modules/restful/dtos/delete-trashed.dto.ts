@@ -11,7 +11,7 @@ export class DeleteWithTrashDto {
         each: true,
     })
     @IsNotEmpty({ each: true, message: 'id不能为空' })
-    ids: string[] = [];
+    ids: string[];
 
     @Transform(({ value }) => toBoolean(value))
     @IsOptional()

@@ -94,9 +94,9 @@ export class PostService {
 
         if (trahsed) {
             // 软删除
-            const soft = [...items.filter((item) => !isNil(item.deletedAt))];
+            const soft = [...items.filter((item) => isNil(item.deletedAt))];
             // 直接删除
-            const direct = [...items.filter((item) => isNil(item.deletedAt))];
+            const direct = [...items.filter((item) => !isNil(item.deletedAt))];
             return [
                 ...(await this.postRepo.softRemove(soft)),
                 ...(await this.postRepo.remove(direct)),
