@@ -34,7 +34,6 @@ export class CategoryService {
             withTrashed: trashed === SelectTrashMode.ALL || trashed === SelectTrashMode.ONLY,
             onlyTrashed: trashed === SelectTrashMode.ONLY,
         });
-        console.log('tree ', tree);
         const data = await this.repo.toFlatTrees(tree);
         return manualPaginate(options, data);
     }

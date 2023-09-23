@@ -3,6 +3,7 @@ import {
     Column,
     DeleteDateColumn,
     Entity,
+    Index,
     OneToMany,
     Relation,
     Tree,
@@ -20,6 +21,7 @@ import { PostEntity } from './post.entity';
 export class CategoryEntity extends BaseEntity {
     @Expose()
     @Column({ comment: '分类名称', nullable: false })
+    @Index({ fulltext: true })
     name: string;
 
     @Expose({ groups: ['category-tree', 'category-list', 'category-detail'] })

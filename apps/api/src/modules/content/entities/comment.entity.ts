@@ -3,6 +3,7 @@ import {
     Column,
     CreateDateColumn,
     Entity,
+    Index,
     ManyToOne,
     Relation,
     Tree,
@@ -20,6 +21,7 @@ import { PostEntity } from './post.entity';
 export class CommentEntity extends BaseEntity {
     @Expose()
     @Column({ comment: '评论内容', nullable: false })
+    @Index({ fulltext: true })
     body: string;
 
     @Expose()

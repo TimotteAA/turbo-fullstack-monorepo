@@ -11,6 +11,9 @@ import { PostOrderType } from '../constants';
 import { CreatePostDto, QueryPostDto, UpdatePostDto } from '../dtos/post.dto';
 import { PostEntity } from '../entities';
 import { CategoryRepository, PostRepository, TagRepository } from '../repositories';
+import { SearchType } from '../types';
+
+import { SearchService } from './search.service';
 
 type FindParams = {
     [key in keyof Omit<QueryPostDto, 'limit' | 'page'>]: QueryPostDto[key];
@@ -21,9 +24,22 @@ export class PostService {
         protected postRepo: PostRepository,
         protected categoryRepo: CategoryRepository,
         protected tagRepo: TagRepository,
+        protected searchSevice: SearchService,
+        protected searchType: SearchType,
     ) {}
 
     async paginate(options: QueryPostDto, callback?: QueryHook<PostEntity>) {
+        if (this.searchType === 'meili' && this.searchSevice) {
+            const { search, ...rest } = options;
+            const result = await this.searchSevice.search(search, {
+                page: rest.page,
+                limit: rest.limit,
+                trashed: rest.trashed,
+                isPublished: rest.isPublished,
+            });
+            return result;
+        }
+
         let qb = this.postRepo.buildBaseQB();
         qb = await this.buildListQuery(qb, options, callback);
         return paginate(qb, options);
@@ -58,6 +74,9 @@ export class PostService {
                   })
                 : [],
         });
+        if (this.searchType === 'meili') {
+            await this.searchSevice.create(res);
+        }
         return this.detail(res.id);
     }
 
@@ -80,7 +99,11 @@ export class PostService {
             post.category = category;
             await this.postRepo.save(post);
         }
-        return this.detail(post.id);
+        const newPost = await this.detail(post.id);
+        if (this.searchType === 'meili') {
+            await this.searchSevice.update([newPost]);
+        }
+        return newPost;
     }
 
     async delete(ids: string[], trahsed?: boolean) {
@@ -97,12 +120,18 @@ export class PostService {
             const soft = [...items.filter((item) => isNil(item.deletedAt))];
             // 直接删除
             const direct = [...items.filter((item) => !isNil(item.deletedAt))];
-            return [
-                ...(await this.postRepo.softRemove(soft)),
-                ...(await this.postRepo.remove(direct)),
-            ];
+            const directsRemoves = [...(await this.postRepo.remove(direct))];
+            const softsRemoves = [...(await this.postRepo.softRemove(soft))];
+            if (this.searchType === 'meili' && this.searchSevice) {
+                await this.searchSevice.delete(direct.map(({ id }) => id));
+                await this.searchSevice.update(soft);
+            }
+            return [...directsRemoves, ...softsRemoves];
         }
 
+        if (this.searchType === 'meili' && this.searchSevice) {
+            await this.searchSevice.delete(items.map(({ id }) => id));
+        }
         return this.postRepo.remove(items);
     }
 
@@ -121,6 +150,14 @@ export class PostService {
         const trasheds = items.filter((item) => !isNil(item)).map((item) => item.id);
         if (trasheds.length < 1) return [];
         await this.postRepo.restore(trasheds);
+        const result = await this.postRepo.find({
+            where: {
+                id: In(trasheds),
+            },
+        });
+        if (this.searchType === 'meili' && this.searchSevice) {
+            await this.searchSevice.update(result);
+        }
         const qb = await this.buildListQuery(this.postRepo.buildBaseQB(), {}, async (qbuilder) =>
             qbuilder.andWhereInIds(trasheds),
         );
@@ -132,7 +169,8 @@ export class PostService {
         options: FindParams = {},
         queryHook?: QueryHook<PostEntity>,
     ) {
-        const { isPublished, orderBy, tag, category, trashed } = options;
+        const { isPublished, orderBy, tag, category, trashed, search } = options;
+
         if (typeof isPublished === 'boolean') {
             if (isPublished === true) {
                 qb.andWhere({
@@ -147,6 +185,7 @@ export class PostService {
         if (!isNil(tag)) qb.andWhere('tags.id = :id', { id: tag });
         if (!isNil(category)) await this.queryByCategory(qb, category);
         if (!isNil(queryHook)) await queryHook(qb);
+        if (!isNil(search)) await this.querySearch(qb, search);
 
         if (trashed === SelectTrashMode.ALL || trashed === SelectTrashMode.ONLY) {
             // 查询软删除数据
@@ -160,6 +199,26 @@ export class PostService {
         }
 
         return this.queryOrderBy(qb, orderBy);
+    }
+
+    protected async querySearch(qb: SelectQueryBuilder<PostEntity>, search: string) {
+        if (this.searchType === 'against') {
+            qb.andWhere('MATCH (post.title) AGAINST (:search IN BOOLEAN MODE)', { search })
+                .orWhere('MATCH (post.body) AGAINST (:search IN BOOLEAN MODE)', { search })
+                .orWhere('MATCH (post.summary) AGAINST (:search IN BOOLEAN MODE)', { search })
+                .orWhere('MATCH (category.name) AGAINST (:search IN BOOLEAN MODE)', { search })
+                .orWhere('MATCH (tags.name) AGAINST (:search IN BOOLEAN MODE)', { search });
+        } else if (this.searchType === 'like') {
+            qb.andWhere('post.title LIKE :search', { search: `%${search}%` })
+                .orWhere('post.body LIKE :search', { search: `%${search}%` })
+                .orWhere('post.summary LIKE :search', { search: `%${search}%` })
+                .orWhere('category.name LIKE :search', {
+                    search: `%${search}%`,
+                })
+                .orWhere('tags.name LIKE :search', {
+                    search: `%${search}%`,
+                });
+        }
     }
 
     protected queryOrderBy(qb: SelectQueryBuilder<PostEntity>, orderBy: PostOrderType) {

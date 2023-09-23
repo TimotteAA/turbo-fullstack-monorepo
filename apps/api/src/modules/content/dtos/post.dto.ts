@@ -21,19 +21,19 @@ import { PaginateOptions } from '@/modules/database/types';
 
 import { PostOrderType } from '../constants';
 
-@DTO_VALIDATION({ groups: ['query'] })
+@DTO_VALIDATION({ type: 'query' })
 export class QueryPostDto implements PaginateOptions {
     @Transform(({ value }) => toNumber(value))
-    @Min(1, { message: '$property最小值为1' })
+    @Min(1, { message: '当前页必须大于1' })
     @IsNumber()
     @IsOptional()
-    page: number;
+    page = 1;
 
     @Transform(({ value }) => toNumber(value))
-    @Min(5, { message: '$property最小值为5' })
+    @Min(1, { message: '每页显示数据必须大于1' })
     @IsNumber()
     @IsOptional()
-    limit: number;
+    limit = 10;
 
     /**
      * 是否发布
@@ -62,6 +62,13 @@ export class QueryPostDto implements PaginateOptions {
     })
     @IsOptional()
     trashed?: SelectTrashMode;
+
+    @MaxLength(100, {
+        always: true,
+        message: '搜索关键词长度不能超过100',
+    })
+    @IsOptional()
+    search?: string;
 }
 @DTO_VALIDATION({ groups: ['create'] })
 export class CreatePostDto {
