@@ -21,7 +21,7 @@ import { PaginateOptions } from '@/modules/database/types';
 
 import { PostOrderType } from '../constants';
 
-@DTO_VALIDATION({ groups: ['query'] })
+@DTO_VALIDATION({ type: 'query' })
 export class QueryPostDto implements PaginateOptions {
     @Transform(({ value }) => toNumber(value))
     @Min(1, { message: '$property最小值为1' })

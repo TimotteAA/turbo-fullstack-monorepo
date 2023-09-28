@@ -3,6 +3,7 @@ import { Injectable } from '@nestjs/common';
 import { isNil, omit } from 'lodash';
 import { EntityNotFoundError, In } from 'typeorm';
 
+import { BaseService } from '@/modules/database/base/base.service';
 import { SelectTrashMode } from '@/modules/database/constants';
 import { manualPaginate } from '@/modules/database/helpers';
 
@@ -16,12 +17,16 @@ import { CategoryEntity } from '../entities';
 import { CategoryRepository } from '../repositories';
 
 @Injectable()
-export class CategoryService {
-    constructor(protected repo: CategoryRepository) {}
+export class CategoryService extends BaseService<CategoryEntity, CategoryRepository> {
+    protected enableTrash = true;
+
+    constructor(protected repo: CategoryRepository) {
+        super(repo);
+    }
 
     async findTrees(options: QueryCategoryTreeDto) {
         const { trashed } = options;
-        const tree = await this.repo.findTrees({
+        const tree = await this.repository.findTrees({
             withTrashed: trashed === SelectTrashMode.ALL || trashed === SelectTrashMode.ONLY,
             onlyTrashed: trashed === SelectTrashMode.ONLY,
         });
@@ -34,7 +39,6 @@ export class CategoryService {
             withTrashed: trashed === SelectTrashMode.ALL || trashed === SelectTrashMode.ONLY,
             onlyTrashed: trashed === SelectTrashMode.ONLY,
         });
-        console.log('tree ', tree);
         const data = await this.repo.toFlatTrees(tree);
         return manualPaginate(options, data);
     }
@@ -68,38 +72,33 @@ export class CategoryService {
         return updatedCat;
     }
 
-    async detail(id: string) {
-        const cate = await this.repo.findOneByOrFail({ id });
-        return cate;
-    }
-
-    async delete(ids: string[], trashed?: boolean) {
-        const items = await this.repo.find({
-            where: {
-                id: In(ids),
-            },
-            relations: ['parent', 'children'],
-            // 软删除
-            withDeleted: true,
-        });
-        for (const item of items) {
-            // 把子分类提示一级
-            if (!isNil(item.children) && item.children.length > 0) {
-                const nChildren = item.children.map((child) => {
-                    child.parent = item.parent;
-                    return child;
-                });
-                await this.repo.save(nChildren);
-            }
-        }
-        // 处理软删除
-        if (trashed) {
-            const directs = items.filter((item) => !isNil(item.deletedAt));
-            const softs = items.filter((item) => isNil(item.deletedAt));
-            return [...(await this.repo.remove(directs)), ...(await this.repo.softRemove(softs))];
-        }
-        return this.repo.remove(items);
-    }
+    // async delete(ids: string[], trashed?: boolean) {
+    //     const items = await this.repo.find({
+    //         where: {
+    //             id: In(ids),
+    //         },
+    //         relations: ['parent', 'children'],
+    //         // 软删除
+    //         withDeleted: true,
+    //     });
+    //     for (const item of items) {
+    //         // 把子分类提示一级
+    //         if (!isNil(item.children) && item.children.length > 0) {
+    //             const nChildren = item.children.map((child) => {
+    //                 child.parent = item.parent;
+    //                 return child;
+    //             });
+    //             await this.repo.save(nChildren);
+    //         }
+    //     }
+    //     // 处理软删除
+    //     if (trashed) {
+    //         const directs = items.filter((item) => !isNil(item.deletedAt));
+    //         const softs = items.filter((item) => isNil(item.deletedAt));
+    //         return [...(await this.repo.remove(directs)), ...(await this.repo.softRemove(softs))];
+    //     }
+    //     return this.repo.remove(items);
+    // }
 
     async restore(ids: string[]) {
         const items = await this.repo.find({

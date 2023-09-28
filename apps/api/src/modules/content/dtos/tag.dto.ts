@@ -6,7 +6,7 @@ import { toNumber } from 'lodash';
 import { DTO_VALIDATION } from '@/modules/core/decorators';
 import { PaginateOptions } from '@/modules/database/types';
 
-@DTO_VALIDATION({ groups: ['query'] })
+@DTO_VALIDATION({ type: 'query' })
 export class QueryTagDto implements PaginateOptions {
     @Transform(({ value }) => toNumber(value))
     @Min(1, { message: '$property最小值为1' })

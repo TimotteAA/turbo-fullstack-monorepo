@@ -1,10 +1,10 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 import { isNil, omit } from 'lodash';
 import { In, IsNull, Not, SelectQueryBuilder } from 'typeorm';
 
+import { BaseService } from '@/modules/database/base/base.service';
 import { SelectTrashMode } from '@/modules/database/constants';
-import { paginate } from '@/modules/database/helpers';
 import { QueryHook } from '@/modules/database/types';
 
 import { PostOrderType } from '../constants';
@@ -16,29 +16,31 @@ type FindParams = {
     [key in keyof Omit<QueryPostDto, 'limit' | 'page'>]: QueryPostDto[key];
 };
 @Injectable()
-export class PostService {
+export class PostService extends BaseService<PostEntity, PostRepository> {
     constructor(
         protected postRepo: PostRepository,
         protected categoryRepo: CategoryRepository,
         protected tagRepo: TagRepository,
-    ) {}
-
-    async paginate(options: QueryPostDto, callback?: QueryHook<PostEntity>) {
-        let qb = this.postRepo.buildBaseQB();
-        qb = await this.buildListQuery(qb, options, callback);
-        return paginate(qb, options);
+    ) {
+        super(postRepo);
     }
 
-    async detail(id: string, callback?: QueryHook<PostEntity>) {
-        let qb = this.postRepo.buildBaseQB();
-        qb = qb.andWhere(`post.id = :id`, { id });
-        qb = !isNil(callback) ? await callback(qb) : qb;
-        const item = await qb.getOne();
-        if (isNil(item)) {
-            throw new BadRequestException(`post of id: ${id} does not exist`);
-        }
-        return item;
-    }
+    // async paginate(options: QueryPostDto, callback?: QueryHook<PostEntity>) {
+    //     let qb = this.postRepo.buildBaseQB();
+    //     qb = await this.buildListQuery(qb, options, callback);
+    //     return paginate(qb, options);
+    // }
+
+    // async detail(id: string, callback?: QueryHook<PostEntity>) {
+    //     let qb = this.postRepo.buildBaseQB();
+    //     qb = qb.andWhere(`post.id = :id`, { id });
+    //     qb = !isNil(callback) ? await callback(qb) : qb;
+    //     const item = await qb.getOne();
+    //     if (isNil(item)) {
+    //         throw new BadRequestException(`post of id: ${id} does not exist`);
+    //     }
+    //     return item;
+    // }
 
     async create(data: CreatePostDto) {
         const res = await this.postRepo.save({
@@ -83,51 +85,51 @@ export class PostService {
         return this.detail(post.id);
     }
 
-    async delete(ids: string[], trahsed?: boolean) {
-        // 待删除的items
-        const items = await this.postRepo.find({
-            where: {
-                id: In(ids),
-            },
-            withDeleted: true,
-        });
+    // async delete(ids: string[], trahsed?: boolean) {
+    //     // 待删除的items
+    //     const items = await this.postRepo.find({
+    //         where: {
+    //             id: In(ids),
+    //         },
+    //         withDeleted: true,
+    //     });
 
-        if (trahsed) {
-            // 软删除
-            const soft = [...items.filter((item) => isNil(item.deletedAt))];
-            // 直接删除
-            const direct = [...items.filter((item) => !isNil(item.deletedAt))];
-            return [
-                ...(await this.postRepo.softRemove(soft)),
-                ...(await this.postRepo.remove(direct)),
-            ];
-        }
+    //     if (trahsed) {
+    //         // 软删除
+    //         const soft = [...items.filter((item) => isNil(item.deletedAt))];
+    //         // 直接删除
+    //         const direct = [...items.filter((item) => !isNil(item.deletedAt))];
+    //         return [
+    //             ...(await this.postRepo.softRemove(soft)),
+    //             ...(await this.postRepo.remove(direct)),
+    //         ];
+    //     }
 
-        return this.postRepo.remove(items);
-    }
+    //     return this.postRepo.remove(items);
+    // }
 
-    /**
-     * 从回收站中回收
-     * @param ids
-     */
-    async restore(ids: string[]) {
-        const items = await this.postRepo.find({
-            where: {
-                id: In(ids),
-            },
-            withDeleted: true,
-        });
-        // 过滤掉不在回收站中的数据
-        const trasheds = items.filter((item) => !isNil(item)).map((item) => item.id);
-        if (trasheds.length < 1) return [];
-        await this.postRepo.restore(trasheds);
-        const qb = await this.buildListQuery(this.postRepo.buildBaseQB(), {}, async (qbuilder) =>
-            qbuilder.andWhereInIds(trasheds),
-        );
-        return qb.getMany();
-    }
+    // /**
+    //  * 从回收站中回收
+    //  * @param ids
+    //  */
+    // async restore(ids: string[]) {
+    //     const items = await this.postRepo.find({
+    //         where: {
+    //             id: In(ids),
+    //         },
+    //         withDeleted: true,
+    //     });
+    //     // 过滤掉不在回收站中的数据
+    //     const trasheds = items.filter((item) => !isNil(item)).map((item) => item.id);
+    //     if (trasheds.length < 1) return [];
+    //     await this.postRepo.restore(trasheds);
+    //     const qb = await this.buildListQuery(this.postRepo.buildBaseQB(), {}, async (qbuilder) =>
+    //         qbuilder.andWhereInIds(trasheds),
+    //     );
+    //     return qb.getMany();
+    // }
 
-    protected async buildListQuery(
+    protected async buildListQB(
         qb: SelectQueryBuilder<PostEntity>,
         options: FindParams = {},
         queryHook?: QueryHook<PostEntity>,

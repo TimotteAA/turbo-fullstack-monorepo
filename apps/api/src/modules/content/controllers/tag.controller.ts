@@ -1,24 +1,27 @@
-import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Param,
-    ParseUUIDPipe,
-    Patch,
-    Post,
-    Query,
-    SerializeOptions,
-} from '@nestjs/common';
+import { Controller, Get, Query, SerializeOptions } from '@nestjs/common';
 
 import { ResponseMessage } from '@/modules/core/decorators';
+
+import { BaseController } from '@/modules/restful/controller';
+import { Crud } from '@/modules/restful/decorators';
 
 import { CreateTagDto, QueryCategoryDto, UpdateTagDto } from '../dtos';
 import { TagService } from '../services';
 
+@Crud({
+    id: 'tag',
+    enabled: ['create', 'update', 'delete', 'detail', 'list'],
+    dtos: {
+        create: CreateTagDto,
+        update: UpdateTagDto,
+        query: QueryCategoryDto,
+    },
+})
 @Controller('tags')
-export class TagController {
-    constructor(protected service: TagService) {}
+export class TagController extends BaseController<TagService> {
+    constructor(protected service: TagService) {
+        super(service);
+    }
 
     @Get()
     @SerializeOptions({})
@@ -30,36 +33,36 @@ export class TagController {
         return this.service.paginate(options);
     }
 
-    @Get(':id')
-    @SerializeOptions({})
-    async detail(
-        @Param('id', new ParseUUIDPipe())
-        id: string,
-    ) {
-        return this.service.detail(id);
-    }
+    // @Get(':id')
+    // @SerializeOptions({})
+    // async detail(
+    //     @Param('id', new ParseUUIDPipe())
+    //     id: string,
+    // ) {
+    //     return this.service.detail(id);
+    // }
 
-    @Post()
-    @SerializeOptions({})
-    async create(
-        @Body()
-        data: CreateTagDto,
-    ) {
-        return this.service.create(data);
-    }
+    // @Post()
+    // @SerializeOptions({})
+    // async create(
+    //     @Body()
+    //     data: CreateTagDto,
+    // ) {
+    //     return this.service.create(data);
+    // }
 
-    @Patch()
-    @SerializeOptions({})
-    async update(
-        @Body()
-        data: UpdateTagDto,
-    ) {
-        return this.service.update(data);
-    }
+    // @Patch()
+    // @SerializeOptions({})
+    // async update(
+    //     @Body()
+    //     data: UpdateTagDto,
+    // ) {
+    //     return this.service.update(data);
+    // }
 
-    @Delete(':id')
-    @SerializeOptions({})
-    async delete(@Param('id', new ParseUUIDPipe()) id: string) {
-        return this.service.delete(id);
-    }
+    // @Delete()
+    // @SerializeOptions({})
+    // async delete(@Body() data: DeleteDto) {
+    //     return this.service.delete(data.ids);
+    // }
 }

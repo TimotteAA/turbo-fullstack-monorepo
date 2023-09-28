@@ -1,32 +1,28 @@
 import { Injectable } from '@nestjs/common';
 
-import { isNil } from 'lodash';
+import { EntityNotFoundError } from 'typeorm';
 
-import { EntityNotFoundError, In, SelectQueryBuilder } from 'typeorm';
+import { BaseService } from '@/modules/database/base/base.service';
 
-import { manualPaginate } from '@/modules/database/helpers';
+import { QueryHook } from '@/modules/database/types';
 
 import { CreateCommentDto, QueryCommentTreeDto, QueryCommentListDto } from '../dtos';
 import { CommentEntity } from '../entities';
 import { CommentRepository, PostRepository } from '../repositories';
 
 @Injectable()
-export class CommentService {
+export class CommentService extends BaseService<CommentEntity, CommentRepository> {
+    protected enableTrash = false;
+
     constructor(
         protected repo: CommentRepository,
         protected postRepo: PostRepository,
-    ) {}
+    ) {
+        super(repo);
+    }
 
     async findTrees(options: QueryCommentTreeDto = {}) {
-        const { post } = options;
-        if (isNil(post)) {
-            return this.repo.findTrees();
-        }
-
-        const roots = await this.repo.findTrees({
-            addQuery: async (qb) => qb.andWhere('post.id = :id', { id: post }),
-        });
-        return Promise.all(roots.map((root) => this.repo.findDescendantsTree(root)));
+        return this.repository.findTrees(options);
     }
 
     /**
@@ -34,27 +30,16 @@ export class CommentService {
      * @param dto
      */
     async paginate(dto: QueryCommentListDto) {
-        const { post, ...query } = dto;
-        const addQuery = async (qb: SelectQueryBuilder<CommentEntity>) => {
-            const condition: Record<string, any> = {};
-            if (!isNil(post)) condition.post = { id: post };
-            return Object.keys(condition).length > 0 ? qb.andWhere(condition) : qb;
-        };
-        // 顶级分类
-        const data = await this.repo.findRoots({
-            addQuery,
-        });
-        let comments: CommentEntity[] = [];
-        for (let i = 0; i < data.length; i++) {
-            const c = data[i];
-            comments.push(
-                await this.repo.findDescendantsTree(c, {
-                    addQuery,
-                }),
-            );
-        }
-        comments = await this.repo.toFlatTrees(comments);
-        return manualPaginate(query, comments);
+        const callback: QueryHook<CommentEntity> = dto.post
+            ? async (qb) => qb.andWhere(`post.id = :id`, { id: dto.post })
+            : null;
+        return super.paginate(
+            {
+                page: dto.page,
+                limit: dto.limit,
+            },
+            callback,
+        );
     }
 
     async create(data: CreateCommentDto) {
@@ -64,16 +49,6 @@ export class CommentService {
             post: await this.getPost(data.post),
         });
         return this.detail(item.id);
-    }
-
-    async detail(id: string) {
-        const comment = await this.repo.findOneByOrFail({ id });
-        return comment;
-    }
-
-    async delete(ids: string[]) {
-        const comment = await this.repo.findBy({ id: In(ids) });
-        return this.repo.remove(comment);
     }
 
     protected async getPost(post: string) {
