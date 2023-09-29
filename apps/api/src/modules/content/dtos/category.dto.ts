@@ -30,7 +30,7 @@ export class QueryCategoryTreeDto {
     trashed?: SelectTrashMode;
 }
 
-@DTO_VALIDATION({ groups: ['query'] })
+@DTO_VALIDATION({ type: 'query' })
 export class QueryCategoryDto extends QueryCategoryTreeDto implements PaginateOptions {
     @Transform(({ value }) => toNumber(value))
     @Min(1, { message: '$property最小值为1' })

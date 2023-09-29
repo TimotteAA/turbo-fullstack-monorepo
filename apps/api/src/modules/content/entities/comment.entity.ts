@@ -43,6 +43,7 @@ export class CommentEntity extends BaseEntity {
     @Column({ comment: '自定义排序字段', default: 0 })
     customOrder: number;
 
+    @Expose()
     // 父评论被删了，子评论也宰了
     @TreeParent({ onDelete: 'CASCADE' })
     parent: Relation<CommentEntity | null>;

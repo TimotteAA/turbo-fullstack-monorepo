@@ -17,7 +17,7 @@ import { PaginateOptions } from '@/modules/database/types';
 /**
  * 分页查询评论
  */
-@DTO_VALIDATION({ groups: ['query'] })
+@DTO_VALIDATION({ type: 'query' })
 export class QueryCommentListDto implements PaginateOptions {
     @Transform(({ value }) => toNumber(value))
     @Min(1, { message: '$property最小值为1' })
@@ -39,7 +39,7 @@ export class QueryCommentListDto implements PaginateOptions {
 /**
  * 查询评论树
  */
-@DTO_VALIDATION({ groups: ['query'] })
+@DTO_VALIDATION({ type: 'query' })
 export class QueryCommentTreeDto extends PickType(QueryCommentListDto, ['post']) {}
 
 @DTO_VALIDATION({ groups: ['create'] })

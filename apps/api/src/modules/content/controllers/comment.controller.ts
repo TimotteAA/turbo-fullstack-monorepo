@@ -1,13 +1,24 @@
-import { Body, Controller, Delete, Get, Post, Query, SerializeOptions } from '@nestjs/common';
+import { Controller, Get, Query, SerializeOptions } from '@nestjs/common';
 
-import { DeleteDto } from '@/modules/restful/dtos/delete.dto';
+import { BaseController } from '@/modules/restful/controller';
+import { Crud } from '@/modules/restful/decorators';
 
 import { CreateCommentDto, QueryCommentListDto, QueryCommentTreeDto } from '../dtos';
 import { CommentService } from '../services';
 
+@Crud({
+    id: 'comment',
+    enabled: ['create', 'list', 'detail', 'delete'],
+    dtos: {
+        create: CreateCommentDto,
+        query: QueryCommentListDto,
+    },
+})
 @Controller('comments')
-export class CommentController {
-    constructor(protected service: CommentService) {}
+export class CommentController extends BaseController<CommentService> {
+    constructor(protected service: CommentService) {
+        super(service);
+    }
 
     @Get('tree')
     @SerializeOptions({ groups: ['comment-tree'] })
@@ -16,29 +27,5 @@ export class CommentController {
         query: QueryCommentTreeDto,
     ) {
         return this.service.findTrees(query);
-    }
-
-    @Get()
-    @SerializeOptions({ groups: ['comment-list'] })
-    async list(
-        @Query()
-        query: QueryCommentListDto,
-    ) {
-        return this.service.paginate(query);
-    }
-
-    @Post()
-    @SerializeOptions({ groups: ['comment-detail'] })
-    async create(
-        @Body()
-        data: CreateCommentDto,
-    ) {
-        return this.service.create(data);
-    }
-
-    @Delete()
-    @SerializeOptions({ groups: ['comment-detail'] })
-    async delete(@Body() data: DeleteDto) {
-        return this.service.delete(data.ids);
     }
 }

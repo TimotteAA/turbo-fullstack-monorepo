@@ -33,7 +33,7 @@ export class ContentModule {
                 inject: [
                     repoMaps.PostRepository,
                     repoMaps.CategoryRepository,
-                    repoMaps.CommentRepository,
+                    repoMaps.TagRepository,
                     SearchService,
                 ],
                 useFactory(

@@ -1,8 +1,9 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
 import { isNil, omit } from 'lodash';
 import { In, IsNull, Not, SelectQueryBuilder } from 'typeorm';
 
+import { BaseService } from '@/modules/database/base/base.service';
 import { SelectTrashMode } from '@/modules/database/constants';
 import { paginate } from '@/modules/database/helpers';
 import { QueryHook } from '@/modules/database/types';
@@ -19,16 +20,18 @@ type FindParams = {
     [key in keyof Omit<QueryPostDto, 'limit' | 'page'>]: QueryPostDto[key];
 };
 @Injectable()
-export class PostService {
+export class PostService extends BaseService<PostEntity, PostRepository> {
     constructor(
         protected postRepo: PostRepository,
         protected categoryRepo: CategoryRepository,
         protected tagRepo: TagRepository,
         protected searchSevice: SearchService,
         protected searchType: SearchType,
-    ) {}
+    ) {
+        super(postRepo);
+    }
 
-    async paginate(options: QueryPostDto, callback?: QueryHook<PostEntity>) {
+    async list(options: QueryPostDto, callback?: QueryHook<PostEntity>) {
         if (this.searchType === 'meili' && this.searchSevice) {
             const { search, ...rest } = options;
             const result = await this.searchSevice.search(search, {
@@ -37,24 +40,30 @@ export class PostService {
                 trashed: rest.trashed,
                 isPublished: rest.isPublished,
             });
-            return result;
+            return result as any;
         }
-
         let qb = this.postRepo.buildBaseQB();
         qb = await this.buildListQuery(qb, options, callback);
+
         return paginate(qb, options);
     }
 
-    async detail(id: string, callback?: QueryHook<PostEntity>) {
-        let qb = this.postRepo.buildBaseQB();
-        qb = qb.andWhere(`post.id = :id`, { id });
-        qb = !isNil(callback) ? await callback(qb) : qb;
-        const item = await qb.getOne();
-        if (isNil(item)) {
-            throw new BadRequestException(`post of id: ${id} does not exist`);
-        }
-        return item;
-    }
+    // async paginate(options: QueryPostDto, callback?: QueryHook<PostEntity>) {
+    //     let qb = this.postRepo.buildBaseQB();
+    //     qb = await this.buildListQuery(qb, options, callback);
+    //     return paginate(qb, options);
+    // }
+
+    // async detail(id: string, callback?: QueryHook<PostEntity>) {
+    //     let qb = this.postRepo.buildBaseQB();
+    //     qb = qb.andWhere(`post.id = :id`, { id });
+    //     qb = !isNil(callback) ? await callback(qb) : qb;
+    //     const item = await qb.getOne();
+    //     if (isNil(item)) {
+    //         throw new BadRequestException(`post of id: ${id} does not exist`);
+    //     }
+    //     return item;
+    // }
 
     async create(data: CreatePostDto) {
         const res = await this.postRepo.save({
@@ -186,7 +195,6 @@ export class PostService {
         if (!isNil(category)) await this.queryByCategory(qb, category);
         if (!isNil(queryHook)) await queryHook(qb);
         if (!isNil(search)) await this.querySearch(qb, search);
-
         if (trashed === SelectTrashMode.ALL || trashed === SelectTrashMode.ONLY) {
             // 查询软删除数据
             qb = qb.withDeleted();
