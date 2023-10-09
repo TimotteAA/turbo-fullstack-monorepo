@@ -1,4 +1,4 @@
-import { ContentConfig } from '@/modules/content/types';
+import type { ContentConfig } from '@/modules/content/types';
 
 export const content: () => ContentConfig = () => {
     return {

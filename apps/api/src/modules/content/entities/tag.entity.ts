@@ -1,5 +1,7 @@
 import { Exclude, Expose } from 'class-transformer';
-import { Column, Entity, Index, ManyToMany, Relation } from 'typeorm';
+import { Column, Entity, Index, ManyToMany } from 'typeorm';
+
+import type { Relation } from 'typeorm';
 
 import { BaseEntity } from '@/modules/database/base';
 

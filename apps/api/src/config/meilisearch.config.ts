@@ -1,4 +1,4 @@
-import { MeiliSeachModuleConfig } from '@/modules/meilisearch/types';
+import type { MeiliSeachModuleConfig } from '@/modules/meilisearch/types';
 
 export const meilisearch: () => MeiliSeachModuleConfig = () => {
     return [

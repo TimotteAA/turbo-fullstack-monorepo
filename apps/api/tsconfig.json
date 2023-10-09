@@ -1,11 +1,13 @@
 {
-  "extends": "@timotte-app/ts-config/nest",
-  "compilerOptions": {
-      "baseUrl": ".",
-      "outDir": "./dist",
-      "paths": {
-          "@/*": ["./src/*"]
-      }
-  },
-  "include": ["src", "test", "typings/**/*.d.ts", "**.js"]
+    "extends": "@timotte-app/ts-config/nest",
+    "compilerOptions": {
+        "baseUrl": ".",
+        "outDir": "./dist",
+        "paths": {
+            "@/*": ["./src/*"]
+        },
+        "target": "esnext",
+        "module": "Node16"
+    },
+    "include": ["src", "test", "typings/**/*.d.ts", "**.js", "typings", "./typings/**/*.d.ts"]
 }
