@@ -98,6 +98,7 @@ export class Env {
             return val as T;
         }
         // process.env里没有
+        // 毛都没传
         if (parseTo === undefined && defaultValue === undefined) {
             return undefined;
         }
