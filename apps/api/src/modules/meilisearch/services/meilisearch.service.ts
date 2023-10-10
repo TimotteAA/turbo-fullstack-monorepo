@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import MeiliSearch from 'meilisearch';
 
-import { MeiliSeachModuleConfig } from '../types';
+import type { MeiliSeachModuleConfig } from '../types';
 
 @Injectable()
 export class MeiliSearchService {

@@ -12,7 +12,7 @@ import { PostOrderType } from '../constants';
 import { CreatePostDto, QueryPostDto, UpdatePostDto } from '../dtos/post.dto';
 import { PostEntity } from '../entities';
 import { CategoryRepository, PostRepository, TagRepository } from '../repositories';
-import { SearchType } from '../types';
+import type { SearchType } from '../types';
 
 import { SearchService } from './search.service';
 

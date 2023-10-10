@@ -77,7 +77,7 @@ export class Env {
      * @param key
      * @param defaultValue
      */
-    get<T extends BaseType = string>(key: string, defaultValue: string): T;
+    get<T extends BaseType = string>(key: string, defaultValue: T): T;
 
     /**
      * 获取类型转义后的环境变量,不存在则获取默认值
@@ -87,8 +87,8 @@ export class Env {
      */
     get<T extends BaseType = string>(key: string, parseTo: ParseType<T>, defaultValue: T): T;
 
-    get<T extends BaseType = string>(key: string, parseTo: ParseType<T>, defaultValue: T) {
-        if (!key) return process.env;
+    get<T extends BaseType = string>(key?: string, parseTo?: ParseType<T>, defaultValue?: T) {
+        if (!key) return process.env as Record<string, string>;
 
         const val = process.env[key];
         if (val !== undefined) {

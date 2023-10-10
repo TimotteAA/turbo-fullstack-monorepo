@@ -1,0 +1,12 @@
+{
+    "extends": "@timotte-app/ts-config/nest.json",
+    "compilerOptions": {
+        "baseUrl": ".",
+        "outDir": "./dist",
+        "module": "ESNext",
+        "paths": {
+            "@/*": ["src/*"]
+        }
+    },
+    "include": ["src", "test", "typings/**/*.d.ts", "**.js"]
+}
