@@ -7,7 +7,8 @@
             "@/*": ["./src/*"]
         },
         "target": "esnext",
-        "module": "Node16"
+        "module": "Node16",
+        "moduleResolution": "NodeNext"
     },
     "include": ["src", "test", "typings/**/*.d.ts", "**.js", "typings", "./typings/**/*.d.ts"]
 }

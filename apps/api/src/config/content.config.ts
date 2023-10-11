@@ -1,7 +1,3 @@
-import type { ContentConfig } from '@/modules/content/types';
+import { createContentConfig } from '@/modules/content/helpers';
 
-export const content: () => ContentConfig = () => {
-    return {
-        searchType: 'against',
-    };
-};
+export const content = createContentConfig(() => ({ searchType: 'against' }));

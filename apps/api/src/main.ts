@@ -1,14 +1,19 @@
-import { NestFactory } from '@nestjs/core';
-import { useContainer } from 'class-validator';
+import { isNil } from 'lodash';
 
-import { AppModule } from './app.module';
+import { WEBAPP, createData } from './constants';
 
-async function bootstrap() {
-    const app = await NestFactory.create(AppModule, {
-        cors: true,
-    });
-    app.setGlobalPrefix('api');
-    useContainer(app.select(AppModule), { fallbackOnErrors: true });
-    await app.listen(3100);
-}
-bootstrap();
+import { createApp, startApp } from './modules/core/helpers';
+
+startApp(createApp(WEBAPP, createData), ({ configure }) => async () => {
+    console.log();
+    const chalk = (await import('chalk')).default;
+    const appUrl = await configure.get<string>('app.url');
+    // 设置应用的API前缀,如果没有则与appUrl相同
+    const urlPrefix = await configure.get('app.prefix', undefined);
+    const apiUrl = !isNil(urlPrefix)
+        ? `${appUrl}${urlPrefix.length > 0 ? `/${urlPrefix}` : urlPrefix}`
+        : appUrl;
+    console.log(`- AppUrl: ${chalk.green.underline(appUrl)}`);
+    console.log();
+    console.log(`- ApiUrl: ${chalk.green.underline(apiUrl)}`);
+});

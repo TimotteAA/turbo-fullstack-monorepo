@@ -1,21 +1,23 @@
-import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { createDbConfig } from '@/modules/database/helpers';
 
-export const config: () => TypeOrmModuleOptions = () => {
-    return {
-        // 前期直接从entity同步表结构
+export const database = createDbConfig((_configure) => ({
+    common: {
         synchronize: true,
-        autoLoadEntities: true,
-        charset: 'utf8mb4',
-        logging: ['error'],
-        type: 'mysql',
-        host: 'localhost',
-        port: 3307,
-        username: 'root',
-        password: 'root',
-        database: 'timotte',
+    },
+    connections: [
+        {
+            // 以下为mysql配置
+            type: 'mysql',
+            host: 'localhost',
+            port: 3307,
+            username: 'root',
+            password: 'root',
+            database: 'timotte',
+        },
+        // {
+        // 以下为sqlite配置
         // type: 'better-sqlite3',
         // database: resolve(__dirname, '../../database.db'),
-        // synchronize: true,
-        // autoLoadEntities: true,
-    };
-};
+        // },
+    ],
+}));

@@ -11,14 +11,34 @@ import {
     UniqueTreeConstraint,
     UniqueTreeExistConstraint,
 } from './constraints';
+import { Configure } from '../config/configure';
+import { panic } from '../core/utils';
+import { DbOptions } from './types';
 
 @Module({})
 export class DatabaseModule {
-    static forRoot(configRegister: () => TypeOrmModuleOptions): DynamicModule {
+    static async forRoot(configure: Configure) {
+        if (!configure.has('database')) {
+            panic({ message: 'Database config not exists or not right!' });
+        }
+        const { connections } = await configure.get<DbOptions>('database');
+        const imports: ModuleMetadata['imports'] = [];
+        for (const dbOption of connections) {
+            imports.push(TypeOrmModule.forRoot(dbOption as TypeOrmModuleOptions));
+        }
+        const providers: ModuleMetadata['providers'] = [
+            IsExistsConstraint,
+            UniqueConstraint,
+            UniqueExistContraint,
+            UniqueTreeConstraint,
+            UniqueTreeExistConstraint,
+        ];
+
         return {
             global: true,
             module: DatabaseModule,
-            imports: [TypeOrmModule.forRoot(configRegister())],
+            imports,
+            providers,
         };
     }
 
@@ -48,13 +68,6 @@ export class DatabaseModule {
                     return new Repo(base.target, base.manager, base.queryRunner);
                 },
             });
-            providers.push(
-                IsExistsConstraint,
-                UniqueConstraint,
-                UniqueExistContraint,
-                UniqueTreeConstraint,
-                UniqueTreeExistConstraint,
-            );
         }
         return {
             exports: providers,

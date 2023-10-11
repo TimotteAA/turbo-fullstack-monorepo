@@ -35,6 +35,7 @@ export class MeiliSearchService {
      * 初始化各个链接
      */
     async initClients() {
+        console.log('this.config ', this.config);
         this.config.forEach(({ name, ...config }) => {
             const client = new MeiliSearch(config);
             this.clients.set(name, client);

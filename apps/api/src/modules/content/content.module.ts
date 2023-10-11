@@ -1,7 +1,8 @@
-import { DynamicModule, ModuleMetadata } from '@nestjs/common';
+import { ModuleMetadata } from '@nestjs/common';
 
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { Configure } from '../config/configure';
 import { DatabaseModule } from '../database/database.module';
 
 import * as controllerMaps from './controllers';
@@ -13,11 +14,8 @@ import { SearchService } from './services/search.service';
 import { ContentConfig } from './types';
 
 export class ContentModule {
-    static forRoot(configFn?: () => ContentConfig): DynamicModule {
-        const config: Required<ContentConfig> = {
-            searchType: 'against',
-            ...(configFn ? configFn() : {}),
-        };
+    static async forRoot(configure: Configure) {
+        const config = await configure.get<ContentConfig>('content');
 
         const imports: ModuleMetadata['imports'] = [
             TypeOrmModule.forFeature(Object.values(entityMaps)),

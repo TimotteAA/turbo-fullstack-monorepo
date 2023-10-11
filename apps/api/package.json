@@ -46,8 +46,7 @@
         "sanitize-html": "^2.11.0",
         "typeorm": "0.3.16",
         "validator": "^13.11.0",
-        "yaml": "^2.3.2",
-        "@timotte-app/utils": "workspace:*"
+        "yaml": "^2.3.2"
     },
     "devDependencies": {
         "@nestjs/cli": "^10.0.0",
@@ -74,8 +73,7 @@
         "ts-loader": "^9.4.3",
         "ts-node": "^10.9.1",
         "tsconfig-paths": "^4.2.0",
-        "typescript": "^5.1.3",
-        "@timotte-app/utils": "workspace:*"
+        "typescript": "^5.1.3"
     },
     "jest": {
         "moduleFileExtensions": [

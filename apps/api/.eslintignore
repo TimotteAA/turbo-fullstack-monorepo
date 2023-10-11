@@ -17,6 +17,7 @@ yarn-error.log
 .prettierignore
 .eslintcache
 *.lock
+**/*.svg
 **/*.md
 **/*.svg
 **/*.ejs

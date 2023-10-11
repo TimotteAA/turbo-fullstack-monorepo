@@ -1,7 +1,6 @@
 import { readFileSync } from 'fs';
 
 import { parse } from 'dotenv';
-
 import { isFunction, isNil } from 'lodash';
 
 import { EnvironmentType } from './constants';
@@ -105,6 +104,7 @@ export class Env {
         if (parseTo && defaultValue === undefined) {
             return isFunction(parseTo) ? undefined : parseTo;
         }
+
         return defaultValue! as T;
     }
 }

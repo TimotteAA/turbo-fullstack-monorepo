@@ -38,7 +38,7 @@ export interface ConfigureFactory<
      */
     storage?: boolean;
     /**
-     * 回调函数
+     * 回调函数，可用于多连接服务处理（比如redis)
      * @param configure 配置类服务实例
      * @param value 配置注册器register执行后的返回值
      */

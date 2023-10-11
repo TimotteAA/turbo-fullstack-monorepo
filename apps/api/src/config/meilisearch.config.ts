@@ -1,10 +1,8 @@
-import type { MeiliSeachModuleConfig } from '@/modules/meilisearch/types';
+import { createMeilliConfig } from '@/modules/meilisearch/helpers';
 
-export const meilisearch: () => MeiliSeachModuleConfig = () => {
-    return [
-        {
-            name: 'default',
-            host: 'http://localhost:7700/',
-        },
-    ];
-};
+export const meilli = createMeilliConfig(() => [
+    {
+        name: 'default',
+        host: 'http://localhost:7700/',
+    },
+]);
