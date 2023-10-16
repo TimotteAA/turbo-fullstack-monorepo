@@ -21,7 +21,6 @@ export class ContentModule {
             TypeOrmModule.forFeature(Object.values(entityMaps)),
             DatabaseModule.forRepository(Object.values(repoMaps)),
         ];
-
         const controllers: ModuleMetadata['controllers'] = Object.values(controllerMaps);
 
         const providers: ModuleMetadata['providers'] = [

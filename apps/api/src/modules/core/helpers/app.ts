@@ -24,7 +24,7 @@ export const createApp = (name: string, options: CreateOptions) => async (): Pro
     // 设置app的配置类实例
     apps[name] = { configure: new Configure() };
     // 初始化配置实例
-    await apps[name].configure.init(config.factories, config.storage);
+    await apps[name].configure.initilize(config.factories, config.storage);
     // 如果没有app配置则报错
     if (!apps[name].configure.has('app')) {
         throw new BadGatewayException('App config not exists!');
@@ -133,4 +133,5 @@ export const createAppConfig: (
             value.url = `${value.https ? 'https' : 'http'}://${value.host}:${value.port}`;
         return value;
     },
+    storage: true,
 });

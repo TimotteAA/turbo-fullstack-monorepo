@@ -8,4 +8,5 @@ export const createContentConfig: (
 ) => ConfigureFactory<ContentConfig> = (register) => ({
     register,
     defaultRegister: () => defaultContentConfig,
+    storage: true,
 });

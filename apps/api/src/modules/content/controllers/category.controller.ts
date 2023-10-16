@@ -1,6 +1,7 @@
 import { Controller, Get, Query, SerializeOptions } from '@nestjs/common';
 
 import { BaseController } from '@/modules/restful/controller';
+
 import { Crud } from '@/modules/restful/decorators';
 
 import {

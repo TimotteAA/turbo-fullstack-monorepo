@@ -15,7 +15,7 @@ export class Storage {
     /**
      * 放在dist的外面，如果放在dist里，每次都相当于新的config.yml
      */
-    protected _path = resolve(__dirname, '../../..', 'config.yml');
+    protected _path = resolve(__dirname, '../../../..', 'config.yml');
 
     /**
      * config.yml中的配置内容
@@ -58,7 +58,8 @@ export class Storage {
     set<T>(key: string, value: T) {
         ensureFileSync(this.path);
         set(this._config, key, value);
-        writeFileSync(this.path, JSON.stringify(this.path, null, 4));
+        console.log('storage set ', this._config);
+        writeFileSync(this.path, JSON.stringify(this._config, null, 4));
     }
 
     /**
