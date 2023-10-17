@@ -12,7 +12,6 @@ import { isNil } from 'lodash';
 
 import { BaseController } from '../controller';
 import { DeleteDto, ListQueryDto, RestoreDto } from '../dtos';
-
 import { CrudOptions, CrudItem } from '../types';
 
 export function Crud(options: CrudOptions) {

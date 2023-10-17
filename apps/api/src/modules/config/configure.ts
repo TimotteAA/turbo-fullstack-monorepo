@@ -37,7 +37,7 @@ export class Configure {
     protected storage: Storage;
 
     /**
-     * 初始化配置类
+     * 初始化配置类，同步各个模块的配置集
      * @param configs 配置构造器集合对象
      * @param option 配置类选项
      */
@@ -179,8 +179,8 @@ export class Configure {
         if (!isNil(hook)) {
             value = isAsyncFn(hook) ? await hook(this, value) : hook(this, value);
         }
-        // && isNil(await this.get(key, null))
-        this.set(key, value, storage && isNil(await this.get(key, value)), append);
+        console.log('syncFactory ');
+        this.set(key, value, storage && isNil(await this.get(key, null)), append);
         return this;
     }
 }

@@ -58,7 +58,6 @@ export class Storage {
     set<T>(key: string, value: T) {
         ensureFileSync(this.path);
         set(this._config, key, value);
-        console.log('storage set ', this._config);
         writeFileSync(this.path, JSON.stringify(this._config, null, 4));
     }
 

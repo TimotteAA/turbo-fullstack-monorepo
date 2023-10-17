@@ -19,6 +19,14 @@ import { CreateModule } from './utils';
 
 export const apps: Record<string, App> = {};
 
+/**
+ * 创建一个nest app
+ * 先初始化configure模块
+ * 然后创建一个核心的BootModule
+ *
+ * @param name app名称
+ * @param options 创建设置
+ */
 export const createApp = (name: string, options: CreateOptions) => async (): Promise<App> => {
     const { config, builder } = options;
     // 设置app的配置类实例
@@ -36,12 +44,12 @@ export const createApp = (name: string, options: CreateOptions) => async (): Pro
         configure: apps[name].configure,
         BootModule,
     });
-    // 设置api前缀
-    if (apps[name].configure.has('app.prefix')) {
-        apps[name].container.setGlobalPrefix(
-            await apps[name].configure.get<string>('app.prefix', 'api'),
-        );
-    }
+    // // 设置api前缀
+    // if (apps[name].configure.has('app.prefix')) {
+    //     apps[name].container.setGlobalPrefix(
+    //         await apps[name].configure.get<string>('app.prefix', 'api'),
+    //     );
+    // }
     // 为class-validator添加容器以便在自定义约束中可以注入dataSource等依赖
     useContainer(apps[name].container.select(BootModule), {
         fallbackOnErrors: true,
@@ -62,7 +70,7 @@ export async function createBootModule(
     const { globals = {}, imports: moduleCreator } = options;
     // 获取需要导入的模块
     const modules = await moduleCreator(configure);
-    // 添加核心模块、配置模块
+    // 除却各个业务模块，添加核心模块、配置模块
     const imports: ModuleMetadata['imports'] = [
         ...modules,
         CoreModule.forRoot(),

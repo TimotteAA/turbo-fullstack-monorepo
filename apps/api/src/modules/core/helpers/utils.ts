@@ -1,7 +1,7 @@
 import { Module, ModuleMetadata, Type } from '@nestjs/common';
 
 /**
- * 创建一个动态模块
+ * 创建一个动态模块，其实是主动执行Module装饰器
  * @param target
  * @param metaSetter
  */
