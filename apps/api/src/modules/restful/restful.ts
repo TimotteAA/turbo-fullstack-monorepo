@@ -1,5 +1,8 @@
 import { RouterModule } from '@nestjs/core';
-import { omit, trim } from 'lodash';
+import { INestApplication, Type } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
+import { isNil, omit, trim } from 'lodash';
 
 import { BaseRestful } from './base';
 import { genDocPath } from './helpers';
@@ -11,7 +14,6 @@ import {
     SwaggerOption,
     VersionOption,
 } from './types';
-import { Type } from '@nestjs/common';
 
 export class Restful extends BaseRestful {
     /**
@@ -20,6 +22,10 @@ export class Restful extends BaseRestful {
     protected _docs!: {
         [version: string]: APIDocOption;
     };
+
+    get docs() {
+        return this._docs;
+    }
 
     /**
      * 已经添加的模块
@@ -49,6 +55,39 @@ export class Restful extends BaseRestful {
 
     getModuleImports() {
         return [RouterModule.register(this.routes), ...Object.values(this.modules)];
+    }
+
+    async factoryDocs<T extends INestApplication>(
+        container: T,
+        metadata?: () => Promise<Record<string, any>>,
+    ) {
+        // 所有的文档
+        const docs = Object.values(this._docs)
+            .map((vdoc) => [vdoc.default, ...Object.values(vdoc.routes)])
+            .reduce((o, n) => [...n, ...o], [])
+            .filter((i) => !!i);
+        for (const voption of docs) {
+            const { title, description, version, auth, include, tags } = voption!;
+            const builder = new DocumentBuilder();
+            if (title) builder.setTitle(title);
+            if (description) builder.setDescription(description);
+            if (auth) builder.addBearerAuth();
+            if (tags) {
+                tags.forEach((tag) =>
+                    typeof tag === 'string'
+                        ? builder.addTag(tag)
+                        : builder.addTag(tag.name, tag.description, tag.externalDocs),
+                );
+            }
+            builder.setVersion(version);
+            if (!isNil(metadata)) await SwaggerModule.loadPluginMetadata(metadata);
+            const document = SwaggerModule.createDocument(container, builder.build(), {
+                include: include.length > 0 ? include : [() => undefined as any],
+                ignoreGlobalPrefix: true,
+                deepScanRoutes: true,
+            });
+            SwaggerModule.setup(voption!.path, container, document);
+        }
     }
 
     /**
@@ -81,6 +120,7 @@ export class Restful extends BaseRestful {
         if (Object.keys(routesDoc).length > 0) {
             docConfig.routes = routesDoc;
         }
+        // 虚拟模块
         const routeModules = isDefault
             ? this.getRouteModules(voption.routes ?? [])
             : this.getRouteModules(voption.routes ?? [], name);
@@ -93,6 +133,10 @@ export class Restful extends BaseRestful {
         return docConfig;
     }
 
+    /**
+     * 排除已经添加的模块
+     * @param routeModules
+     */
     protected filterExcludedModules(routeModules: Type<any>[]) {
         const excludeModules: Type<any>[] = [];
         const excludeNames = Array.from(new Set(this.excludeVersionModules));
@@ -131,7 +175,7 @@ export class Restful extends BaseRestful {
         let routeDocs: { [key: string]: SwaggerOption } = {};
         // 判断路由是否有除tags的其他属性
         const hasAdditional = (doc?: ApiDocSource) =>
-            doc && Object.keys(omit(doc, 'atgs')).length > 0;
+            doc && Object.keys(omit(doc, 'tags')).length > 0;
 
         for (const route of routes) {
             const { name, doc, children } = route;
