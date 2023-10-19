@@ -23,7 +23,7 @@ export const createData: CreateOptions = {
         MeiliSearchModule.forRoot(configure),
     ],
     globals: {},
-    builder: async ({ BootModule }) => {
+    builder: async ({ configure: _configure, BootModule }) => {
         const container = await NestFactory.create<NestFastifyApplication>(
             BootModule,
             new FastifyAdapter(),
@@ -35,7 +35,7 @@ export const createData: CreateOptions = {
         // if (!isNil(await configure.get('api', null))) {
         //     // 构建文档
         //     const restful = container.get(Restful);
-        //     await restful.factoryDocs(container);
+        // await restful.factoryDocs(container);
         // }
         return container;
     },

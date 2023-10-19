@@ -1,4 +1,4 @@
-import { Controller, Get, Query, SerializeOptions } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 
 import { BaseController } from '@/modules/restful/controller';
 import { Depends } from '@/modules/restful/decorators';
@@ -12,7 +12,7 @@ import { PostService } from '../services/post.service';
 @Depends(ContentModule)
 @RegisterCrud((_configure) => ({
     id: 'post',
-    enabled: ['create', 'update', 'delete', 'detail', 'restore', 'list'],
+    enabled: ['create', 'update', 'delete', 'restore', 'list'],
     dtos: {
         create: CreatePostDto,
         update: UpdatePostDto,
@@ -21,7 +21,7 @@ import { PostService } from '../services/post.service';
 }))
 // @Crud({
 //     id: 'post',
-//     enabled: ['create', 'update', 'delete', 'detail', 'restore', 'list'],
+//     enabled: ['create', 'update', 'delete', 'restore', 'list'],
 //     dtos: {
 //         create: CreatePostDto,
 //         update: UpdatePostDto,
@@ -34,12 +34,12 @@ export class PostController extends BaseController<PostService> {
         super(service);
     }
 
-    @Get()
-    @SerializeOptions({ groups: ['post-list'] })
-    async list(
-        @Query()
-        options: QueryPostDto,
-    ) {
-        return this.service.list(options);
-    }
+    // @Get()
+    // @SerializeOptions({ groups: ['post-list'] })
+    // async list(
+    //     @Query()
+    //     options: QueryPostDto,
+    // ) {
+    //     return this.service.list(options);
+    // }
 }
