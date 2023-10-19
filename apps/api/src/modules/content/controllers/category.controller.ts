@@ -1,9 +1,10 @@
 import { Controller, Get, Query, SerializeOptions } from '@nestjs/common';
 
 import { BaseController } from '@/modules/restful/controller';
+import { Depends } from '@/modules/restful/decorators';
+import { RegisterCrud } from '@/modules/restful/decorators/register-crud';
 
-import { Crud } from '@/modules/restful/decorators';
-
+import { ContentModule } from '../content.module';
 import {
     CreateCategoryDto,
     QueryCategoryDto,
@@ -12,7 +13,8 @@ import {
 } from '../dtos';
 import { CategoryService } from '../services';
 
-@Crud({
+@Depends(ContentModule)
+@RegisterCrud((_configure) => ({
     id: 'category',
     enabled: ['create', 'update', 'delete', 'list', 'restore', 'detail'],
     dtos: {
@@ -20,7 +22,16 @@ import { CategoryService } from '../services';
         update: UpdateCategoryDto,
         query: QueryCategoryDto,
     },
-})
+}))
+// @Crud({
+//     id: 'category',
+//     enabled: ['create', 'update', 'delete', 'list', 'restore', 'detail'],
+//     dtos: {
+//         create: CreateCategoryDto,
+//         update: UpdateCategoryDto,
+//         query: QueryCategoryDto,
+//     },
+// })
 @Controller('categories')
 export class CategoryController extends BaseController<CategoryService> {
     constructor(protected service: CategoryService) {

@@ -14,7 +14,7 @@ export abstract class BaseRestful {
     constructor(protected configure: Configure) {}
 
     /**
-     * API模块配置
+     * API配置
      */
     protected config!: ApiConfig;
 
@@ -24,17 +24,17 @@ export abstract class BaseRestful {
     protected _routes: Routes = [];
 
     /**
-     * 默认的版本号
+     * 默认API版本号
      */
     protected _default!: string;
 
     /**
-     * 所有启用的api版本
+     * 启用的API版本
      */
     protected _versions: string[] = [];
 
     /**
-     * 最终创建出的RouteModule
+     * 自动创建的RouteModule
      */
     protected _modules: { [key: string]: Type<any> } = {};
 
@@ -54,7 +54,7 @@ export abstract class BaseRestful {
         return this._modules;
     }
 
-    getConfig<T>(key?: string, defaultValue?: T) {
+    getConfig<T>(key?: string, defaultValue?: any): T {
         return key ? get(this.config, key, defaultValue) : this.config;
     }
 
@@ -69,7 +69,7 @@ export abstract class BaseRestful {
             throw new Error('default api version name should been config!');
         }
         const versionMaps = Object.entries(config.versions)
-            // 过滤可用的版本
+            // 过滤启用的版本
             .filter(([name]) => {
                 if (config.default === name) return true;
                 return config.enabled.includes(name);
@@ -81,7 +81,6 @@ export abstract class BaseRestful {
                     ...pick(config, ['title', 'description', 'auth']),
                     ...version,
                     tags: Array.from(new Set([...(config.tags ?? []), ...(version.tags ?? [])])),
-                    // 版本的路由
                     routes: getCleanRoutes(version.routes ?? []),
                 },
             ]);
@@ -93,15 +92,13 @@ export abstract class BaseRestful {
         this._default = config.default;
         // 启用的版本中必须包含默认版本
         if (!this._versions.includes(this._default)) {
-            throw new Error(
-                `Default api version named ${this.default} is not included in all versions`,
-            );
+            throw new Error(`Default api version named ${this._default} not exists!`);
         }
         this.config = config;
     }
 
     /**
-     * 获取一个路由列表下的所有虚拟路由模块
+     * 获取一个路由列表下的所有路由模块(路由模块是手动创建的动态模块)
      * @param routes
      * @param parent
      */
@@ -109,7 +106,7 @@ export abstract class BaseRestful {
         const result = routes
             .map(({ name, children }) => {
                 const routeName = parent ? `${parent}.${name}` : name;
-                let modules: Type<any>[] = [this.modules[routeName]];
+                let modules: Type<any>[] = [this._modules[routeName]];
                 if (children) modules = [...modules, ...this.getRouteModules(children, routeName)];
                 return modules;
             })
@@ -119,14 +116,13 @@ export abstract class BaseRestful {
     }
 
     /**
-     * 构建每个版本的路由树
+     * 创建路由树及路由模块
      */
     protected async createRoutes() {
         const prefix = await this.configure.get<string>('app.prefix');
         const versionMaps = Object.entries(this.config.versions);
 
-        // 对每个版本的路由进行处理
-        // 先根据路由表创建所有的虚拟路由模块，然后添加前缀、版本
+        // 对每个版本的路由使用'resolveRoutes'方法进行处理
         this._routes = (
             await Promise.all(
                 versionMaps.map(async ([name, version]) =>
@@ -144,8 +140,8 @@ export abstract class BaseRestful {
                 ),
             )
         ).reduce((o, n) => [...o, ...n], []);
-        // 生成一个默认的，不带版本号的路由
-        const defaultVersion = this.config.versions[this.default];
+        // 生成一个默认省略版本号的路由
+        const defaultVersion = this.config.versions[this._default];
         this._routes = [
             ...this._routes,
             ...(

@@ -1,14 +1,16 @@
 import { Controller, Get, Query, SerializeOptions } from '@nestjs/common';
 
 import { ResponseMessage } from '@/modules/core/decorators';
-
 import { BaseController } from '@/modules/restful/controller';
-import { Crud } from '@/modules/restful/decorators';
+import { Depends } from '@/modules/restful/decorators';
+import { RegisterCrud } from '@/modules/restful/decorators/register-crud';
 
+import { ContentModule } from '../content.module';
 import { CreateTagDto, QueryCategoryDto, UpdateTagDto } from '../dtos';
 import { TagService } from '../services';
 
-@Crud({
+@Depends(ContentModule)
+@RegisterCrud((_configure) => ({
     id: 'tag',
     enabled: ['create', 'update', 'delete', 'detail', 'list'],
     dtos: {
@@ -16,7 +18,16 @@ import { TagService } from '../services';
         update: UpdateTagDto,
         query: QueryCategoryDto,
     },
-})
+}))
+// @Crud({
+//     id: 'tag',
+//     enabled: ['create', 'update', 'delete', 'detail', 'list'],
+//     dtos: {
+//         create: CreateTagDto,
+//         update: UpdateTagDto,
+//         query: QueryCategoryDto,
+//     },
+// })
 @Controller('tags')
 export class TagController extends BaseController<TagService> {
     constructor(protected service: TagService) {

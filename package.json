@@ -9,7 +9,8 @@
         "web:dev": "turbo run dev --filter=web --filter=api",
         "lint": "turbo run lint",
         "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-        "upall": "pnpm up --filter @timotte-app/* --latest && pnpm up --latest"
+        "upall": "pnpm up --filter @timotte-app/* --latest && pnpm up --latest",
+        "lint:api": "turbo run lint --filter=api"
     },
     "devDependencies": {
         "@turbo/gen": "^1.9.7",

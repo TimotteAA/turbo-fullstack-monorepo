@@ -1,13 +1,16 @@
+import { isAsyncFunction } from 'util/types';
+
 import { Type } from '@nestjs/common';
 import { RouteTree, Routes } from '@nestjs/core';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { ApiTags } from '@nestjs/swagger';
-import { camelCase, isNil, omit, trim, upperFirst } from 'lodash';
+import { camelCase, isFunction, isNil, omit, trim, upperFirst } from 'lodash';
 
 import { Configure } from '../config/configure';
 import { CreateModule } from '../core/helpers';
 
-import { CONTROLLER_DEPENDS } from './constants';
+import { CONTROLLER_DEPENDS, CRUD_OPTIONS_REGISTER } from './constants';
+import { crud } from './crud';
 import { Restful } from './restful';
 import { APIDocOption, RouteOption } from './types';
 
@@ -18,52 +21,39 @@ import { APIDocOption, RouteOption } from './types';
  */
 export const trimPath = (routePath: string, addPrefix: boolean = true) =>
     `${addPrefix ? '/' : ''}${trim(routePath.replace('//', '/'), '/')}`;
-
 /**
- * 清理一个路由表，处理每个路由项的path属性
- * @param routes
+ * 遍历路由及其子孙路由以清理路径前缀
+ * @param data
  */
-export const getCleanRoutes = (routes: RouteOption[]) =>
-    routes.map((route) => {
-        // 先把children删了
-        const item: RouteOption = {
-            ...omit(route, ['children']),
-            path: trimPath(route.path),
+export const getCleanRoutes = (data: RouteOption[]): RouteOption[] =>
+    data.map((option) => {
+        const route: RouteOption = {
+            ...omit(option, 'children'),
+            path: trimPath(option.path),
         };
-        if (route.children && route.children.length > 0) {
-            item.children = getCleanRoutes(item.children);
+        if (option.children && option.children.length > 0) {
+            route.children = getCleanRoutes(option.children);
         } else {
-            delete item.children;
+            delete route.children;
         }
-        return item;
+        return route;
     });
-
-/**
- * 为路由树中的每一项生产最终的路由
- * @param routePath 路由项clean后的路由
- * @param prefix 前缀，可能来自父级路由、或者全局设置路由
- * @param version 版本号
- */
-export const genRoutePath = (routePath: string, prefix?: string, version?: string) => {
-    const addVersion = `${version ? `/${version.toLowerCase()}/` : '/'}${routePath}`;
-    return isNil(prefix) ? trimPath(addVersion) : trimPath(`${prefix}${addVersion}`);
-};
 
 export const createRouteModuleTree = (
     configure: Configure,
-    modules: Record<string, Type<any>>,
+    modules: { [key: string]: Type<any> },
     routes: RouteOption[],
     parentModule?: string,
 ): Promise<Routes> =>
     Promise.all(
         routes.map(async ({ name, path, children, controllers, doc }) => {
-            // 平铺后的路由模块名称
+            // 自动创建路由模块的名称
             const moduleName = parentModule ? `${parentModule}.${name}` : name;
-            // 在某一层中重复了
-            if (Object.keys(moduleName).includes(moduleName)) {
-                throw new Error(`route name should be unique in the same level!`);
+            // RouteModule的名称必须唯一
+            if (Object.keys(modules).includes(moduleName)) {
+                throw new Error('route name should be unique in same level!');
             }
-            // 获得所有控制器的依赖，先嵌套数组打平，再去重
+            // 获取每个控制器的依赖模块
             const depends = controllers
                 .map((c) => Reflect.getMetadata(CONTROLLER_DEPENDS, c) || [])
                 .reduce((o: Type<any>[], n) => [...o, ...n], [])
@@ -72,37 +62,62 @@ export const createRouteModuleTree = (
                     return [...o, n];
                 }, []);
 
-            // 如果控制器使用@ApiTags装饰器，则使用route的tag配置
+            for (const controller of controllers) {
+                // 拿到每个咯有模块的配置工厂函数 Crud里的函数
+                const crudRegister = Reflect.getMetadata(CRUD_OPTIONS_REGISTER, controller);
+                if (!isNil(crudRegister) && isFunction(crudRegister)) {
+                    const crudOptions = isAsyncFunction(crudRegister)
+                        ? await crudRegister(configure)
+                        : crudRegister(configure);
+                    // 执行路由装饰器
+
+                    await crud(controller, crudOptions);
+                    // if (controller.name === "UserController") {
+
+                    //     console.log("hook", crudOptions.hook, controller, name)
+                    // }
+                }
+            }
+
+            // 为每个没有自己添加`ApiTags`装饰器的控制器添加Tag
             if (doc?.tags && doc.tags.length > 0) {
                 controllers.forEach((controller) => {
                     !Reflect.getMetadata('swagger/apiUseTags', controller) &&
                         ApiTags(
-                            ...doc.tags.map((tag) => (typeof tag === 'string' ? tag : tag.name)),
+                            ...doc.tags.map((tag) => (typeof tag === 'string' ? tag : tag.name))!,
                         )(controller);
                 });
             }
-
-            // 创建路由模块，并导入依赖
-            const module = CreateModule(`${upperFirst(camelCase(moduleName))}RouteModule`, () => ({
+            // 创建路由模块,并导入所有控制器的依赖模块
+            const module = CreateModule(`${upperFirst(camelCase(name))}RouteModule`, () => ({
                 controllers,
                 imports: depends,
             }));
-            // 添加所有的modules，防止重名
+            // 在modules变量中追加创建的RouteModule,防止重名
             modules[moduleName] = module;
             const route: RouteTree = { path, module };
-            // 子路由递归处理
-            if (children) {
+            // 如果有子路由则进一步处理
+            if (children)
                 route.children = await createRouteModuleTree(
                     configure,
                     modules,
                     children,
                     moduleName,
                 );
-            }
             return route;
         }),
     );
 
+/**
+ * 生成最终路由路径(为路由路径添加自定义及版本前缀)
+ * @param routePath
+ * @param prefix
+ * @param version
+ */
+export const genRoutePath = (routePath: string, prefix?: string, version?: string) => {
+    const addVersion = `${version ? `/${version.toLowerCase()}/` : '/'}${routePath}`;
+    return isNil(prefix) ? trimPath(addVersion) : trimPath(`${prefix}${addVersion}`);
+};
 /** ******************************下面是文档相关的************************************ */
 /**
  * 生成最终的文档路径

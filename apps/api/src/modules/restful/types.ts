@@ -2,6 +2,8 @@ import { Type } from '@nestjs/common';
 import { ExternalDocumentationObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 import { ClassTransformOptions } from 'class-transformer';
 
+import { Configure } from '../config/configure';
+
 /**
  * 所有的controller方法
  */
@@ -56,6 +58,11 @@ export interface CrudOptions {
     };
 }
 
+/**
+ * 装饰器配置工厂
+ */
+export type CrudOptionsRegister = (configure: Configure) => CrudOptions | Promise<CrudOptions>;
+
 /** *********************************swagger配置相关********************************* */
 /**
  * 一组endpoints的tag
@@ -91,7 +98,7 @@ export interface RouteOption {
     /** 路由前缀 */
     path: string;
     /** 所有的路由项 */
-    controllers: Type<any>[];
+    controllers?: Type<any>[];
     /** 子路由 */
     children?: RouteOption[];
     /** 路由项的说明、标题 */

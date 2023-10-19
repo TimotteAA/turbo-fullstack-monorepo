@@ -1,13 +1,10 @@
-import { BadGatewayException, ModuleMetadata, Type } from '@nestjs/common';
-
+import { BadGatewayException, Global, Module, ModuleMetadata, Type } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 import { useContainer } from 'class-validator';
-
-import { isNil } from 'lodash';
+import { isNil, omit } from 'lodash';
 
 import { ConfigModule } from '@/modules/config/config.module';
 import { Configure } from '@/modules/config/configure';
-
 import { ConfigureFactory, ConfigureRegister } from '@/modules/config/types';
 
 import { getDefaultAppConfig } from '../constants';
@@ -71,11 +68,22 @@ export async function createBootModule(
     // 获取需要导入的模块
     const modules = await moduleCreator(configure);
     // 除却各个业务模块，添加核心模块、配置模块
-    const imports: ModuleMetadata['imports'] = [
-        ...modules,
-        CoreModule.forRoot(),
-        ConfigModule.forRoot(configure),
-    ];
+    // const imports: ModuleMetadata['imports'] = [
+    //     ...modules,
+    //     CoreModule.forRoot(),
+    //     ConfigModule.forRoot(configure),
+    // ];
+    const imports: ModuleMetadata['imports'] = (
+        await Promise.all([...modules, CoreModule.forRoot(), ConfigModule.forRoot(configure)])
+    ).map((item) => {
+        if ('module' in item) {
+            const meta = omit(item, ['module', 'global']);
+            Module(meta)(item.module);
+            if (item.global) Global()(item.module);
+            return item.module;
+        }
+        return item;
+    });
     // 配置全局提供者
     const providers: ModuleMetadata['providers'] = [];
     if (globals.pipe !== null) {
@@ -121,12 +129,22 @@ export async function createBootModule(
  * @param creator
  * @param listend 对应用启动后做监听
  */
-export const startApp = async (creator: () => Promise<App>, listend?: (app: App) => () => void) => {
+// export const startApp = async (creator: () => Promise<App>, listend?: (app: App) => () => void) => {
+//     const app = await creator();
+//     const { container, configure } = app;
+//     const { port, host } = await configure.get<AppConfig>('app');
+//     await container.listen(port, host, listend(app));
+// };
+export async function startApp(
+    creator: () => Promise<App>,
+    listened?: (app: App, startTime: Date) => () => Promise<void>,
+) {
+    const startTime = new Date();
     const app = await creator();
     const { container, configure } = app;
     const { port, host } = await configure.get<AppConfig>('app');
-    await container.listen(port, host, listend(app));
-};
+    await container.listen(port, host, listened(app, startTime));
+}
 
 /**
  * 应用配置工厂

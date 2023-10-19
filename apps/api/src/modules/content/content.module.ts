@@ -1,11 +1,10 @@
-import { ModuleMetadata } from '@nestjs/common';
-
+import { Module, ModuleMetadata } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { Configure } from '../config/configure';
 import { DatabaseModule } from '../database/database.module';
 
-import * as controllerMaps from './controllers';
+// import * as controllerMaps from './controllers';
 import * as entityMaps from './entities';
 import * as repoMaps from './repositories';
 import * as serviceMaps from './services';
@@ -13,6 +12,7 @@ import { PostService } from './services/post.service';
 import { SearchService } from './services/search.service';
 import { ContentConfig } from './types';
 
+@Module({})
 export class ContentModule {
     static async forRoot(configure: Configure) {
         const config = await configure.get<ContentConfig>('content');
@@ -21,7 +21,7 @@ export class ContentModule {
             TypeOrmModule.forFeature(Object.values(entityMaps)),
             DatabaseModule.forRepository(Object.values(repoMaps)),
         ];
-        const controllers: ModuleMetadata['controllers'] = Object.values(controllerMaps);
+        // const controllers: ModuleMetadata['controllers'] = Object.values(controllerMaps);
 
         const providers: ModuleMetadata['providers'] = [
             ...Object.values(serviceMaps),
@@ -52,13 +52,14 @@ export class ContentModule {
         const exports: ModuleMetadata['exports'] = [
             ...Object.values(serviceMaps),
             SearchService,
+            PostService,
             DatabaseModule.forRepository(Object.values(repoMaps)),
         ];
 
         return {
             module: ContentModule,
             imports,
-            controllers,
+            // controllers,
             providers,
             exports,
         };
