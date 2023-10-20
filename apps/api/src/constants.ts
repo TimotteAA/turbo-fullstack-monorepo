@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
+import { isNil } from 'lodash';
 
 import * as configs from './config';
 import { ContentModule } from './modules/content/content.module';
@@ -7,6 +8,7 @@ import { App, CreateOptions } from './modules/core/types';
 import { DatabaseModule } from './modules/database/database.module';
 import { MeiliSearchModule } from './modules/meilisearch/meilisearch.module';
 import { echoApi } from './modules/restful/helpers';
+import { Restful } from './modules/restful/restful';
 import { RestfulModule } from './modules/restful/restful.module';
 
 export const WEBAPP = 'web';
@@ -23,7 +25,7 @@ export const createData: CreateOptions = {
         MeiliSearchModule.forRoot(configure),
     ],
     globals: {},
-    builder: async ({ configure: _configure, BootModule }) => {
+    builder: async ({ configure, BootModule }) => {
         const container = await NestFactory.create<NestFastifyApplication>(
             BootModule,
             new FastifyAdapter(),
@@ -32,11 +34,11 @@ export const createData: CreateOptions = {
                 logger: ['error', 'warn'],
             },
         );
-        // if (!isNil(await configure.get('api', null))) {
-        //     // 构建文档
-        //     const restful = container.get(Restful);
-        // await restful.factoryDocs(container);
-        // }
+        if (!isNil(await configure.get('api', null))) {
+            // 构建文档
+            const restful = container.get(Restful);
+            await restful.factoryDocs(container);
+        }
         return container;
     },
 };

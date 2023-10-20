@@ -36,13 +36,13 @@ export class QueryCategoryDto extends QueryCategoryTreeDto implements PaginateOp
     @Min(1, { message: '$property最小值为1' })
     @IsNumber()
     @IsOptional()
-    page: number;
+    page: number = 1;
 
     @Transform(({ value }) => toNumber(value))
     @Min(10, { message: '$property最小值为1' })
     @IsNumber()
     @IsOptional()
-    limit: number;
+    limit: number = 10;
 }
 
 @DTO_VALIDATION({ groups: ['create'] })
