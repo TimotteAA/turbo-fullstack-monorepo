@@ -3,7 +3,7 @@ import { isAsyncFunction } from 'util/types';
 import { Type } from '@nestjs/common';
 import { RouteTree, Routes } from '@nestjs/core';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiOperationOptions, ApiTags } from '@nestjs/swagger';
 import { camelCase, isFunction, isNil, omit, trim, upperFirst } from 'lodash';
 
 import { Configure } from '../config/configure';
@@ -12,7 +12,7 @@ import { CreateModule } from '../core/helpers';
 import { CONTROLLER_DEPENDS, CRUD_OPTIONS_REGISTER } from './constants';
 import { crud } from './crud';
 import { Restful } from './restful';
-import { APIDocOption, RouteOption } from './types';
+import { APIDocOption, CrudMethodOption, RouteOption } from './types';
 
 /**
  * 清理单个路由，确保最终的路由是/xxx、xxx的形式
@@ -183,3 +183,22 @@ async function echoApiDocs(name: string, doc: APIDocOption, appUrl: string) {
         });
     }
 }
+
+/** ***********************crud框架endpoint装饰器hook************************************* */
+export const createOptions = (
+    guest?: boolean,
+    endpointOption?: ApiOperationOptions,
+): CrudMethodOption => {
+    return {
+        allowGuest: guest,
+        hook(target, method) {
+            if (!isNil(endpointOption)) {
+                ApiOperation(endpointOption)(
+                    target,
+                    method,
+                    Object.getOwnPropertyDescriptor(target.prototype, method),
+                );
+            }
+        },
+    };
+};

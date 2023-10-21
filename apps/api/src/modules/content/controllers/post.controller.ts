@@ -1,4 +1,5 @@
 import { Controller } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 import { BaseController } from '@/modules/restful/controller';
 import { Depends } from '@/modules/restful/decorators';
@@ -9,6 +10,7 @@ import { ContentModule } from '../content.module';
 import { CreatePostDto, QueryPostDto, UpdatePostDto } from '../dtos/post.dto';
 import { PostService } from '../services/post.service';
 
+@ApiTags('文章操作')
 @Depends(ContentModule)
 @RegisterCrud((_configure) => ({
     id: 'post',

@@ -1,4 +1,5 @@
 import { Controller, Get, Query, SerializeOptions } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 
 import { BaseController } from '@/modules/restful/controller';
 import { Depends } from '@/modules/restful/decorators';
@@ -8,6 +9,7 @@ import { ContentModule } from '../content.module';
 import { CreateCommentDto, QueryCommentListDto, QueryCommentTreeDto } from '../dtos';
 import { CommentService } from '../services';
 
+@ApiTags('评论操作')
 @Depends(ContentModule)
 @RegisterCrud((_configure) => ({
     id: 'comment',
@@ -31,6 +33,11 @@ export class CommentController extends BaseController<CommentService> {
         super(service);
     }
 
+    /**
+     * 查询评论树
+     * @param query
+     * @returns
+     */
     @Get('tree')
     @SerializeOptions({ groups: ['comment-tree'] })
     async tree(

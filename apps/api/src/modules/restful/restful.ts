@@ -1,58 +1,70 @@
-import { Injectable, Type, INestApplication } from '@nestjs/common';
 import { RouterModule } from '@nestjs/core';
+import { INestApplication, Type } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+
 import { isNil, omit, trim } from 'lodash';
 
 import { BaseRestful } from './base';
 import { genDocPath } from './helpers';
 import {
-    ApiConfig,
     APIDocOption,
+    ApiConfig,
     ApiDocSource,
     RouteOption,
     SwaggerOption,
     VersionOption,
 } from './types';
 
-@Injectable()
 export class Restful extends BaseRestful {
     /**
-     * 文档列表c
+     * 各个版本的文档集
      */
     protected _docs!: {
         [version: string]: APIDocOption;
     };
+
+    get docs() {
+        return this._docs;
+    }
 
     /**
      * 排除已经添加的模块
      */
     protected excludeVersionModules: string[] = [];
 
-    get docs() {
-        return this._docs;
-    }
-
-    async create(config: ApiConfig) {
+    async create(config: ApiConfig): Promise<void> {
         this.createConfig(config);
         await this.createRoutes();
         this.createDocs();
+    }
+
+    /**
+     * 创建文档配置
+     */
+    createDocs() {
+        const versionMaps = Object.entries(this.config.versions);
+        const vDocs = versionMaps.map(([name, version]) => [
+            name,
+            this.getDocOption(name, version),
+        ]);
+        this._docs = Object.fromEntries(vDocs);
+        const defaultVersion = this.config.versions[this._default];
+        // 为默认版本生成一个文档
+        this._docs.default = this.getDocOption(this.default, defaultVersion, true);
     }
 
     getModuleImports() {
         return [RouterModule.register(this.routes), ...Object.values(this.modules)];
     }
 
-    /**
-     * 构建Open API
-     * @param container
-     */
     async factoryDocs<T extends INestApplication>(
         container: T,
         metadata?: () => Promise<Record<string, any>>,
     ) {
+        // 所有的文档
         const docs = Object.values(this._docs)
-            .map((vdoc) => [vdoc.default, ...Object.values(vdoc.routes ?? {})])
-            .reduce((o, n) => [...o, ...n], [])
+            .map((vdoc) => [vdoc.default, ...Object.values(vdoc.routes)])
+            .reduce((o, n) => [...n, ...o], [])
             .filter((i) => !!i);
         for (const voption of docs) {
             const { title, description, version, auth, include, tags } = voption!;
@@ -79,29 +91,20 @@ export class Restful extends BaseRestful {
     }
 
     /**
-     * 创建文档配置
-     */
-    protected createDocs() {
-        const versionMaps = Object.entries(this.config.versions);
-        const vDocs = versionMaps.map(([name, version]) => [
-            name,
-            this.getDocOption(name, version),
-        ]);
-        this._docs = Object.fromEntries(vDocs);
-        const defaultVersion = this.config.versions[this._default];
-        // 为默认版本再次生成一个文档
-        this._docs.default = this.getDocOption(this._default, defaultVersion, true);
-    }
-
-    /**
-     * 生成版本文档配置
+     *
+     * 根据版本的文档配置设置一个默认的文档配置
+     * 获取版本的路由集的Swagger配置
+     * 过滤掉已经添加到include的路由模块
+     * 如果还有多余的模块或者在没有当路由没文档的情况下，把include添加到选项中
+     * 返回文档的版本配置
+     *
      * @param name
      * @param voption
      * @param isDefault
      */
     protected getDocOption(name: string, voption: VersionOption, isDefault = false) {
         const docConfig: APIDocOption = {};
-        // 默认文档配置
+        // 默认文档配置，最顶层的
         const defaultDoc = {
             title: voption.title!,
             description: voption.description!,
@@ -117,11 +120,12 @@ export class Restful extends BaseRestful {
         if (Object.keys(routesDoc).length > 0) {
             docConfig.routes = routesDoc;
         }
+        // 虚拟模块
         const routeModules = isDefault
             ? this.getRouteModules(voption.routes ?? [])
             : this.getRouteModules(voption.routes ?? [], name);
         // 文档所依赖的模块
-        const include = this.filterExcludeModules(routeModules);
+        const include = this.filterExcludedModules(routeModules);
         // 版本DOC中有依赖的路由模块或者版本DOC中没有路由DOC则添加版本默认DOC
         if (include.length > 0 || !docConfig.routes) {
             docConfig.default = { ...defaultDoc, include };
@@ -133,10 +137,10 @@ export class Restful extends BaseRestful {
      * 排除已经添加的模块
      * @param routeModules
      */
-    protected filterExcludeModules(routeModules: Type<any>[]) {
+    protected filterExcludedModules(routeModules: Type<any>[]) {
         const excludeModules: Type<any>[] = [];
         const excludeNames = Array.from(new Set(this.excludeVersionModules));
-        for (const [name, module] of Object.entries(this._modules)) {
+        for (const [name, module] of Object.entries(this.modules)) {
             if (excludeNames.includes(name)) excludeModules.push(module);
         }
         return routeModules.filter(
@@ -145,8 +149,8 @@ export class Restful extends BaseRestful {
     }
 
     /**
-     * 生成路由文档
-     * @param option
+     * 生成某一路由文档
+     * @param option 版本文档配置、或者父级路由文档配置
      * @param routes
      * @param parent
      */
@@ -156,12 +160,12 @@ export class Restful extends BaseRestful {
         parent?: string,
     ): { [key: string]: SwaggerOption } {
         /**
-         * 合并Doc配置
-         *
-         * @param {Omit<SwaggerOption, 'include'>} vDoc
-         * @param {RouteOption} route
+         * 合并版本文档与路由文档配置
+         * @param vDoc
+         * @param route
          */
         const mergeDoc = (vDoc: Omit<SwaggerOption, 'include'>, route: RouteOption) => ({
+            // 文档的title、description、auth配置
             ...vDoc,
             ...route.doc,
             tags: Array.from(new Set([...(vDoc.tags ?? []), ...(route.doc?.tags ?? [])])),
@@ -169,10 +173,10 @@ export class Restful extends BaseRestful {
             include: this.getRouteModules([route], parent),
         });
         let routeDocs: { [key: string]: SwaggerOption } = {};
-
-        // 判断路由是否有除tags之外的其它doc属性
+        // 判断路由是否有除tags的其他属性
         const hasAdditional = (doc?: ApiDocSource) =>
             doc && Object.keys(omit(doc, 'tags')).length > 0;
+
 
         for (const route of routes) {
             const { name, doc, children } = route;
@@ -183,8 +187,9 @@ export class Restful extends BaseRestful {
 
             // 添加到routeDocs中
             if (hasAdditional(doc)) {
-                routeDocs[moduleName.replace(`${option.version}.`, '')] = mergeDoc(option, route);
+                routeDocs[moduleName.replace(`${option.version},`, '')] = mergeDoc(option, route);
             }
+
             if (children) {
                 routeDocs = {
                     ...routeDocs,

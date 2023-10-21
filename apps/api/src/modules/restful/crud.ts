@@ -41,18 +41,16 @@ export const crud = async <T extends BaseController<any>>(
     // 添加参数、路径装饰器、序列化选项、是否允许匿名访问等
     for (const { name, options = {} } of methods) {
         // 自己的描述符
-
         if (isNil(Object.getOwnPropertyDescriptor(Target.prototype, name))) {
             const descriptor = Object.getOwnPropertyDescriptor(BaseController.prototype, name);
 
             Object.defineProperty(Target.prototype, name, {
                 ...descriptor,
-                // async value(...args: any[]) {
-                //     return descriptor.value.apply(this, args);
-                // },
-                async [name](..._args: any[]) {
-                    return descriptor.value.apply(this, _args);
-                },
+                value: {
+                    async [name](...args: any[]) {
+                        return descriptor.value.apply(this, args);
+                    },
+                }[name],
             });
         }
 
