@@ -1,5 +1,7 @@
 import { ModuleMetadata, PipeTransform, Type } from '@nestjs/common';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
+import { Ora } from 'ora';
+import type { CommandModule } from 'yargs';
 
 import { Configure } from '../config/configure';
 import { ConfigStorageOptions, ConfigureFactory } from '../config/types';
@@ -15,6 +17,10 @@ export type App = {
     container?: NestFastifyApplication;
     /** 配置中心实例 */
     configure: Configure;
+    /**
+     * cli命令
+     */
+    commands: CommandModule<RecordAny, RecordAny>[];
 };
 
 /**
@@ -50,6 +56,10 @@ export interface CreateOptions {
     };
 
     /**
+     * 所有的命令
+     */
+    commands: () => CommandCollection;
+    /**
      * 配置选项
      */
     config: {
@@ -77,6 +87,10 @@ export interface ContainerBuilder {
  * 应用配置
  */
 export interface AppConfig {
+    /**
+     * app名称
+     */
+    name: string;
     /**
      * 主机地址,默认为127.0.0.1
      */
@@ -123,4 +137,63 @@ export interface PanicOption {
      * 是否退出进程
      */
     exit?: boolean;
+    /**
+     * ora实例
+     */
+    spinner?: Ora;
 }
+
+/** **********************************************cli命令相关类型*********************************************** */
+
+/**
+ * 构造一个命令
+ */
+export type CommandItem<T = Record<string, any>, U = Record<string, any>> = (
+    app: Required<App>,
+) => Promise<CommandOption<T, U>>;
+
+/**
+ * 单个命令的设置项
+ */
+export interface CommandOption<T = RecordAny, U = RecordAny> extends CommandModule<T, U> {
+    /** 是否为启动即退出的瞬时应用 */
+    instant?: boolean;
+}
+
+/**
+ * 所有的命令构造器，传入app实例，然后拿到一个command
+ * yargs使用示例：
+ * ```ts
+ * import yargs, { CommandModule, Arguments } from 'yargs';
+ *
+ * interface MyArgs {
+ *     file: string;
+ *     verbose?: boolean;
+ * }
+ *
+ * const processCommand: CommandModule<MyArgs> = {
+ *     command: 'process <file>',
+ *     describe: 'Process a file',
+ *     builder: {
+ *         verbose: {
+ *             type: 'boolean',
+ *             describe: 'Run in verbose mode',
+ *             default: false,
+ *         },
+ *     },
+ *     handler: (argv: Arguments<MyArgs>) => {
+ *         if (argv.verbose) {
+ *             console.log(`Processing file at path: ${argv.file}`);
+ *         } else {
+ *             console.log('Processing file...');
+ *         }
+ *     },
+ * };
+ *
+ * yargs
+ *     .command(processCommand)
+ *     .help()
+ *     .argv;
+ * ```
+ */
+export type CommandCollection = CommandItem<any, any>[];

@@ -10,13 +10,14 @@
         "lint": "turbo run lint",
         "format": "prettier --write \"**/*.{ts,tsx,md}\"",
         "upall": "pnpm up --filter @timotte-app/* --latest && pnpm up --latest",
-        "lint:api": "turbo run lint --filter=api"
+        "lint:api": "turbo run lint --filter=api",
+        "cli:api": "turbo run cli --filter=api"
     },
     "devDependencies": {
-        "@turbo/gen": "^1.9.7",
-        "eslint": "^7.32.0",
         "@timotte-app/eslint-config": "workspace:*",
-        "prettier": "^2.5.1",
+        "@turbo/gen": "^1.10.16",
+        "eslint": "^7.32.0",
+        "prettier": "^2.8.8",
         "turbo": "latest"
     },
     "packageManager": "pnpm@8.6.10",

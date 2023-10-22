@@ -1,5 +1,5 @@
 {
-    "extends": "@timotte-app/ts-config/nest",
+    "extends": "@timotte-app/ts-config/nest.json",
     "compilerOptions": {
         "baseUrl": ".",
         "outDir": "./dist",
@@ -8,7 +8,9 @@
         },
         "target": "esnext",
         "module": "Node16",
-        "moduleResolution": "NodeNext"
+        "moduleResolution": "NodeNext",
+        "types": ["bun-types"],
+        "emitDecoratorMetadata": true
     },
     "include": ["src", "test", "typings/**/*.d.ts", "**.js", "typings", "./typings/**/*.d.ts"]
 }

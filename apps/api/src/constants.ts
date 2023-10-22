@@ -4,6 +4,7 @@ import { isNil } from 'lodash';
 
 import * as configs from './config';
 import { ContentModule } from './modules/content/content.module';
+import { createStartCommand } from './modules/core/commands';
 import { App, CreateOptions } from './modules/core/types';
 import { DatabaseModule } from './modules/database/database.module';
 import { MeiliSearchModule } from './modules/meilisearch/meilisearch.module';
@@ -41,6 +42,7 @@ export const createData: CreateOptions = {
         }
         return container;
     },
+    commands: () => [createStartCommand],
 };
 
 export const listened: (app: App, startTime: Date) => () => Promise<void> =

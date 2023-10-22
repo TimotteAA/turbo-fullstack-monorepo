@@ -177,7 +177,6 @@ export class Restful extends BaseRestful {
         const hasAdditional = (doc?: ApiDocSource) =>
             doc && Object.keys(omit(doc, 'tags')).length > 0;
 
-
         for (const route of routes) {
             const { name, doc, children } = route;
             const moduleName = parent ? `${parent}.${name}` : name;

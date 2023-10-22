@@ -1,0 +1,15 @@
+{
+    "app": {
+        "host": "127.0.0.1",
+        "port": 3100,
+        "https": false,
+        "timezone": "Asia/Shanghai",
+        "locale": "zh-cn",
+        "name": "test",
+        "prefix": "api",
+        "url": "http://127.0.0.1:3100"
+    },
+    "content": {
+        "searchType": "against"
+    }
+}

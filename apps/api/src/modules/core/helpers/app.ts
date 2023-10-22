@@ -14,6 +14,8 @@ import { App, AppConfig, CreateOptions } from '../types';
 
 import { CreateModule } from './utils';
 
+import { createCommands } from '.';
+
 export const apps: Record<string, App> = {};
 
 /**
@@ -27,7 +29,7 @@ export const apps: Record<string, App> = {};
 export const createApp = (name: string, options: CreateOptions) => async (): Promise<App> => {
     const { config, builder } = options;
     // 设置app的配置类实例
-    apps[name] = { configure: new Configure() };
+    apps[name] = { configure: new Configure(), commands: [] };
     // 初始化配置实例
     await apps[name].configure.initilize(config.factories, config.storage);
     // 如果没有app配置则报错
@@ -51,6 +53,8 @@ export const createApp = (name: string, options: CreateOptions) => async (): Pro
     useContainer(apps[name].container.select(BootModule), {
         fallbackOnErrors: true,
     });
+    // cli命令
+    apps[name].commands = await createCommands(options.commands, apps[name] as Required<App>);
 
     return apps[name];
 };

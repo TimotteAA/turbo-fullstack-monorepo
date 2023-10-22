@@ -2,8 +2,8 @@ import { ArgumentsHost, Catch, HttpException, HttpStatus, Type } from '@nestjs/c
 import { BaseExceptionFilter } from '@nestjs/core';
 import { isObject } from 'lodash';
 // typeorm会引起500的异常
-import { EntityPropertyNotFoundError, QueryFailedError } from 'typeorm';
-import { EntityNotFoundError } from 'typeorm/error/EntityNotFoundError';
+import { EntityPropertyNotFoundError, QueryFailedError, EntityNotFoundError } from 'typeorm';
+// import { EntityNotFoundError } from 'typeorm/error/EntityNotFoundError';
 
 /**
  * 全局过滤器,用于响应自定义异常

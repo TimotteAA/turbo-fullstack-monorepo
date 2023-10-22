@@ -72,11 +72,17 @@ export class QueryPostDto implements PaginateOptions {
 }
 @DTO_VALIDATION({ groups: ['create'] })
 export class CreatePostDto {
+    /**
+     * 文章名称
+     */
     @MaxLength(30, { message: '$property的长度不能超过30' })
     @IsOptional({ groups: ['update'] })
     @IsNotEmpty({ groups: ['create'] })
     title!: string;
 
+    /**
+     * 文章内容
+     */
     @MaxLength(1000, { message: '$property的长度不能超过1000' })
     @IsOptional({ groups: ['update'] })
     @IsNotEmpty({ groups: ['create'] })
