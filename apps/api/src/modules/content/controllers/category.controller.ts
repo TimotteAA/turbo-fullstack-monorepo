@@ -1,20 +1,20 @@
 import { Body, Controller, Delete, Get, Query, SerializeOptions } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
-import { BaseController } from '@/modules/restful/controller';
 import { Depends } from '@/modules/restful/decorators';
 import { RegisterCrud } from '@/modules/restful/decorators/register-crud';
+import { DeleteWithTrashDto, ListQueryDto } from '@/modules/restful/dtos';
 import { createOptions } from '@/modules/restful/helpers';
+import { BaseControllerWithTrash } from '@/modules/restful/trashed.controller';
 
 import { ContentModule } from '../content.module';
 import {
     CreateCategoryDto,
-    QueryCategoryDto,
+    // QueryCategoryDto,
     QueryCategoryTreeDto,
     UpdateCategoryDto,
 } from '../dtos';
 import { CategoryService } from '../services';
-import { DeleteWithTrashDto } from '@/modules/restful/dtos';
 
 @ApiTags('分类操作')
 @Depends(ContentModule)
@@ -49,7 +49,7 @@ import { DeleteWithTrashDto } from '@/modules/restful/dtos';
     dtos: {
         create: CreateCategoryDto,
         update: UpdateCategoryDto,
-        query: QueryCategoryDto,
+        query: ListQueryDto,
     },
 }))
 // @Crud({
@@ -62,7 +62,7 @@ import { DeleteWithTrashDto } from '@/modules/restful/dtos';
 //     },
 // })
 @Controller('categories')
-export class CategoryController extends BaseController<CategoryService> {
+export class CategoryController extends BaseControllerWithTrash<CategoryService> {
     constructor(protected service: CategoryService) {
         super(service);
     }

@@ -15,7 +15,7 @@ import { toNumber } from 'lodash';
 import { DTO_VALIDATION } from '@/modules/core/decorators';
 import { SelectTrashMode } from '@/modules/database/constants';
 import { IsExists, IsTreeUnique, IsTreeUniqueExist } from '@/modules/database/constraints';
-import { PaginateOptions } from '@/modules/database/types';
+import { ListQueryDtoWithTrashed } from '@/modules/restful/dtos';
 
 import { CategoryEntity } from '../entities';
 
@@ -36,21 +36,20 @@ export class QueryCategoryTreeDto {
 }
 
 @DTO_VALIDATION({ type: 'query' })
-export class QueryCategoryDto extends QueryCategoryTreeDto implements PaginateOptions {
-    /**
-     * 分页数量
-     */
-    @Transform(({ value }) => toNumber(value))
-    @Min(1, { message: '$property最小值为1' })
-    @IsNumber()
-    @IsOptional()
-    page: number = 1;
-
-    @Transform(({ value }) => toNumber(value))
-    @Min(10, { message: '$property最小值为1' })
-    @IsNumber()
-    @IsOptional()
-    limit: number = 10;
+export class QueryCategoryDto extends ListQueryDtoWithTrashed {
+    // /**
+    //  * 分页数量
+    //  */
+    // @Transform(({ value }) => toNumber(value))
+    // @Min(1, { message: '$property最小值为1' })
+    // @IsNumber()
+    // @IsOptional()
+    // page: number = 1;
+    // @Transform(({ value }) => toNumber(value))
+    // @Min(10, { message: '$property最小值为1' })
+    // @IsNumber()
+    // @IsOptional()
+    // limit: number = 10;
 }
 
 @DTO_VALIDATION({ groups: ['create'] })

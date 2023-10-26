@@ -1,7 +1,6 @@
-import { RouterModule } from '@nestjs/core';
 import { INestApplication, Type } from '@nestjs/common';
+import { RouterModule } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-
 import { isNil, omit, trim } from 'lodash';
 
 import { BaseRestful } from './base';
@@ -99,7 +98,7 @@ export class Restful extends BaseRestful {
      * 返回文档的版本配置
      *
      * @param name
-     * @param voption
+     * @param voption 版本配置，title、auth、description等部分会继承自总的配置
      * @param isDefault
      */
     protected getDocOption(name: string, voption: VersionOption, isDefault = false) {
@@ -113,6 +112,7 @@ export class Restful extends BaseRestful {
             version: name,
             path: trim(`${this.config.docuri}${isDefault ? '' : `/${name}`}`, '/'),
         };
+        console.log('voption ', voption);
         // 获取路由文档
         const routesDoc = isDefault
             ? this.getRouteDocs(defaultDoc, voption.routes ?? [])
@@ -165,7 +165,7 @@ export class Restful extends BaseRestful {
          * @param route
          */
         const mergeDoc = (vDoc: Omit<SwaggerOption, 'include'>, route: RouteOption) => ({
-            // 文档的title、description、auth配置
+            // 合并文档的title、description、auth配置
             ...vDoc,
             ...route.doc,
             tags: Array.from(new Set([...(vDoc.tags ?? []), ...(route.doc?.tags ?? [])])),
@@ -181,11 +181,11 @@ export class Restful extends BaseRestful {
             const { name, doc, children } = route;
             const moduleName = parent ? `${parent}.${name}` : name;
 
-            // 加入在版本DOC中排除模块列表
+            // 如果这个路由项有除doc以外的配置，添加到已添加模块中
             if (hasAdditional(doc) || parent) this.excludeVersionModules.push(moduleName);
-
             // 添加到routeDocs中
             if (hasAdditional(doc)) {
+                console.log('hasAdditional ', route);
                 routeDocs[moduleName.replace(`${option.version},`, '')] = mergeDoc(option, route);
             }
 

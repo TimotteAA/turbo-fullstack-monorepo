@@ -12,6 +12,7 @@ import { isNil } from 'lodash';
 
 import { BaseController } from './controller';
 import { DeleteDto, ListQueryDto, RestoreDto } from './dtos';
+import { BaseControllerWithTrash } from './trashed.controller';
 import { CrudItem, CrudOptions } from './types';
 
 /**
@@ -42,7 +43,11 @@ export const crud = async <T extends BaseController<any>>(
     for (const { name, options = {} } of methods) {
         // 自己的描述符
         if (isNil(Object.getOwnPropertyDescriptor(Target.prototype, name))) {
-            const descriptor = Object.getOwnPropertyDescriptor(BaseController.prototype, name);
+            // const descriptor = Object.getOwnPropertyDescriptor(BaseController.prototype, name);
+            const descriptor =
+                Target instanceof BaseControllerWithTrash
+                    ? Object.getOwnPropertyDescriptor(BaseControllerWithTrash.prototype, name)
+                    : Object.getOwnPropertyDescriptor(BaseController.prototype, name);
 
             Object.defineProperty(Target.prototype, name, {
                 ...descriptor,

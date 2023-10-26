@@ -2,8 +2,13 @@ import { Configure } from '@/modules/config/configure';
 import * as contentControllerMaps from '@/modules/content/controllers';
 import { VersionOption } from '@/modules/restful/types';
 
+/**
+ * 此次路由中的doc为总的路由doc
+ * @param _configure
+ */
 export const v1 = async (_configure: Configure): Promise<VersionOption> => {
     return {
+        title: '草泥马',
         routes: [
             {
                 name: 'app',

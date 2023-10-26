@@ -1,4 +1,4 @@
-import { PickType } from '@nestjs/swagger';
+import { ApiPropertyOptional, PickType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import {
     IsNotEmpty,
@@ -31,6 +31,9 @@ export class QueryCommentListDto implements PaginateOptions {
     @IsOptional()
     limit: number;
 
+    @ApiPropertyOptional({
+        description: '某篇文章的id，用于查询特定文章下的所有评论',
+    })
     @IsUUID(undefined, { message: '文章id格式错误' })
     @IsOptional()
     post?: string;

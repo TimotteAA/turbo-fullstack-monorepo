@@ -2,7 +2,7 @@ import { Body, Get, Post, Delete, Patch, Param, ParseUUIDPipe, Query } from '@ne
 
 import { ServiceListQueryOption } from '@/modules/database/types';
 
-import { DeleteWithTrashDto, ListQueryDto, QueryDetailDto, RestoreDto } from './dtos';
+import { DeleteDto, ListQueryDto, QueryDetailDto, RestoreDto } from './dtos';
 
 export abstract class BaseController<
     S,
@@ -35,8 +35,8 @@ export abstract class BaseController<
     }
 
     @Delete()
-    async delete(@Body() options: DeleteWithTrashDto) {
-        return (this.service as any).delete(options.ids, options.trashed);
+    async delete(@Body() options: DeleteDto) {
+        return (this.service as any).delete(options.ids);
     }
 
     @Patch('restore')
