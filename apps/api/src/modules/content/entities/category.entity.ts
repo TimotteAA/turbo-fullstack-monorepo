@@ -9,7 +9,6 @@ import {
     TreeChildren,
     TreeParent,
 } from 'typeorm';
-
 import type { Relation } from 'typeorm';
 
 import { BaseEntity } from '@/modules/database/base';

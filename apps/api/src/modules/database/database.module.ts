@@ -1,7 +1,9 @@
 import { DynamicModule, Module, ModuleMetadata, Type } from '@nestjs/common';
 import { TypeOrmModule, TypeOrmModuleOptions, getDataSourceToken } from '@nestjs/typeorm';
-
 import { DataSource, ObjectType } from 'typeorm';
+
+import { Configure } from '../config/configure';
+import { panic } from '../core/utils';
 
 import { CUSTOM_REPOSITORY_METADATA } from './constants';
 import {
@@ -11,8 +13,6 @@ import {
     UniqueTreeConstraint,
     UniqueTreeExistConstraint,
 } from './constraints';
-import { Configure } from '../config/configure';
-import { panic } from '../core/utils';
 import { DbOptions } from './types';
 
 @Module({})

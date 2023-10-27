@@ -1,6 +1,12 @@
-import { ArgumentMetadata, Injectable, Paramtype, ValidationPipe } from '@nestjs/common';
-import merge from 'deepmerge';
+import {
+    ArgumentMetadata,
+    BadRequestException,
+    Injectable,
+    Paramtype,
+    ValidationPipe,
+} from '@nestjs/common';
 import { isObject, omit } from 'lodash';
+import { deepMerge } from '@/modules/config/utils';
 
 import { DTO_VALIDATION_OPTIONS } from '../constants';
 
@@ -10,7 +16,6 @@ import { DTO_VALIDATION_OPTIONS } from '../constants';
 @Injectable()
 export class AppPipe extends ValidationPipe {
     async transform(value: any, metadata: ArgumentMetadata) {
-        // type是请求类型、metatype是对应的dto
         const { metatype, type } = metadata;
         // 获取要验证的dto类
         const dto = metatype as any;
@@ -24,20 +29,20 @@ export class AppPipe extends ValidationPipe {
         const { transformOptions, type: optionsType, ...customOptions } = options;
         // 根据DTO类上设置的type来设置当前的DTO请求类型,默认为'body'
         const requestType: Paramtype = optionsType ?? 'body';
+
         // 如果被验证的DTO设置的请求类型与被验证的数据的请求类型不是同一种类型则跳过此管道
         if (requestType !== type) return value;
 
         // 合并当前transform选项和自定义选项
         if (transformOptions) {
-            this.transformOptions = merge(this.transformOptions, transformOptions ?? {}, {
-                arrayMerge: (_d, s, _o) => s,
-            });
+            this.transformOptions = deepMerge(
+                this.transformOptions,
+                transformOptions ?? {},
+                'replace',
+            );
         }
-
         // 合并当前验证选项和自定义选项
-        this.validatorOptions = merge(this.validatorOptions, customOptions ?? {}, {
-            arrayMerge: (_d, s, _o) => s,
-        });
+        this.validatorOptions = deepMerge(this.validatorOptions, customOptions ?? {}, 'replace');
         const toValidate = isObject(value)
             ? Object.fromEntries(
                   Object.entries(value as Record<string, any>).map(([key, v]) => {
@@ -65,8 +70,8 @@ export class AppPipe extends ValidationPipe {
             this.validatorOptions = originOptions;
             // 重置transform选项
             this.transformOptions = originTransform;
-            if ('response' in error) return error.response;
-            return error;
+            if ('response' in error) throw new BadRequestException(error.response);
+            throw new BadRequestException(error);
         }
     }
 }

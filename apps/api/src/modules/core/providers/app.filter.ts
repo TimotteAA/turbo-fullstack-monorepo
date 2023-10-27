@@ -13,9 +13,9 @@ export class AppFilter<T = Error> extends BaseExceptionFilter<T> {
     protected resExceptions: Array<
         { class: Type<Error>; status?: number; message?: string } | Type<Error>
     > = [
-        { class: EntityNotFoundError, status: HttpStatus.NOT_FOUND, message: 'entity不存在' },
-        { class: QueryFailedError, status: HttpStatus.BAD_REQUEST, message: '查询失败' },
-        { class: EntityPropertyNotFoundError, status: HttpStatus.BAD_REQUEST, message: '查询失败' },
+        { class: EntityNotFoundError, status: HttpStatus.NOT_FOUND, message: '未知错误' },
+        { class: QueryFailedError, status: HttpStatus.BAD_REQUEST, message: '未知错误' },
+        { class: EntityPropertyNotFoundError, status: HttpStatus.BAD_REQUEST, message: '未知错误' },
     ];
 
     // eslint-disable-next-line consistent-return
@@ -27,7 +27,6 @@ export class AppFilter<T = Error> extends BaseExceptionFilter<T> {
         const resException = this.resExceptions.find((item) =>
             'class' in item ? exception instanceof item.class : exception instanceof item,
         );
-
         // 如果不在自定义异常处理类列表也没有继承自HttpException，后半部分来自源码
         if (!resException && !(exception instanceof HttpException)) {
             return this.handleUnknownError(exception, host, applicationRef);

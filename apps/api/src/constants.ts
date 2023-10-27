@@ -11,6 +11,7 @@ import { MeiliSearchModule } from './modules/meilisearch/meilisearch.module';
 import { echoApi } from './modules/restful/helpers';
 import { Restful } from './modules/restful/restful';
 import { RestfulModule } from './modules/restful/restful.module';
+import { UserModule } from './modules/user/user.module';
 
 export const WEBAPP = 'web';
 export const createData: CreateOptions = {
@@ -24,6 +25,7 @@ export const createData: CreateOptions = {
         DatabaseModule.forRoot(configure),
         ContentModule.forRoot(configure),
         MeiliSearchModule.forRoot(configure),
+        UserModule.forRoot(configure),
     ],
     globals: {},
     builder: async ({ configure, BootModule }) => {
