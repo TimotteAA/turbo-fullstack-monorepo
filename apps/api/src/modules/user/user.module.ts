@@ -1,8 +1,11 @@
 import { Module, ModuleMetadata } from '@nestjs/common';
+import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { isNil } from 'lodash';
 
 import { Configure } from '../config/configure';
+import { panic } from '../core/utils';
 import { DatabaseModule } from '../database/database.module';
 
 import * as entityMaps from './entities';
@@ -11,16 +14,30 @@ import * as repoMaps from './repositorys';
 import * as serviceMaps from './services';
 import * as stragetyMaps from './strategy';
 import * as subscriberMaps from './subscriber';
+import { UserModuleConfig } from './types';
 
 @Module({})
 export class UserModule {
-    static async forRoot(_configure: Configure) {
+    static async forRoot(configure: Configure) {
+        const user = await configure.get<UserModuleConfig>('user');
+        if (isNil(user)) {
+            panic({ message: '用户模块没有配置!' });
+        }
         const providers: ModuleMetadata['providers'] = [];
         providers.push(
             ...Object.values(serviceMaps),
             ...Object.values(subscriberMaps),
             ...Object.values(stragetyMaps),
             ...Object.values(guardMaps),
+            {
+                provide: 'REFRESH_TOKEN_JWT_SERVICE',
+                useFactory: () => {
+                    return new JwtService({
+                        secret: user.jwt.refreshTokenSecret,
+                        signOptions: { expiresIn: user.jwt.refreshTokenExpiresIn },
+                    });
+                },
+            },
         );
 
         const imports: ModuleMetadata['imports'] = [
@@ -28,12 +45,21 @@ export class UserModule {
             DatabaseModule.forRepository(Object.values(repoMaps)),
             // passport
             PassportModule,
+            // jwt
+            JwtModule.register({
+                secret: user.jwt.accessTokenSecret,
+                signOptions: {
+                    expiresIn: user.jwt.accessTokenExpiresIn,
+                },
+            }),
         ];
 
         const exports: ModuleMetadata['exports'] = [
             DatabaseModule.forRepository(Object.values(repoMaps)),
             serviceMaps.UserService,
             serviceMaps.AuthService,
+            // refresh token service
+            'REFRESH_TOKEN_JWT_SERVICE',
         ];
 
         return {

@@ -25,6 +25,7 @@
         "@nestjs/common": "^10.2.7",
         "@nestjs/config": "^3.1.1",
         "@nestjs/core": "^10.2.7",
+        "@nestjs/jwt": "^10.1.1",
         "@nestjs/passport": "^10.0.2",
         "@nestjs/platform-express": "^10.2.7",
         "@nestjs/platform-fastify": "^10.2.7",
@@ -53,6 +54,7 @@
         "rxjs": "^7.8.1",
         "sanitize-html": "^2.11.0",
         "typeorm": "0.3.16",
+        "uuid": "^9.0.1",
         "validator": "^13.11.0",
         "yaml": "^2.3.3",
         "yargs": "^17.7.2"
@@ -70,6 +72,7 @@
         "@types/passport-local": "^1.0.37",
         "@types/sanitize-html": "^2.9.3",
         "@types/supertest": "^2.0.15",
+        "@types/uuid": "^9.0.6",
         "@types/validator": "^13.11.5",
         "@types/yargs": "^17.0.29",
         "@typescript-eslint/eslint-plugin": "^6.9.0",

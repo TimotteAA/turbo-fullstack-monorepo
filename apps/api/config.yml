@@ -10,5 +10,14 @@
         "locale": "zh-cn",
         "prefix": "api",
         "url": "http://127.0.0.1:3100"
+    },
+    "user": {
+        "hash": 10,
+        "jwt": {
+            "accessTokenSecret": "asdada",
+            "accessTokenExpiresIn": 216000,
+            "refreshTokenSecret": "asdzxcassx",
+            "refreshTokenExpiresIn": 777600000
+        }
     }
 }
