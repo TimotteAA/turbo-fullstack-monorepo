@@ -1,3 +1,4 @@
+import chalk from 'chalk';
 import { isNil } from 'lodash';
 import yargs, { Arguments } from 'yargs';
 import { hideBin } from 'yargs/helpers';
@@ -38,7 +39,7 @@ export const createCLI = async (creator: () => Promise<App>) => {
                 bin.showHelp();
                 process.exit();
             }
-            const { default: chalk } = await import('chalk');
+            // const { default: chalk } = await import('chalk');
             if (!isNil(msg)) console.error(chalk.red(msg));
             if (!isNil(err)) console.error(chalk.red(err));
         })

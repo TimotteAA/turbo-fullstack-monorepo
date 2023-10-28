@@ -1,16 +1,14 @@
-import { isAsyncFunction } from 'util/types';
-
 import { Type } from '@nestjs/common';
 import { RouteTree, Routes } from '@nestjs/core';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { ApiOperation, ApiOperationOptions, ApiTags } from '@nestjs/swagger';
-import { camelCase, isFunction, isNil, omit, trim, upperFirst } from 'lodash';
+import chalk from 'chalk';
+import { camelCase, isNil, omit, trim, upperFirst } from 'lodash';
 
 import { Configure } from '../config/configure';
 import { CreateModule } from '../core/helpers';
 
-import { CONTROLLER_DEPENDS, CRUD_OPTIONS_REGISTER } from './constants';
-import { crud } from './crud';
+import { CONTROLLER_DEPENDS } from './constants';
 import { Restful } from './restful';
 import { APIDocOption, CrudMethodOption, RouteOption } from './types';
 
@@ -62,22 +60,22 @@ export const createRouteModuleTree = (
                     return [...o, n];
                 }, []);
 
-            for (const controller of controllers) {
-                // 拿到每个咯有模块的配置工厂函数 Crud里的函数
-                const crudRegister = Reflect.getMetadata(CRUD_OPTIONS_REGISTER, controller);
-                if (!isNil(crudRegister) && isFunction(crudRegister)) {
-                    const crudOptions = isAsyncFunction(crudRegister)
-                        ? await crudRegister(configure)
-                        : crudRegister(configure);
-                    // 执行路由装饰器
+            // for (const controller of controllers) {
+            //     // 拿到每个咯有模块的配置工厂函数 Crud里的函数
+            //     const crudRegister = Reflect.getMetadata(CRUD_OPTIONS_REGISTER, controller);
+            //     if (!isNil(crudRegister) && isFunction(crudRegister)) {
+            //         const crudOptions = isAsyncFunction(crudRegister)
+            //             ? await crudRegister(configure)
+            //             : crudRegister(configure);
+            //         // 执行路由装饰器
 
-                    await crud(controller, crudOptions);
-                    // if (controller.name === "UserController") {
+            //         await crud(controller, crudOptions);
+            //         // if (controller.name === "UserController") {
 
-                    //     console.log("hook", crudOptions.hook, controller, name)
-                    // }
-                }
-            }
+            //         //     console.log("hook", crudOptions.hook, controller, name)
+            //         // }
+            //     }
+            // }
 
             // 为每个没有自己添加`ApiTags`装饰器的控制器添加Tag
             if (doc?.tags && doc.tags.length > 0) {
@@ -135,7 +133,7 @@ export const genDocPath = (routePath: string, prefix?: string, version?: string)
  */
 export async function echoApi(configure: Configure, container: NestFastifyApplication) {
     const appUrl = await configure.get<string>('app.url');
-    const chalk = (await import('chalk')).default;
+    // const chalk = (await import('chalk')).default;
     // 设置应用的API前缀,如果没有则与appUrl相同
     const urlPrefix = await configure.get('app.prefix', undefined);
     const apiUrl = !isNil(urlPrefix)
@@ -160,7 +158,7 @@ export async function echoApi(configure: Configure, container: NestFastifyApplic
  */
 async function echoApiDocs(name: string, doc: APIDocOption, appUrl: string) {
     const getDocPath = (dpath: string) => `${appUrl}/${dpath}`;
-    const chalk = (await import('chalk')).default;
+    // const chalk = (await import('chalk')).default;
     if (!doc.routes && doc.default) {
         console.log(
             `    [${chalk.blue(name.toUpperCase())}]: ${chalk.green.underline(

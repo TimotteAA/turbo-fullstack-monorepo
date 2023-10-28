@@ -57,7 +57,7 @@ export class CreateCategoryDto {
     @IsNotEmpty({ groups: ['create'], message: '分类名称不能为空' })
     name!: string;
 
-    @ApiPropertyOptional({ description: '分类自定义排序值', default: 0 })
+    @ApiPropertyOptional({ description: '分类自定义排序值' })
     @Transform(({ value }) => toNumber(value))
     @Min(0, {
         message: '$property最小值为0',

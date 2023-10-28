@@ -1,3 +1,4 @@
+import chalk from 'chalk';
 import { isNil } from 'lodash';
 
 import { PanicOption } from '../types';
@@ -31,7 +32,7 @@ export function toNull(value?: string | null): string | null | undefined {
  * @param option
  */
 export async function panic(option: PanicOption | string) {
-    const chalk = (await import('chalk')).default;
+    // const chalk = (await import('chalk')).default;
     console.log();
     if (typeof option === 'string') {
         console.log(chalk.red(`\n❌ ${option}`));

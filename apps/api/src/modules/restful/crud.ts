@@ -7,12 +7,11 @@ import {
     SerializeOptions,
     Type,
 } from '@nestjs/common';
-import { ApiBody, ApiQuery } from '@nestjs/swagger';
+import { ApiBody } from '@nestjs/swagger';
 import { isNil } from 'lodash';
 
 import { BaseController } from './controller';
 import { DeleteDto, ListQueryDto, RestoreDto } from './dtos';
-import { BaseControllerWithTrash } from './trashed.controller';
 import { CrudItem, CrudOptions } from './types';
 
 /**
@@ -44,10 +43,7 @@ export const crud = async <T extends BaseController<any>>(
         // 自己的描述符
         if (isNil(Object.getOwnPropertyDescriptor(Target.prototype, name))) {
             // const descriptor = Object.getOwnPropertyDescriptor(BaseController.prototype, name);
-            const descriptor =
-                Target instanceof BaseControllerWithTrash
-                    ? Object.getOwnPropertyDescriptor(BaseControllerWithTrash.prototype, name)
-                    : Object.getOwnPropertyDescriptor(BaseController.prototype, name);
+            const descriptor = Object.getOwnPropertyDescriptor(BaseController.prototype, name);
 
             Object.defineProperty(Target.prototype, name, {
                 ...descriptor,
@@ -88,7 +84,7 @@ export const crud = async <T extends BaseController<any>>(
             // }
             const dto = dtos.query ?? ListQueryDto;
             Reflect.defineMetadata('design:paramtypes', [dto, ...params], Target.prototype, name);
-            ApiQuery({ type: dtos.query })(Target, name, descriptor);
+            // ApiQuery({ type: dtos.query })(Target, name, descriptor);
         } else if (name === 'delete') {
             ApiBody({ type: DeleteDto })(Target, name, descriptor);
         } else if (name === 'restore') {

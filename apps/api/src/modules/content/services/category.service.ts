@@ -1,18 +1,11 @@
 import { Injectable } from '@nestjs/common';
-
 import { isNil, omit } from 'lodash';
-import { EntityNotFoundError, In } from 'typeorm';
+import { EntityNotFoundError } from 'typeorm';
 
 import { BaseService } from '@/modules/database/base/base.service';
 import { SelectTrashMode } from '@/modules/database/constants';
-import { manualPaginate } from '@/modules/database/helpers';
 
-import {
-    CreateCategoryDto,
-    QueryCategoryDto,
-    QueryCategoryTreeDto,
-    UpdateCategoryDto,
-} from '../dtos';
+import { CreateCategoryDto, QueryCategoryTreeDto, UpdateCategoryDto } from '../dtos';
 import { CategoryEntity } from '../entities';
 import { CategoryRepository } from '../repositories';
 
@@ -33,15 +26,15 @@ export class CategoryService extends BaseService<CategoryEntity, CategoryReposit
         return tree;
     }
 
-    async paginate(options: QueryCategoryDto) {
-        const { trashed = SelectTrashMode.NONE } = options;
-        const tree = await this.repo.findTrees({
-            withTrashed: trashed === SelectTrashMode.ALL || trashed === SelectTrashMode.ONLY,
-            onlyTrashed: trashed === SelectTrashMode.ONLY,
-        });
-        const data = await this.repo.toFlatTrees(tree);
-        return manualPaginate(options, data);
-    }
+    // async paginate(options: QueryCategoryDto) {
+    //     const { trashed = SelectTrashMode.NONE } = options;
+    //     const tree = await this.repo.findTrees({
+    //         withTrashed: trashed === SelectTrashMode.ALL || trashed === SelectTrashMode.ONLY,
+    //         onlyTrashed: trashed === SelectTrashMode.ONLY,
+    //     });
+    //     const data = await this.repo.toFlatTrees(tree);
+    //     return manualPaginate(options, data);
+    // }
 
     async create(data: CreateCategoryDto) {
         const cate = await this.repo.save({
@@ -100,21 +93,24 @@ export class CategoryService extends BaseService<CategoryEntity, CategoryReposit
     //     return this.repo.remove(items);
     // }
 
-    async restore(ids: string[]) {
-        const items = await this.repo.find({
-            where: {
-                id: In(ids),
-            },
-            // 软删除
-            withDeleted: true,
-        });
-        const trasheds = items.filter((item) => !isNil(item)).map((item) => item.id);
-        if (trasheds.length < 1) return [];
-        await this.repo.restore(trasheds);
-        const qb = this.repo.buildBaseQB();
-        qb.andWhereInIds(trasheds);
-        return qb.getMany();
-    }
+    // async restore(ids: string[]) {
+    //     const items = await this.repo.find({
+    //         where: {
+    //             id: In(ids),
+    //             deletedAt: Not(IsNull()),
+    //         },
+    //         // 软删除
+    //         withDeleted: true,
+    //     });
+    //     console.log('restore category', ids, items);
+    //     const trasheds = items.filter((item) => !isNil(item)).map((item) => item.id);
+    //     if (trasheds.length < 1) return [];
+    //     console.log('trashed ', trasheds);
+    //     await this.repo.restore(trasheds);
+    //     const qb = this.repo.buildBaseQB();
+    //     qb.andWhereInIds(trasheds);
+    //     return qb.getMany();
+    // }
 
     /**
      * 获取当前分类的父id

@@ -49,14 +49,6 @@ export class AppIntercepter<T> extends ClassSerializerInterceptor {
     }
 
     intercept(context: ExecutionContext, next: CallHandler): Observable<CustomResponse<T>> {
-        // return next.handle().pipe(
-        //     map((data) => ({
-        //         statusCode: context.switchToHttp().getResponse().statusCode,
-        //         message: this.reflector.get<string>('response_message', context.getHandler()) || '',
-        //         data,
-        //     })),
-        // );
-
         return super.intercept(context, next).pipe(
             map((data) => ({
                 statusCode: context.switchToHttp().getResponse().statusCode,

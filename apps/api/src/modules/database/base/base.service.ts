@@ -155,6 +155,7 @@ export abstract class BaseService<
             where: { id: In(ids) as any },
             withDeleted: true,
         });
+
         const trasheds = items.filter((item) => !isNil(item)).map((item) => item.id);
         if (trasheds.length < 1) return [];
         await this.repository.restore(trasheds);
@@ -163,6 +164,7 @@ export abstract class BaseService<
             undefined,
             async (builder) => builder.andWhereInIds(trasheds),
         );
+        console.log('restore ', ids);
         return qb.getMany();
     }
 

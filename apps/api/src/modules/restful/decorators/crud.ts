@@ -7,7 +7,7 @@ import {
     Delete,
     Patch,
 } from '@nestjs/common';
-import { ApiBody, ApiQuery } from '@nestjs/swagger';
+import { ApiBody } from '@nestjs/swagger';
 import { isNil } from 'lodash';
 
 import { BaseController } from '../controller';
@@ -83,7 +83,8 @@ export function Crud(options: CrudOptions) {
                     Target.prototype,
                     name,
                 );
-                ApiQuery({ type: dtos.query })(Target, name, descriptor);
+                // 这里文档会重复，没搞懂
+                // ApiQuery({ type: dtos.query })(Target, name, descriptor);
             } else if (name === 'delete') {
                 ApiBody({ type: DeleteDto })(Target, name, descriptor);
             } else if (name === 'restore') {

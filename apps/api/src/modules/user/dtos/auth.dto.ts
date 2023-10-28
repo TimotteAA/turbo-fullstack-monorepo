@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty } from 'class-validator';
 
 import { DTO_VALIDATION } from '@/modules/core/decorators';
-import { IsMatch } from '@/modules/database/constraints';
 
 /**
  * 用户名+密码登录
@@ -20,8 +19,8 @@ export class UserLoginDto {
     @IsNotEmpty({ message: '登录密码不能为空' })
     password!: string;
 
-    @ApiProperty({ description: '确认密码' })
-    @IsMatch('password', { message: '两次密码不一致' })
-    @IsNotEmpty({ message: '确认密码不能为空' })
-    repassword!: string;
+    // @ApiProperty({ description: '确认密码' })
+    // @IsMatch('password', { message: '两次密码不一致' })
+    // @IsNotEmpty({ message: '确认密码不能为空' })
+    // repassword!: string;
 }

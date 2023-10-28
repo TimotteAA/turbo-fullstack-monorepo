@@ -3,8 +3,7 @@ import { ApiTags } from '@nestjs/swagger';
 
 import { ResponseMessage } from '@/modules/core/decorators';
 import { BaseController } from '@/modules/restful/controller';
-import { Depends } from '@/modules/restful/decorators';
-import { RegisterCrud } from '@/modules/restful/decorators/register-crud';
+import { Crud, Depends } from '@/modules/restful/decorators';
 
 import { ContentModule } from '../content.module';
 import { CreateTagDto, QueryCategoryDto, UpdateTagDto } from '../dtos';
@@ -12,7 +11,7 @@ import { TagService } from '../services';
 
 @ApiTags('标签操作')
 @Depends(ContentModule)
-@RegisterCrud((_configure) => ({
+@Crud({
     id: 'tag',
     enabled: ['create', 'update', 'delete', 'detail', 'list'],
     dtos: {
@@ -20,16 +19,7 @@ import { TagService } from '../services';
         update: UpdateTagDto,
         query: QueryCategoryDto,
     },
-}))
-// @Crud({
-//     id: 'tag',
-//     enabled: ['create', 'update', 'delete', 'detail', 'list'],
-//     dtos: {
-//         create: CreateTagDto,
-//         update: UpdateTagDto,
-//         query: QueryCategoryDto,
-//     },
-// })
+})
 @Controller('tags')
 export class TagController extends BaseController<TagService> {
     constructor(protected service: TagService) {

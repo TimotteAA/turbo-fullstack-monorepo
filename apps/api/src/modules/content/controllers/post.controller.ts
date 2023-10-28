@@ -1,9 +1,9 @@
-import { Controller } from '@nestjs/common';
+import { Body, Controller, Delete } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { BaseController } from '@/modules/restful/controller';
-import { Depends } from '@/modules/restful/decorators';
-import { RegisterCrud } from '@/modules/restful/decorators/register-crud';
+import { Crud, Depends } from '@/modules/restful/decorators';
+import { DeleteWithTrashDto } from '@/modules/restful/dtos';
 
 import { ContentModule } from '../content.module';
 
@@ -12,7 +12,7 @@ import { PostService } from '../services/post.service';
 
 @ApiTags('文章操作')
 @Depends(ContentModule)
-@RegisterCrud((_configure) => ({
+@Crud({
     id: 'post',
     enabled: ['create', 'update', 'delete', 'restore', 'list'],
     dtos: {
@@ -20,16 +20,7 @@ import { PostService } from '../services/post.service';
         update: UpdatePostDto,
         query: QueryPostDto,
     },
-}))
-// @Crud({
-//     id: 'post',
-//     enabled: ['create', 'update', 'delete', 'restore', 'list'],
-//     dtos: {
-//         create: CreatePostDto,
-//         update: UpdatePostDto,
-//         query: QueryPostDto,
-//     },
-// })
+})
 @Controller('posts')
 export class PostController extends BaseController<PostService> {
     constructor(protected service: PostService) {
@@ -44,4 +35,9 @@ export class PostController extends BaseController<PostService> {
     // ) {
     //     return this.service.list(options);
     // }
+
+    @Delete()
+    async delete(@Body() data: DeleteWithTrashDto) {
+        return this.service.delete(data.ids, data.trashed);
+    }
 }

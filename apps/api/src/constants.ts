@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
+import chalk from 'chalk';
 import { isNil } from 'lodash';
 
 import * as configs from './config';
@@ -8,6 +9,7 @@ import { createStartCommand } from './modules/core/commands';
 import { App, CreateOptions } from './modules/core/types';
 import { DatabaseModule } from './modules/database/database.module';
 import { MeiliSearchModule } from './modules/meilisearch/meilisearch.module';
+import { RedisModule } from './modules/redis/redis.module';
 import { echoApi } from './modules/restful/helpers';
 import { Restful } from './modules/restful/restful';
 import { RestfulModule } from './modules/restful/restful.module';
@@ -26,6 +28,7 @@ export const createData: CreateOptions = {
         ContentModule.forRoot(configure),
         MeiliSearchModule.forRoot(configure),
         UserModule.forRoot(configure),
+        RedisModule.forRoot(configure),
     ],
     globals: {},
     builder: async ({ configure, BootModule }) => {
@@ -50,7 +53,7 @@ export const createData: CreateOptions = {
 export const listened: (app: App, startTime: Date) => () => Promise<void> =
     ({ configure, container }, startTime) =>
     async () => {
-        const { default: chalk } = await import('chalk');
+        // const { default: chalk } = await import('chalk');
         console.log();
         await echoApi(configure, container);
         console.log('used time:', chalk.cyan(`${new Date().getTime() - startTime.getTime()}`));

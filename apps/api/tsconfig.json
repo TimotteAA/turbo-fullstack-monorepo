@@ -7,8 +7,8 @@
             "@/*": ["./src/*"]
         },
         "target": "esnext",
-        "module": "Node16",
-        "moduleResolution": "NodeNext",
+        "module": "CommonJS",
+        "moduleResolution": "Node",
         "types": ["bun-types"],
         "emitDecoratorMetadata": true
     },

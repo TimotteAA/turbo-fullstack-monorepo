@@ -7,3 +7,10 @@ export type UserModuleConfig = {
         refreshTokenExpiresIn: number;
     };
 };
+
+export interface JwtPayload {
+    userId: string;
+    /** 标识是否退出登录、续期 */
+    ssid: string;
+    ua: string;
+}

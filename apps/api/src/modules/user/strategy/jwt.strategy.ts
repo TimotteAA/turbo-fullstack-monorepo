@@ -1,0 +1,31 @@
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { PassportStrategy } from '@nestjs/passport';
+import { FastifyRequest } from 'fastify';
+import { isNil, omit } from 'lodash';
+import { ExtractJwt, Strategy } from 'passport-jwt';
+
+import { AuthService } from '../services';
+import { JwtPayload, UserModuleConfig } from '../types';
+
+@Injectable()
+export class LocalStrategy extends PassportStrategy(Strategy) {
+    constructor(
+        protected userConfig: UserModuleConfig,
+        protected authService: AuthService,
+    ) {
+        super({
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken,
+            ignoreExpiration: false,
+            secretOrKey: userConfig.jwt.refreshTokenSecret,
+            // 在valdiate方法中拿到request
+            passReqToCallback: true,
+        });
+    }
+
+    async validate(request: FastifyRequest, payload: JwtPayload) {
+        const user = await this.authService.verifyPayload(request, payload);
+        if (isNil(user)) throw new UnauthorizedException();
+
+        return omit(user, ['password']);
+    }
+}

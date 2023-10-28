@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-
 import { isNil, omit } from 'lodash';
 import { In, IsNull, Not, SelectQueryBuilder } from 'typeorm';
 
@@ -9,10 +8,11 @@ import { paginate } from '@/modules/database/helpers';
 import { QueryHook } from '@/modules/database/types';
 
 import { PostOrderType } from '../constants';
-import { CreatePostDto, QueryPostDto, UpdatePostDto } from '../dtos/post.dto';
 import { PostEntity } from '../entities';
 import { CategoryRepository, PostRepository, TagRepository } from '../repositories';
 import type { SearchType } from '../types';
+
+import { CreatePostDto, QueryPostDto, UpdatePostDto } from '../dtos/post.dto';
 
 import { SearchService } from './search.service';
 
@@ -116,6 +116,7 @@ export class PostService extends BaseService<PostEntity, PostRepository> {
     }
 
     async delete(ids: string[], trahsed?: boolean) {
+        console.log('trashed ', trahsed);
         // 待删除的items
         const items = await this.postRepo.find({
             where: {

@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
 
 import { parse } from 'dotenv';
+import findUp from 'find-up';
 import { isFunction, isNil } from 'lodash';
 
 import { EnvironmentType } from './constants';
@@ -13,15 +14,15 @@ export class Env {
         // 如果没配置环境，默认为生产环境
         if (isNil(process.env.NODE_ENV)) process.env.NODE_ENV = EnvironmentType.PRODUCTION;
 
-        // 引入esm的find-up
-        const { findUpSync } = await import('find-up');
+        // // 引入esm的find-up
+        // const { findUpSync } = await import('find-up');
 
         // 默认查找.env文件
-        const search = [findUpSync('.env')];
+        const search = [findUp.sync('.env')];
         // 如果是非生存环境，则查找对应的文件
         // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
         if (process.env.NODE_ENV !== EnvironmentType.PRODUCTION) {
-            search.push(findUpSync([`.env.${process.env.NODE_ENV}`]));
+            search.push(findUp.sync([`.env.${process.env.NODE_ENV}`]));
         }
 
         // 过滤掉没找到的，也就是undefined的文件

@@ -1,16 +1,15 @@
 import { Body, Controller, Delete, Get, Query, SerializeOptions } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
-import { Depends } from '@/modules/restful/decorators';
-import { RegisterCrud } from '@/modules/restful/decorators/register-crud';
-import { DeleteWithTrashDto, ListQueryDto } from '@/modules/restful/dtos';
+import { BaseController } from '@/modules/restful/controller';
+import { Crud, Depends } from '@/modules/restful/decorators';
+import { DeleteWithTrashDto } from '@/modules/restful/dtos';
 import { createOptions } from '@/modules/restful/helpers';
-import { BaseControllerWithTrash } from '@/modules/restful/trashed.controller';
 
 import { ContentModule } from '../content.module';
 import {
     CreateCategoryDto,
-    // QueryCategoryDto,
+    QueryCategoryDto,
     QueryCategoryTreeDto,
     UpdateCategoryDto,
 } from '../dtos';
@@ -18,7 +17,7 @@ import { CategoryService } from '../services';
 
 @ApiTags('分类操作')
 @Depends(ContentModule)
-@RegisterCrud((_configure) => ({
+@Crud({
     id: 'category',
     enabled: [
         {
@@ -49,20 +48,11 @@ import { CategoryService } from '../services';
     dtos: {
         create: CreateCategoryDto,
         update: UpdateCategoryDto,
-        query: ListQueryDto,
+        query: QueryCategoryDto,
     },
-}))
-// @Crud({
-//     id: 'category',
-//     enabled: ['create', 'update', 'delete', 'list', 'restore', 'detail'],
-//     dtos: {
-//         create: CreateCategoryDto,
-//         update: UpdateCategoryDto,
-//         query: QueryCategoryDto,
-//     },
-// })
+})
 @Controller('categories')
-export class CategoryController extends BaseControllerWithTrash<CategoryService> {
+export class CategoryController extends BaseController<CategoryService> {
     constructor(protected service: CategoryService) {
         super(service);
     }
@@ -74,12 +64,6 @@ export class CategoryController extends BaseControllerWithTrash<CategoryService>
         return this.service.findTrees(options);
     }
 
-    //     @Get()
-    //     @SerializeOptions({ groups: ['category-list'] })
-    //     async list(@Query() options: QueryCategoryDto) {
-    //         return this.service.paginate(options);
-    //     }
-
     @ApiOperation({ summary: '删除分类，支持软删除' })
     @Delete()
     @SerializeOptions({ groups: ['category-list'] })
@@ -90,41 +74,4 @@ export class CategoryController extends BaseControllerWithTrash<CategoryService>
         const { ids, trashed } = data;
         return this.service.delete(ids, trashed);
     }
-
-    //     @Patch('restore')
-    //     @SerializeOptions({ groups: ['category-list'] })
-    //     async restore(
-    //         @Body()
-    //         data: RestoreDto,
-    //     ) {
-    //         const { ids } = data;
-    //         return this.service.restore(ids);
-    //     }
-
-    //     @Get(':id')
-    //     @SerializeOptions({ groups: ['category-detail'] })
-    //     async detail(
-    //         @Param('id', new ParseUUIDPipe())
-    //         id: string,
-    //     ) {
-    //         return this.service.detail(id);
-    //     }
-
-    //     @Post()
-    //     @SerializeOptions({ groups: ['category-detail'] })
-    //     async create(
-    //         @Body()
-    //         data: CreateCategoryDto,
-    //     ) {
-    //         return this.service.create(data);
-    //     }
-
-    //     @Patch()
-    //     @SerializeOptions({ groups: ['category-detail'] })
-    //     async update(
-    //         @Body()
-    //         data: UpdateCategoryDto,
-    //     ) {
-    //         return this.service.update(data);
-    //     }
 }

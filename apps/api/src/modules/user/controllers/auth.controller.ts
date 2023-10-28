@@ -1,4 +1,5 @@
 import { Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { FastifyRequest } from 'fastify';
 
 import { Depends } from '@/modules/restful/decorators';
 
@@ -13,8 +14,8 @@ export class AuthController {
 
     @UseGuards(LocalAuthGuard)
     @Post('login')
-    async login(@Req() request: any) {
+    async login(@Req() request: FastifyRequest) {
         // 颁发jwt token
-        return this.authService.login(request.user.id);
+        return this.authService.login((request as any).user.id, request.headers['user-agent']);
     }
 }

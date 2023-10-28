@@ -7,6 +7,7 @@ import { isNil } from 'lodash';
 import { Configure } from '../config/configure';
 import { panic } from '../core/utils';
 import { DatabaseModule } from '../database/database.module';
+import { RedisModule } from '../redis/redis.module';
 
 import * as entityMaps from './entities';
 import * as guardMaps from './guards';
@@ -52,6 +53,8 @@ export class UserModule {
                     expiresIn: user.jwt.accessTokenExpiresIn,
                 },
             }),
+            // redis
+            RedisModule,
         ];
 
         const exports: ModuleMetadata['exports'] = [

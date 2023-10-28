@@ -32,4 +32,13 @@ export class UserService extends BaseService<UserEntity, UserRepository> {
         });
         return user;
     }
+
+    async findOneById(id: string) {
+        const user = await this.repo.findOne({
+            where: {
+                id,
+            },
+        });
+        return user;
+    }
 }
