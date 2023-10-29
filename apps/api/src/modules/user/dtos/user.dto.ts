@@ -2,7 +2,7 @@ import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsOptional, IsUUID, MaxLength } from 'class-validator';
 
 import { DTO_VALIDATION } from '@/modules/core/decorators';
-import { IsExists, IsMatchPhone, IsPassword } from '@/modules/database/constraints';
+import { IsMatchPhone, IsPassword, IsUnique } from '@/modules/database/constraints';
 import { ListQueryDtoWithTrashed } from '@/modules/restful/dtos';
 
 import { UserEntity } from '../entities';
@@ -13,9 +13,12 @@ export class QueryUserDto extends ListQueryDtoWithTrashed {}
 @DTO_VALIDATION()
 export class CreateUserDto {
     @ApiProperty({ description: '用户名称', maxLength: 100 })
-    @IsExists({ entity: UserEntity }, { message: '用户名称重复' })
     @MaxLength(100, { message: '用户名称长度不能超过100' })
     @IsOptional({ groups: ['update'] })
+    @IsUnique(
+        { entity: UserEntity, prototype: 'name' },
+        { message: '用户名称重复', groups: ['create'] },
+    )
     @IsNotEmpty({ groups: ['create'], message: '用户名称不能为空' })
     name!: string;
 

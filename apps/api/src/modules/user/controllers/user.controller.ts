@@ -1,19 +1,18 @@
 import { Controller } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
-import { Depends } from '@/modules/restful/decorators';
-import { RegisterCrud } from '@/modules/restful/decorators/register-crud';
+import { BaseController } from '@/modules/restful/controller';
+import { Crud, Depends } from '@/modules/restful/decorators';
 import { createOptions } from '@/modules/restful/helpers';
 
 import { CreateUserDto, QueryUserDto, UdpateUserDto } from '../dtos';
 import { UserService } from '../services';
 import { UserModule } from '../user.module';
-import { BaseController } from '@/modules/restful/controller';
 
 @ApiTags('用户操作')
 @Depends(UserModule)
-@RegisterCrud((_configure) => ({
-    id: 'category',
+@Crud({
+    id: 'user',
     enabled: [
         {
             name: 'create',
@@ -45,7 +44,7 @@ import { BaseController } from '@/modules/restful/controller';
         update: UdpateUserDto,
         query: QueryUserDto,
     },
-}))
+})
 @Controller('manage')
 export class UserController extends BaseController<UserService> {
     constructor(protected service: UserService) {

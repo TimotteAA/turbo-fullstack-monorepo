@@ -1,1 +1,1 @@
-export const ALLOW_GUEST = 'ALLOW_GUEST';
+export const ALLOW_GUEST_KEY = 'ALLOW_GUEST_KEY';

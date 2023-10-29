@@ -8,15 +8,15 @@ import { AuthService } from '../services';
 import { JwtPayload, UserModuleConfig } from '../types';
 
 @Injectable()
-export class LocalStrategy extends PassportStrategy(Strategy) {
+export class JwtStrategy extends PassportStrategy(Strategy) {
     constructor(
         protected userConfig: UserModuleConfig,
         protected authService: AuthService,
     ) {
         super({
-            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken,
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
             ignoreExpiration: false,
-            secretOrKey: userConfig.jwt.refreshTokenSecret,
+            secretOrKey: userConfig.jwt.accessTokenSecret,
             // 在valdiate方法中拿到request
             passReqToCallback: true,
         });
@@ -26,6 +26,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
         const user = await this.authService.verifyPayload(request, payload);
         if (isNil(user)) throw new UnauthorizedException();
 
-        return omit(user, ['password']);
+        // ssid for logout
+        return { ...omit(user, ['password']), ssid: payload.ssid };
     }
 }

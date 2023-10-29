@@ -28,7 +28,8 @@ export class UserModule {
         providers.push(
             ...Object.values(serviceMaps),
             ...Object.values(subscriberMaps),
-            ...Object.values(stragetyMaps),
+            // ...Object.values(stragetyMaps),
+            stragetyMaps.LocalStrategy,
             ...Object.values(guardMaps),
             {
                 provide: 'REFRESH_TOKEN_JWT_SERVICE',
@@ -37,6 +38,14 @@ export class UserModule {
                         secret: user.jwt.refreshTokenSecret,
                         signOptions: { expiresIn: user.jwt.refreshTokenExpiresIn },
                     });
+                },
+            },
+            {
+                inject: [serviceMaps.AuthService],
+                provide: stragetyMaps.JwtStrategy,
+                useFactory(authService: serviceMaps.AuthService) {
+                    const jwtStrategy = new stragetyMaps.JwtStrategy(user, authService);
+                    return jwtStrategy;
                 },
             },
         );
@@ -50,7 +59,8 @@ export class UserModule {
             JwtModule.register({
                 secret: user.jwt.accessTokenSecret,
                 signOptions: {
-                    expiresIn: user.jwt.accessTokenExpiresIn,
+                    // expiresIn: user.jwt.accessTokenExpiresIn,
+                    expiresIn: '1s',
                 },
             }),
             // redis
@@ -63,6 +73,7 @@ export class UserModule {
             serviceMaps.AuthService,
             // refresh token service
             'REFRESH_TOKEN_JWT_SERVICE',
+            // stragetyMaps.
         ];
 
         return {

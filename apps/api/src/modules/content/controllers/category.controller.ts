@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Query, SerializeOptions } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
+import { ALLOW_GUEST } from '@/modules/rbac/decorators/guest.decorator';
 import { BaseController } from '@/modules/restful/controller';
 import { Crud, Depends } from '@/modules/restful/decorators';
 import { DeleteWithTrashDto } from '@/modules/restful/dtos';
@@ -60,6 +61,7 @@ export class CategoryController extends BaseController<CategoryService> {
     @ApiOperation({ summary: '查询分类树' })
     @Get('tree')
     @SerializeOptions({ groups: ['category-tree'] })
+    @ALLOW_GUEST(true)
     async tree(@Query() options: QueryCategoryTreeDto) {
         return this.service.findTrees(options);
     }

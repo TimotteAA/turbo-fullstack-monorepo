@@ -53,6 +53,10 @@ export interface CreateOptions {
          */
         filter?: Type<any> | null;
         // guard...
+        /**
+         * 全局api guard
+         */
+        guard?: Type<any> | null;
     };
 
     /**

@@ -26,7 +26,8 @@ export class IsExistsConstraint implements ValidatorConstraintInterface {
     constructor(protected dataSource: DataSource) {}
 
     async validate(value: string, args: ValidationArguments) {
-        // 有些uuid字段可能是null
+        // 有些uuid字段可能是nul
+        console.log('value ', value);
         if (!value) return true;
         const [condition] = args.constraints as Condition[];
         const { entity, field } = condition;
