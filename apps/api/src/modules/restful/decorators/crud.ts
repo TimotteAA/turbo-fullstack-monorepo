@@ -10,6 +10,8 @@ import {
 import { ApiBody } from '@nestjs/swagger';
 import { isNil } from 'lodash';
 
+import { ALLOW_GUEST_KEY } from '@/modules/user/constants';
+
 import { BaseController } from '../controller';
 import { DeleteDto, ListQueryDto, RestoreDto } from '../dtos';
 import { CrudOptions, CrudItem } from '../types';
@@ -136,6 +138,11 @@ export function Crud(options: CrudOptions) {
                 //     console.log(123154, name, options.hook.toString())
                 // }
                 options.hook(Target, name);
+            }
+
+            if (options.allowGuest) {
+                // SetMetadata(ALLOW_GUEST_KEY, true)(Target.prototype, name, descriptor);
+                Reflect.defineMetadata(ALLOW_GUEST_KEY, true, Target.prototype, name);
             }
         }
 

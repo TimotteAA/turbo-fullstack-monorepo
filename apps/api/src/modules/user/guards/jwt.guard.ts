@@ -6,6 +6,7 @@ import { ExtractJwt } from 'passport-jwt';
 
 import { ALLOW_GUEST } from '@/modules/rbac/decorators/guest.decorator';
 
+import { ALLOW_GUEST_KEY } from '../constants';
 import { AuthService } from '../services';
 
 /**
@@ -28,7 +29,15 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
             context.getClass(),
         ]);
 
-        if (allowGuest) return true;
+        const crudGuest = Reflect.getMetadata(
+            ALLOW_GUEST_KEY,
+            context.getClass().prototype,
+            context.getHandler().name,
+        );
+
+        const guest = allowGuest ?? crudGuest;
+
+        if (guest) return true;
         const request = context.switchToHttp().getRequest();
         const headerToken = ExtractJwt.fromAuthHeaderAsBearerToken()(request);
         // 没有携带token
