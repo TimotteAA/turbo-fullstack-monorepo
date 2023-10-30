@@ -137,6 +137,11 @@ export const crud = async <T extends BaseController<any>>(
             // }
             options.hook(Target, name);
         }
+
+        // if (options.allowGuest) {
+        //     // ALLOW_GUEST(options.allowGuest)(Target.prototype, name, descriptor);
+        //     Reflect.defineMetadata(ALLOW_GUEST_KEY, true, Target.prototype, name);
+        // }
     }
 
     // 对于不启用的方法返回404

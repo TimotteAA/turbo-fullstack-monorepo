@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, PartialType, PickType } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, IsOptional, IsUUID, MaxLength } from 'class-validator';
 
 import { DTO_VALIDATION } from '@/modules/core/decorators';
@@ -56,3 +56,6 @@ export class UdpateUserDto extends PartialType(CreateUserDto) {
     @IsNotEmpty({ groups: ['update'], message: '用户id不能为空' })
     id!: string;
 }
+
+@DTO_VALIDATION()
+export class BlockUserDto extends PickType(UdpateUserDto, ['id']) {}

@@ -34,22 +34,12 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         // 没有携带token
         if (isNil(headerToken)) throw new UnauthorizedException();
         // 利用原生的jwt stragety校验
+
         try {
             return (await super.canActivate(context)) as boolean;
         } catch (err) {
-            // 校验失败，尝试续期
-            const refrsehRes = await this.authService.refreshToken(headerToken);
-            console.log('refreshRes ', refrsehRes);
-            if (isNil(refrsehRes)) {
-                throw new UnauthorizedException();
-            }
-            const response = context.switchToHttp().getResponse();
-            // 加到请求头上去
-            request.headers.authorization = `Bearer ${refrsehRes.token}`;
-            response.headers.token = refrsehRes.token;
-
-            // 续期成功再次校验
-            return super.canActivate(context) as boolean;
+            // 校验出错，让前端去续期token
+            throw new UnauthorizedException();
         }
     }
 }

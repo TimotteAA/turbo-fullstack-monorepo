@@ -1,12 +1,14 @@
-import { Controller } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
+import { ResponseMessage } from '@/modules/core/decorators';
+import { ALLOW_GUEST } from '@/modules/rbac/decorators/guest.decorator';
 import { BaseController } from '@/modules/restful/controller';
 import { Crud, Depends } from '@/modules/restful/decorators';
 import { createOptions } from '@/modules/restful/helpers';
 
-import { CreateUserDto, QueryUserDto, UdpateUserDto } from '../dtos';
-import { UserService } from '../services';
+import { BlockUserDto, CreateUserDto, QueryUserDto, UdpateUserDto } from '../dtos';
+import { AuthService, UserService } from '../services';
 import { UserModule } from '../user.module';
 
 @ApiTags('用户操作')
@@ -47,7 +49,17 @@ import { UserModule } from '../user.module';
 })
 @Controller('manage')
 export class UserController extends BaseController<UserService> {
-    constructor(protected service: UserService) {
+    constructor(
+        protected service: UserService,
+        protected authService: AuthService,
+    ) {
         super(service);
+    }
+
+    @ALLOW_GUEST()
+    @ResponseMessage('禁止用户成功')
+    @Post('block')
+    async blockUser(@Body() data: BlockUserDto) {
+        return this.authService.addToBlackList(data.id);
     }
 }

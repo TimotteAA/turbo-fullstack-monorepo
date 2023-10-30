@@ -1,4 +1,4 @@
-import { Controller, Post, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Req, Request, UseGuards } from '@nestjs/common';
 import { ApiOkResponse } from '@nestjs/swagger';
 import { FastifyRequest } from 'fastify';
 
@@ -30,6 +30,12 @@ export class AuthController {
     @Post()
     async register(@reqUser() user: ClassToPlain<UserEntity>) {
         return { user };
+    }
+
+    @ALLOW_GUEST(true)
+    @Post('/refresh')
+    async refreshToken(@Request() request: FastifyRequest) {
+        return this.authService.refreshToken(request);
     }
 
     @ResponseMessage('退出成功')

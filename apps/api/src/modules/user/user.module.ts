@@ -59,8 +59,8 @@ export class UserModule {
             JwtModule.register({
                 secret: user.jwt.accessTokenSecret,
                 signOptions: {
-                    // expiresIn: user.jwt.accessTokenExpiresIn,
-                    expiresIn: '1s',
+                    expiresIn: user.jwt.accessTokenExpiresIn,
+                    // expiresIn: '1s',
                 },
             }),
             // redis

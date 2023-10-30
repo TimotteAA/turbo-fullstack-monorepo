@@ -1,11 +1,12 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
 import { FastifyRequest } from 'fastify';
 import { Redis } from 'ioredis';
-import { isNil, omit } from 'lodash';
+import { isNil, omit, toNumber } from 'lodash';
 import * as uuid from 'uuid';
 
+import { Configure } from '@/modules/config/configure';
 import { RedisService } from '@/modules/redis/services';
 
 import { UserEntity } from '../entities';
@@ -24,11 +25,17 @@ export class AuthService {
         private readonly accessTokenJwtService: JwtService,
         @Inject('REFRESH_TOKEN_JWT_SERVICE')
         private readonly refreshTokenJwtService: JwtService,
-        private readonly redisService: RedisService, // private readonly expiraTime: number,
+        private readonly redisService: RedisService,
+        private readonly configure: Configure,
     ) {
         this.client = this.redisService.getClient();
         // 会话保持14天
-        this.expiraTime = 60 * 60 * 24 * 14;
+        this.expiraTime = this.configure.env.get<number>(
+            'REFRESH_TOKEN_EXPIRES_IN',
+            toNumber,
+            60 * 60 * 24 * 14,
+        );
+        console.log('this ex', this.expiraTime);
     }
 
     /**
@@ -55,7 +62,6 @@ export class AuthService {
         };
         const accessToken = this.accessTokenJwtService.sign(payload);
         const refreshToken = this.refreshTokenJwtService.sign(payload);
-        await this.saveSession(ssid, refreshToken);
 
         return {
             accessToken,
@@ -63,14 +69,11 @@ export class AuthService {
         };
     }
 
-    async logout(ssid: string) {
-        try {
-            await this.client.del(this.key(ssid));
-        } catch (err) {
-            console.error('redis连接挂了');
-        }
-    }
-
+    /**
+     * 验证accessToken的payload是否valid
+     * @param request
+     * @param payload
+     */
     async verifyPayload(
         request: FastifyRequest,
         payload: JwtPayload,
@@ -78,69 +81,66 @@ export class AuthService {
         const { ua, userId, ssid } = payload;
         const userAgent = request.headers['user-agent'];
         if (userAgent !== ua) return null;
-        const exists = await this.checkSession(ssid);
-        if (!exists) return null;
+        const isLogOut = await this.checkIsLogout(ssid);
+        if (isLogOut) return null;
+        const isInBlackList = await this.checkIsInBlackList(userId);
+        if (isInBlackList) return null;
 
         const user = this.userService.findOneById(userId);
         return user;
     }
 
-    async refreshToken(token: string) {
-        console.log('refreshToken ', token);
-        // 先校验accessToken是否正确
+    /**
+     * 根据refreshToken进行刷新
+     * @param request
+     */
+    async refreshToken(request: FastifyRequest) {
+        const refreshToken = request.headers['x-jwt-refresh-token'] as string;
+        // 没带refreshToken
+        if (isNil(refreshToken)) {
+            throw new UnauthorizedException();
+        }
+        // 带了refreshToken，校验payload
         let payload: JwtPayload;
         try {
-            payload = await this.accessTokenJwtService.verifyAsync<JwtPayload>(token);
-            console.log('payload ', payload);
+            payload = await this.refreshTokenJwtService.verifyAsync(refreshToken);
         } catch (err) {
-            console.log('refresh error ', err);
-            return null;
+            // token不对、或者过期了
+            throw new UnauthorizedException();
         }
-
-        if (!isNil(payload)) {
-            const { ssid } = payload;
-            const exists = await this.checkSession(ssid);
-            console.log('exists ', exists);
-            //  退出了、或者没登录过，不续期
-            if (!exists) return null;
-            const newSsid = uuid.v4();
-            const newPayload: JwtPayload = {
-                ssid: newSsid,
-                userId: payload.userId,
-                ua: payload.ua,
-            };
-            const newAccessToken = this.accessTokenJwtService.sign(newPayload);
-            const newRrefreshToken = this.refreshTokenJwtService.sign(newPayload);
-
-            await this.saveSession(newSsid, newRrefreshToken);
-
-            return { token: newAccessToken };
-        }
-        return null;
+        const { ssid, ua, userId } = payload;
+        // 检查Ua
+        const requestUa = request.headers['user-agent'];
+        if (requestUa !== ua) throw new UnauthorizedException();
+        // 检查ssid是否在登出的列表中
+        const logouted = await this.checkIsLogout(ssid);
+        if (logouted) throw new UnauthorizedException();
+        // 检查userId是否在黑名单中
+        const isInBlackList = await this.checkIsInBlackList(userId);
+        if (isInBlackList) throw new UnauthorizedException();
+        // 生成新的accessToken和refreshToken
+        const newPayload: JwtPayload = {
+            ssid: uuid.v4(),
+            userId,
+            ua,
+        };
+        const newAccessToken = await this.accessTokenJwtService.signAsync(newPayload);
+        const newRefreshToken = await this.refreshTokenJwtService.signAsync(newPayload);
+        return {
+            newAccessToken,
+            newRefreshToken,
+        };
     }
 
-    protected key(ssid: string) {
-        return `users:ssid:${ssid}`;
-    }
-
-    protected async saveSession(ssid: string, refreshToken: string) {
+    async logout(ssid: string) {
         try {
-            await this.client.hset(
-                this.key(ssid),
-                'refreshToken',
-                refreshToken,
-                'ssid',
-                ssid,
-                'EX',
-                this.expiraTime,
-            );
-            await this.client.expire(this.key(ssid), this.expiraTime);
+            await this.client.set(this.key(ssid), ssid, 'EX', this.expiraTime);
         } catch (err) {
-            console.log('存储refreshToken失败');
+            console.error('redis连接挂了 ', err);
         }
     }
 
-    protected async checkSession(ssid: string) {
+    protected async checkIsLogout(ssid: string) {
         // 判断是否已经退出了
         let logout = 0;
         try {
@@ -152,5 +152,30 @@ export class AuthService {
             }
         }
         return logout === 1;
+    }
+
+    protected key(ssid: string) {
+        return `users:ssid:${ssid}`;
+    }
+
+    async addToBlackList(userId: string) {
+        const key = `users:black`;
+        try {
+            await this.client.sadd(key, userId);
+        } catch (err) {
+            console.error('添加黑名单失败 ', err);
+        }
+    }
+
+    protected async checkIsInBlackList(userId: string) {
+        const key = `users:black`;
+        // 默认在黑名单中，防止redis挂了
+        let isInBlackList = 1;
+        try {
+            [isInBlackList] = await this.client.smismember(key, userId);
+        } catch (err) {
+            console.error('检查用户在黑名单失败 ', err);
+        }
+        return isInBlackList === 1;
     }
 }
