@@ -35,7 +35,6 @@ export class AuthService {
             toNumber,
             60 * 60 * 24 * 14,
         );
-        console.log('this ex', this.expiraTime);
     }
 
     /**
@@ -59,6 +58,7 @@ export class AuthService {
             ssid,
             userId,
             ua,
+            signAt: Date.now(),
         };
         const accessToken = this.accessTokenJwtService.sign(payload);
         const refreshToken = this.refreshTokenJwtService.sign(payload);
@@ -78,15 +78,17 @@ export class AuthService {
         request: FastifyRequest,
         payload: JwtPayload,
     ): Promise<ClassToPlain<UserEntity>> {
-        const { ua, userId, ssid } = payload;
+        const { ua, userId, ssid, signAt } = payload;
         const userAgent = request.headers['user-agent'];
         if (userAgent !== ua) return null;
         const isLogOut = await this.checkIsLogout(ssid);
         if (isLogOut) return null;
         const isInBlackList = await this.checkIsInBlackList(userId);
         if (isInBlackList) return null;
+        // 检查签发时间是否超过30天
+        if (Date.now() - signAt > 30 * 24 * 60 * 60 * 1000) throw new UnauthorizedException();
 
-        const user = this.userService.findOneById(userId);
+        const user = await this.userService.findOneById(userId);
         return user;
     }
 
@@ -108,7 +110,7 @@ export class AuthService {
             // token不对、或者过期了
             throw new UnauthorizedException();
         }
-        const { ssid, ua, userId } = payload;
+        const { ssid, ua, userId, signAt } = payload;
         // 检查Ua
         const requestUa = request.headers['user-agent'];
         if (requestUa !== ua) throw new UnauthorizedException();
@@ -118,11 +120,14 @@ export class AuthService {
         // 检查userId是否在黑名单中
         const isInBlackList = await this.checkIsInBlackList(userId);
         if (isInBlackList) throw new UnauthorizedException();
+        // 检查签发时间是否超过30天
+        if (Date.now() - signAt > 30 * 24 * 60 * 60 * 1000) throw new UnauthorizedException();
         // 生成新的accessToken和refreshToken
         const newPayload: JwtPayload = {
             ssid: uuid.v4(),
             userId,
             ua,
+            signAt: Date.now(),
         };
         const newAccessToken = await this.accessTokenJwtService.signAsync(newPayload);
         const newRefreshToken = await this.refreshTokenJwtService.signAsync(newPayload);

@@ -13,4 +13,6 @@ export interface JwtPayload {
     /** 标识是否退出登录、续期 */
     ssid: string;
     ua: string;
+    /** 签发token时间 */
+    signAt: number;
 }
