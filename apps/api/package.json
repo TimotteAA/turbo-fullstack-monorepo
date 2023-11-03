@@ -18,10 +18,12 @@
         "test:cov": "jest --coverage",
         "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
         "test:e2e": "jest --config ./test/jest-e2e.json",
-        "cli": "bun --bun src/cli/bin.ts"
+        "cli": "bun --bun src/cli/bin.ts",
+        "prod": "cross-env NODE_ENV=production pnpm cli start -w -p"
     },
     "dependencies": {
         "@fastify/static": "^6.11.2",
+        "@nestjs/cli": "10.2.1",
         "@nestjs/common": "^10.2.7",
         "@nestjs/config": "^3.1.1",
         "@nestjs/core": "^10.2.7",
@@ -35,7 +37,7 @@
         "@timotte-app/ts-config": "workspace:*",
         "@types/lodash": "^4.14.200",
         "bcrypt": "^5.1.1",
-        "bun": "^1.0.7",
+        "bun": "^1.0.6",
         "chalk": "^4.1.2",
         "chokidar": "^3.5.3",
         "class-transformer": "^0.5.1",

@@ -1,8 +1,6 @@
 import { ConfigureRegister, ConfigureFactory } from '@/modules/config/types';
 
-import { createConnectionOptions } from '../config/helpers';
-
-import { RedisModuleConfig } from './types';
+import type { RedisOption } from './types';
 
 /**
  * 创建redis模块配置
@@ -10,17 +8,23 @@ import { RedisModuleConfig } from './types';
  * @param register
  */
 export const createRedisConfig: (
-    register: ConfigureRegister<RedisModuleConfig>,
-) => ConfigureFactory<RedisModuleConfig> = (register) => ({
+    register: ConfigureRegister<RedisOption>,
+) => ConfigureFactory<RedisOption> = (register) => ({
     register,
-    hook: (_configure, value) => createConnectionOptions(value),
-    defaultRegister: (configure) => [
-        {
-            name: 'default',
-            connectOptions: {
-                port: configure.env.get('REDIS_PORT', 6379),
-                host: configure.env.get('REDIS_HOST', '127.0.0.1'),
-            },
+    // hook: (_configure, value) => createConnectionOptions(value),
+    // defaultRegister: (_configure) => ({
+    //     connections: [
+    //         {
+    //             name: 'default',
+    //             host: 'localhost',
+    //             port: 6380,
+    //         },
+    //     ],
+    // }),
+    defaultRegister: (_configure) => ({
+        default: {
+            host: 'localhost',
+            port: 6380,
         },
-    ],
+    }),
 });

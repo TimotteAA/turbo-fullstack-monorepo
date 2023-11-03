@@ -1,6 +1,7 @@
 import { ModuleMetadata, PipeTransform, Type } from '@nestjs/common';
 import { NestFastifyApplication } from '@nestjs/platform-fastify';
 import { Ora } from 'ora';
+import { StartOptions } from 'pm2';
 import type { CommandModule } from 'yargs';
 
 import { Configure } from '../config/configure';
@@ -123,6 +124,11 @@ export interface AppConfig {
      * 由url+api前缀生成的基础api url
      */
     prefix?: string;
+
+    /**
+     * 自定义pm2配置，对其中部分配置进行了修改
+     */
+    pm2?: Omit<StartOptions, 'name' | 'cwd' | 'script' | 'args' | 'interpreter' | 'watch'>;
 }
 
 /**
@@ -132,7 +138,7 @@ export interface PanicOption {
     /**
      * 报错消息
      */
-    message: string;
+    message?: string;
     /**
      * 抛出的异常信息
      */

@@ -1,7 +1,6 @@
 import { Configure } from '@/modules/config/configure';
 import * as contentControllerMaps from '@/modules/content/controllers';
 import { VersionOption } from '@/modules/restful/types';
-import * as userControllerMaps from '@/modules/user/controllers';
 
 /**
  * 此次路由中的doc为总的路由doc
@@ -35,7 +34,8 @@ export const v1 = async (_configure: Configure): Promise<VersionOption> => {
                     {
                         name: 'user',
                         path: '/user',
-                        controllers: [...Object.values(userControllerMaps)],
+                        // controllers: [...Object.values(userControllerMaps)],
+                        controllers: [],
                     },
                 ],
             },

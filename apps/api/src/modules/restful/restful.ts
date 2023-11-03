@@ -112,7 +112,6 @@ export class Restful extends BaseRestful {
             version: name,
             path: trim(`${this.config.docuri}${isDefault ? '' : `/${name}`}`, '/'),
         };
-        console.log('voption ', voption);
         // 获取路由文档
         const routesDoc = isDefault
             ? this.getRouteDocs(defaultDoc, voption.routes ?? [])
@@ -185,7 +184,6 @@ export class Restful extends BaseRestful {
             if (hasAdditional(doc) || parent) this.excludeVersionModules.push(moduleName);
             // 添加到routeDocs中
             if (hasAdditional(doc)) {
-                console.log('hasAdditional ', route);
                 routeDocs[moduleName.replace(`${option.version},`, '')] = mergeDoc(option, route);
             }
 

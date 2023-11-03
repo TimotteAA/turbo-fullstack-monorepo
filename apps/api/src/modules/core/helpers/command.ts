@@ -13,6 +13,7 @@ import { App, CommandCollection } from '../types';
 export const createCommands = async (factory: () => CommandCollection, app: Required<App>) => {
     // 所有的命令集合
     const collection: CommandCollection = [...factory()];
+    // 构建yargs命令项
     const commands = await Promise.all(collection.map(async (command) => command(app)));
     return commands.map((command) => ({
         ...command,
@@ -20,6 +21,7 @@ export const createCommands = async (factory: () => CommandCollection, app: Requ
         handler: async (args: Arguments) => {
             await app.container.close();
             await command.handler(args);
+            // 关闭瞬时应用
             if (command.instant) process.exit();
         },
     }));

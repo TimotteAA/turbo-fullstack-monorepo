@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import Redis, { Redis as RedisType } from 'ioredis';
 import { isNil } from 'lodash';
 
-import { RedisModuleConfig } from '../types';
+import { RedisOption } from '../types';
 // import chalk from "chalk";
 
 /**
@@ -10,19 +10,27 @@ import { RedisModuleConfig } from '../types';
  */
 @Injectable()
 export class RedisService {
-    private options: RedisModuleConfig;
-
     private clients: Map<string, RedisType> = new Map();
 
-    constructor(options: RedisModuleConfig) {
-        this.options = options;
-    }
+    constructor(private config: RedisOption) {}
 
     async createClients() {
-        this.options.forEach(async (o) => {
-            const client = new Redis(o.connectOptions);
-            this.clients.set(o.name, client);
-        });
+        // this.config.connections.forEach(async (o: RedisOption) => {
+        // try {
+        //     const client = new Redis(o.connectOptions);
+        //     this.clients.set(o.name, client);
+        // } catch (err) {
+        //     console.error('err ', err);
+        // }
+        // });
+        for (const [name, config] of Object.entries(this.config)) {
+            try {
+                const client = new Redis(config);
+                this.clients.set(name, client);
+            } catch (err) {
+                console.error('err ', err);
+            }
+        }
     }
 
     getClients() {

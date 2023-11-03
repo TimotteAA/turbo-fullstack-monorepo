@@ -10,7 +10,7 @@ import {
 import { ApiBody } from '@nestjs/swagger';
 import { isNil } from 'lodash';
 
-import { ALLOW_GUEST_KEY } from '@/modules/user/constants';
+// import { ALLOW_GUEST_KEY } from '@/modules/user/constants';
 
 import { BaseController } from '../controller';
 import { DeleteDto, ListQueryDto, RestoreDto } from '../dtos';
@@ -140,10 +140,10 @@ export function Crud(options: CrudOptions) {
                 options.hook(Target, name);
             }
 
-            if (options.allowGuest) {
-                // SetMetadata(ALLOW_GUEST_KEY, true)(Target.prototype, name, descriptor);
-                Reflect.defineMetadata(ALLOW_GUEST_KEY, true, Target.prototype, name);
-            }
+            // if (options.allowGuest) {
+            //     // SetMetadata(ALLOW_GUEST_KEY, true)(Target.prototype, name, descriptor);
+            //     Reflect.defineMetadata(ALLOW_GUEST_KEY, true, Target.prototype, name);
+            // }
         }
 
         // 对于不启用的方法返回404

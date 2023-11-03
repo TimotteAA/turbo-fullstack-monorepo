@@ -1,11 +1,8 @@
-import { createRedisConfig } from '@/modules/redis/helpers';
+import { createRedisConfig } from '../modules/redis/helpers';
 
-export const redis = createRedisConfig(() => [
-    {
-        name: 'default',
-        connectOptions: {
-            host: 'localhost',
-            port: 6380,
-        },
+export const redis = createRedisConfig(() => ({
+    default: {
+        host: 'localhost',
+        port: 6380,
     },
-]);
+}));

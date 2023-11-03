@@ -5,16 +5,13 @@ import { isNil } from 'lodash';
 
 import * as configs from './config';
 import { ContentModule } from './modules/content/content.module';
-import { createStartCommand } from './modules/core/commands';
+import { createBuildCommand, createStartCommand } from './modules/core/commands';
 import { App, CreateOptions } from './modules/core/types';
 import { DatabaseModule } from './modules/database/database.module';
 import { MeiliSearchModule } from './modules/meilisearch/meilisearch.module';
-import { RedisModule } from './modules/redis/redis.module';
 import { echoApi } from './modules/restful/helpers';
 import { Restful } from './modules/restful/restful';
 import { RestfulModule } from './modules/restful/restful.module';
-import { JwtAuthGuard } from './modules/user/guards';
-import { UserModule } from './modules/user/user.module';
 
 export const WEBAPP = 'web';
 export const createData: CreateOptions = {
@@ -28,10 +25,10 @@ export const createData: CreateOptions = {
         DatabaseModule.forRoot(configure),
         ContentModule.forRoot(configure),
         MeiliSearchModule.forRoot(configure),
-        UserModule.forRoot(configure),
-        RedisModule.forRoot(configure),
+        // UserModule.forRoot(configure),
+        // RedisModule.forRoot(configure),
     ],
-    globals: { guard: JwtAuthGuard },
+    // globals: { guard: JwtAuthGuard },
     builder: async ({ configure, BootModule }) => {
         const container = await NestFactory.create<NestFastifyApplication>(
             BootModule,
@@ -48,7 +45,7 @@ export const createData: CreateOptions = {
         }
         return container;
     },
-    commands: () => [createStartCommand],
+    commands: () => [createStartCommand, createBuildCommand],
 };
 
 export const listened: (app: App, startTime: Date) => () => Promise<void> =

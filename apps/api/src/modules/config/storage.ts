@@ -1,4 +1,5 @@
 import { resolve } from 'path';
+
 import { ensureFileSync, readFileSync, writeFileSync } from 'fs-extra';
 import { has, isNil, omit, set } from 'lodash';
 import YAML from 'yaml';
