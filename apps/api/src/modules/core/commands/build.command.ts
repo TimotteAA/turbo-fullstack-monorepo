@@ -1,5 +1,4 @@
 import { spawn } from 'child_process';
-
 import { exit } from 'process';
 
 import { Arguments } from 'yargs';

@@ -1,10 +1,11 @@
 import { Module, ModuleMetadata } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { Configure } from '../config/configure';
 import { DatabaseModule } from '../database/database.module';
 
 // import * as controllerMaps from './controllers';
+import { addEntities } from '../database/helpers';
+
 import * as entityMaps from './entities';
 import * as repoMaps from './repositories';
 import * as serviceMaps from './services';
@@ -18,7 +19,8 @@ export class ContentModule {
         const config = await configure.get<ContentConfig>('content');
 
         const imports: ModuleMetadata['imports'] = [
-            TypeOrmModule.forFeature(Object.values(entityMaps)),
+            // TypeOrmModule.forFeature(Object.values(entityMaps)),
+            addEntities(configure, [...Object.values(entityMaps)]),
             DatabaseModule.forRepository(Object.values(repoMaps)),
         ];
         // const controllers: ModuleMetadata['controllers'] = Object.values(controllerMaps);

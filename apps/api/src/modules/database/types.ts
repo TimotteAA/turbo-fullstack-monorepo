@@ -1,6 +1,7 @@
 // apps/api/src/modules/database/types.ts
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { FindTreeOptions, ObjectLiteral, SelectQueryBuilder } from 'typeorm';
+import { Arguments } from 'yargs';
 
 import { SelectTrashMode } from './constants';
 
@@ -115,12 +116,26 @@ type ServiceListQueryOptionNotWithTrashed<E extends ObjectLiteral> = Omit<
     'trashed'
 >;
 
+/** ***********************************************************数据库连接相关配置************************************************* */
+
+export type DbAdditionalConfig = {
+    paths?: {
+        /**
+         * 迁移文件路径
+         */
+        migration?: string;
+    };
+};
+
 /**
  * 自定义数据库配置
  */
 export type DbConfig = {
-    common: Record<string, any>;
-    connections: Array<TypeOrmModuleOptions>;
+    /**
+     * 每个数据库公共的配置
+     */
+    common: Record<string, any> & DbAdditionalConfig;
+    connections: Array<TypeOrmModuleOptions & { name?: string } & DbAdditionalConfig>;
 };
 
 /**
@@ -136,4 +151,22 @@ export type DbOptions = Record<string, any> & {
  */
 export type TypeormOption = Omit<TypeOrmModuleOptions, 'name' | 'migrations'> & {
     name: string;
+} & DbAdditionalConfig;
+
+/** *********************************************************数据库迁移相关*********************************************************** */
+
+/**
+ * 基础数据库迁移命令选项
+ */
+export type BaseMigrationOptions = {
+    /**
+     * 数据库连接名称
+     */
+    connection: string;
 };
+
+export type MigrationGenerateOptions = {
+    name: string;
+};
+
+export type MigrationGenerateArguments = Arguments<BaseMigrationOptions & MigrationGenerateOptions>;

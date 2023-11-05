@@ -7,6 +7,7 @@ import * as configs from './config';
 import { ContentModule } from './modules/content/content.module';
 import { createBuildCommand, createStartCommand } from './modules/core/commands';
 import { App, CreateOptions } from './modules/core/types';
+import * as dbCommands from './modules/database/commands';
 import { DatabaseModule } from './modules/database/database.module';
 import { MeiliSearchModule } from './modules/meilisearch/meilisearch.module';
 import { echoApi } from './modules/restful/helpers';
@@ -26,6 +27,7 @@ export const createData: CreateOptions = {
         ContentModule.forRoot(configure),
         MeiliSearchModule.forRoot(configure),
         // UserModule.forRoot(configure),
+
         // RedisModule.forRoot(configure),
     ],
     // globals: { guard: JwtAuthGuard },
@@ -45,7 +47,7 @@ export const createData: CreateOptions = {
         }
         return container;
     },
-    commands: () => [createStartCommand, createBuildCommand],
+    commands: () => [createStartCommand, createBuildCommand, ...Object.values(dbCommands)],
 };
 
 export const listened: (app: App, startTime: Date) => () => Promise<void> =

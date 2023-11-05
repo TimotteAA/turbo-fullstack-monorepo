@@ -8,8 +8,8 @@ import { StartCommandArguments } from './types';
 
 export const createStartCommand: CommandItem<any, StartCommandArguments> = async (app: App) => ({
     command: ['start', 's'],
-    describe: 'Start app（启动应用）',
-    // 可选项
+    describe: 'Start app',
+    // 可选参数
     builder: {
         nestConfig: {
             type: 'string',
@@ -64,7 +64,9 @@ export const createStartCommand: CommandItem<any, StartCommandArguments> = async
     handler: async (args: yargs.Arguments<StartCommandArguments>) => {
         const { configure } = app;
         const config = getCLIConfig(args.tsConfig, args.nestConfig, args.entry);
-        if (args.prod || args.restart) await startPM2(configure, args, config);
-        else await start(args, config);
+        if (args.prod || args.restart) {
+            await startPM2(configure, args, config);
+            // console.log('args ', args, configure);
+        } else await start(args, config);
     },
 });

@@ -9,7 +9,7 @@ export const database = createDbConfig((_configure) => ({
             // 以下为mysql配置
             type: 'mysql',
             host: 'localhost',
-            port: 3307,
+            port: 3308,
             username: 'root',
             password: 'root',
             database: 'timotte',

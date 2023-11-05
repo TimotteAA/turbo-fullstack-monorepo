@@ -38,6 +38,7 @@ export const start = async (args: Arguments<StartCommandArguments>, config: CLIC
         };
         restart();
         asseter.watchAssets(config, codePath, restart);
+        // cli退出后，结束nest实例
         process.on('exit', () => {
             child.kill();
             process.exit(0);
@@ -119,7 +120,6 @@ export const startPM2 = async (
             pm2.disconnect();
         }
     };
-
     pm2.connect((cerr) => {
         connectCallback(cerr);
         // generateSwaggerMetadata(args, config, false);

@@ -1,6 +1,11 @@
+import { resolve } from 'path';
+
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type';
 import { isNil } from 'lodash';
 import { ObjectLiteral, SelectQueryBuilder } from 'typeorm';
 
+import { Configure } from '../config/configure';
 import { createConnectionOptions } from '../config/helpers';
 import { ConfigureFactory, ConfigureRegister } from '../config/types';
 import { deepMerge } from '../config/utils';
@@ -137,6 +142,9 @@ export const createDbOptions = (options: DbConfig) => {
             {
                 charset: 'utf8mb4',
                 logging: ['error'],
+                paths: {
+                    migration: resolve(__dirname, '../../database/migrations'),
+                },
             },
             options.common ?? {},
             'replace',
@@ -156,4 +164,35 @@ export const createDbOptions = (options: DbConfig) => {
         ) as TypeormOption;
     });
     return newOptions;
+};
+
+export const addEntities = async (
+    configure: Configure,
+    entities: EntityClassOrSchema[] = [],
+    name: string = 'default',
+) => {
+    const database = await configure.get<DbOptions>('database');
+    if (isNil(database)) {
+        throw new Error('数据库连接没有配置！');
+    }
+    const dbConfig = database.connections.find((connection) => connection.name === name);
+    if (isNil(dbConfig)) throw new Error(`数据连接：${name}连接不存在`);
+
+    const oldEntities = (dbConfig.entities ?? []) as EntityClassOrSchema[];
+
+    /**
+     * 更新数据库配置,添加上新的模型
+     */
+    configure.set(
+        'database.connections',
+        database.connections.map((connection) =>
+            connection.name === name
+                ? {
+                      ...connection,
+                      entities: [...entities, ...oldEntities],
+                  }
+                : connection,
+        ),
+    );
+    return TypeOrmModule.forFeature(entities, name);
 };

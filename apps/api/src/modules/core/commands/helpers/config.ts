@@ -18,68 +18,6 @@ import { panic } from '../../utils';
 /** 项目根目录 */
 const cwdPath = resolve(__dirname, '../../../../..');
 
-// export const getCLIConfig = (
-//     tsConfigFile: string,
-//     nestjsConfigFile: string,
-//     tsEntryFile?: string,
-// ): CLIConfig => {
-//     // 先后读取ts、nest的配置
-//     let tsConfig: ts.CompilerOptions = {};
-//     const tsConfigPath = join(cwdPath, tsConfigFile);
-
-//     if (!existsSync(tsConfigPath)) panic(`ts config file ${tsConfigPath} does not exists!`);
-//     try {
-//         const allTsConfig = JSON.parse(readFileSync(tsConfigPath, 'utf-8'));
-//         tsConfig = get(allTsConfig, 'compilerOptions', {});
-//     } catch (error) {
-//         panic({ error });
-//     }
-
-//     let nestConfig: NestCLIConfig = {};
-//     if (!existsSync(nestjsConfigFile))
-//         panic(`nest config file ${nestjsConfigFile} does not exists!`);
-//     try {
-//         nestConfig = JSON.parse(readFileSync(nestjsConfigFile, 'utf-8'));
-//     } catch (error) {
-//         panic({ error });
-//     }
-//     // 打包目录
-//     const dist = get(tsConfig, 'outDir', 'dist');
-//     const src = get(nestConfig, 'sourceRoot', 'src');
-//     const paths = {
-//         cwd: cwdPath,
-//         dist,
-//         src,
-//         js: join(dist, nestConfig.entryFile ?? 'main.js'),
-//         ts: join(src, tsEntryFile ?? 'main.ts'),
-//         bun: './node_modules/bun/bin/bun',
-//         nest: './node_modules/@nestjs/cli/bin/nest.js',
-//     };
-
-//     return {
-//         options: {
-//             ts: tsConfig,
-//             nest: nestConfig,
-//         },
-//         paths,
-//         subprocess: {
-//             bun: {
-//                 cwd: cwdPath,
-//                 stdout: 'inherit',
-//                 env: process.env,
-//                 onExit: (proc) => {
-//                     proc.kill();
-//                     if (!isNil(proc.exitCode)) exit(0);
-//                 },
-//             },
-//             node: {
-//                 cwd: cwdPath,
-//                 env: process.env,
-//                 stdio: 'inherit',
-//             },
-//         },
-//     };
-// };
 export const getCLIConfig = (
     tsConfigFile: string,
     nestConfigFile: string,
@@ -126,9 +64,9 @@ export const getCLIConfig = (
                 cwd: cwdPath,
                 stdout: 'inherit',
                 env: process.env,
-                onExit: (proc) => {
-                    proc.kill();
-                    if (!isNil(proc.exitCode)) exit(0);
+                onExit: (process) => {
+                    process.kill();
+                    if (!isNil(process.exitCode)) exit(0);
                 },
             },
             node: {

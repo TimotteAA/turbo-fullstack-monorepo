@@ -16,5 +16,5 @@ export const getDefaultAppConfig = (configure: Configure) => ({
     https: configure.env.get('APP_SSL', (v) => toBoolean(v), false),
     timezone: configure.env.get('APP_TIMEZONE', 'Asia/Shanghai'),
     locale: configure.env.get('APP_LOCALE', 'zh-cn'),
-    name: configure.env.get('APP_NAME', 'test'),
+    name: configure.env.get('APP_NAME', 'main'),
 });
