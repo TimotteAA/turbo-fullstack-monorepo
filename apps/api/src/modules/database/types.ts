@@ -165,8 +165,51 @@ export type BaseMigrationOptions = {
     connection: string;
 };
 
-export type MigrationGenerateOptions = {
+/**
+ * 创建空的迁移参数
+ */
+export type MigrationCreateOptions = {
     name: string;
 };
 
+export type MigrationCreateArguments = Arguments<BaseMigrationOptions & MigrationCreateOptions>;
+
+/**
+ * 生成迁移参数
+ */
+export type MigrationGenerateOptions = {
+    /** 迁移文件名称 */
+    name?: string;
+    /** 美化sql */
+    pretty?: boolean;
+    /** 将生产的迁移文件内容打印到控制台 */
+    dryrun?: boolean;
+    /** 检查是否真的要运行 */
+    check?: boolean;
+    /** 在生成迁移后直接运行 */
+    run?: boolean;
+};
+
 export type MigrationGenerateArguments = Arguments<BaseMigrationOptions & MigrationGenerateOptions>;
+
+/**
+ * 回滚迁移
+ */
+export interface MigrationRevertOptions {
+    transaction?: string;
+    fake?: boolean;
+}
+
+export type MigrationRevertArguments = Arguments<BaseMigrationOptions & MigrationRevertOptions>;
+
+/**
+ * 运行迁移
+ */
+export interface MigrationRunOptions extends MigrationRevertOptions {
+    refresh?: boolean;
+    onlydrop?: boolean;
+    clear?: boolean;
+    seed?: boolean;
+}
+
+export type MigrationRunArguments = Arguments<MigrationRunOptions & BaseMigrationOptions>;

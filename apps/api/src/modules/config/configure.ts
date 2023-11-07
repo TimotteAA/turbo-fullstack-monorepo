@@ -1,11 +1,9 @@
 import { get, has, isFunction, isNil, omit, set } from 'lodash';
 
-import { deepMerge } from './utils';
-import { isAsyncFn } from './utils';
-
 import { Env } from './env';
 import { Storage } from './storage';
 import { ConfigStorageOptions, ConfigureFactory, ConfigureRegister } from './types';
+import { isAsyncFn, deepMerge } from './utils';
 
 /**
  * 配置类
@@ -179,7 +177,6 @@ export class Configure {
         if (!isNil(hook)) {
             value = isAsyncFn(hook) ? await hook(this, value) : hook(this, value);
         }
-        console.log('syncFactory ');
         this.set(key, value, storage && isNil(await this.get(key, null)), append);
         return this;
     }

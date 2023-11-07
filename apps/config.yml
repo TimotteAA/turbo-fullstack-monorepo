@@ -5,7 +5,7 @@
         "https": false,
         "timezone": "Asia/Shanghai",
         "locale": "zh-cn",
-        "name": "test",
+        "name": "main",
         "prefix": "api",
         "url": "http://127.0.0.1:3100"
     },

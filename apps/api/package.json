@@ -33,6 +33,7 @@
         "@nestjs/platform-fastify": "^10.2.7",
         "@nestjs/swagger": "^7.1.14",
         "@nestjs/typeorm": "^10.0.0",
+        "@sqltools/formatter": "^1.2.5",
         "@timotte-app/eslint-config": "workspace:*",
         "@timotte-app/ts-config": "workspace:*",
         "@types/lodash": "^4.14.200",

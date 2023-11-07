@@ -56,4 +56,8 @@ export class CategoryEntity extends BaseEntity {
         comment: '删除时间',
     })
     deletedAt: Date;
+
+    @Expose()
+    @Column()
+    test: string;
 }

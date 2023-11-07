@@ -6,13 +6,13 @@ import { Arguments } from 'yargs';
 import { Configure } from '@/modules/config/configure';
 import { panic } from '@/modules/core/utils';
 
-import { DbOptions, MigrationGenerateArguments } from '../../types';
+import { DbOptions, MigrationCreateArguments } from '../../types';
 
 import { TypeormMigrationCreateRunner } from './migration-create.runner';
 
-export const MigrationGenerateHandler = async (
+export const MigrationCreateHandler = async (
     configure: Configure,
-    args: Arguments<MigrationGenerateArguments>,
+    args: Arguments<MigrationCreateArguments>,
 ) => {
     const spinner = ora('开始创建迁移').start();
     const cname = args.connection ?? 'default';
@@ -24,7 +24,7 @@ export const MigrationGenerateHandler = async (
         const runner = new TypeormMigrationCreateRunner();
         console.log();
         await runner.run({
-            cname,
+            cname: args.name ?? cname,
             dir: connection.paths.migration,
         });
         spinner.succeed(chalk.greenBright.underline('\n 👍 成功创建迁移'));

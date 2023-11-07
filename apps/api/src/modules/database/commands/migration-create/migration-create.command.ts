@@ -1,15 +1,15 @@
 import { CommandItem } from '@/modules/core/types';
 
-import { MigrationGenerateArguments } from '../../types';
+import { MigrationCreateArguments } from '../../types';
 
-import { MigrationGenerateHandler } from './migration-create.handler';
+import { MigrationCreateHandler } from './migration-create.handler';
 
-export const createMigrationCreateCommand: CommandItem<any, MigrationGenerateArguments> = async (
+export const createMigrationCreateCommand: CommandItem<any, MigrationCreateArguments> = async (
     app,
 ) => {
     return {
         command: ['db:migration:create', 'dbmc'],
-        describe: '创建一个新的数据库迁移文件',
+        describe: '创建一个新的空白的数据库迁移文件',
         builder: {
             connection: {
                 type: 'string',
@@ -23,6 +23,6 @@ export const createMigrationCreateCommand: CommandItem<any, MigrationGenerateArg
                 demandOption: true,
             },
         },
-        handler: async (args) => MigrationGenerateHandler(app.configure, args),
+        handler: async (args) => MigrationCreateHandler(app.configure, args),
     };
 };
