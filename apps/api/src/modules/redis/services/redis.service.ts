@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import Redis, { Redis as RedisType } from 'ioredis';
-import { isNil } from 'lodash';
+import { isNil, omit } from 'lodash';
 
-import { RedisOption } from '../types';
+import { RedisModuleConfig, RedisOption } from '../types';
 // import chalk from "chalk";
 
 /**
@@ -12,25 +12,25 @@ import { RedisOption } from '../types';
 export class RedisService {
     private clients: Map<string, RedisType> = new Map();
 
-    constructor(private config: RedisOption) {}
+    constructor(private config: RedisModuleConfig) {}
 
     async createClients() {
-        // this.config.connections.forEach(async (o: RedisOption) => {
-        // try {
-        //     const client = new Redis(o.connectOptions);
-        //     this.clients.set(o.name, client);
-        // } catch (err) {
-        //     console.error('err ', err);
-        // }
-        // });
-        for (const [name, config] of Object.entries(this.config)) {
+        this.config.forEach(async (o: RedisOption) => {
             try {
-                const client = new Redis(config);
-                this.clients.set(name, client);
+                const client = new Redis(omit(o, ['name']));
+                this.clients.set(o.name, client);
             } catch (err) {
                 console.error('err ', err);
             }
-        }
+        });
+        // for (const [name, config] of Object.entries(this.config)) {
+        //     try {
+        //         const client = new Redis(config);
+        //         this.clients.set(name, client);
+        //     } catch (err) {
+        //         console.error('err ', err);
+        //     }
+        // }
     }
 
     getClients() {

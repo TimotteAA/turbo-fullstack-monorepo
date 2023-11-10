@@ -38,8 +38,9 @@ export async function panic(option: PanicOption | string) {
         console.log(chalk.red(`\n❌ ${option}`));
         process.exit(1);
     }
-    const { error, message, exit = true } = option;
+    const { error, message, exit = true, spinner } = option;
     !isNil(error) ? console.log(chalk.red(error)) : console.log(chalk.red(`\n❌ ${message}`));
+    if (!isNil(spinner)) spinner.fail(message);
     if (exit) process.exit(1);
 }
 

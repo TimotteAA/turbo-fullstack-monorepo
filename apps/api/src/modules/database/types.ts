@@ -1,9 +1,21 @@
 // apps/api/src/modules/database/types.ts
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { FindTreeOptions, ObjectLiteral, SelectQueryBuilder } from 'typeorm';
+import { Ora } from 'ora';
+import {
+    DataSource,
+    EntityManager,
+    EntityTarget,
+    FindTreeOptions,
+    ObjectLiteral,
+    ObjectType,
+    SelectQueryBuilder,
+} from 'typeorm';
 import { Arguments } from 'yargs';
 
+import { Configure } from '../config/configure';
+
 import { SelectTrashMode } from './constants';
+import { DataMock } from './resolver';
 
 /**
  * 查询的query hook
@@ -125,6 +137,20 @@ export type DbAdditionalConfig = {
          */
         migration?: string;
     };
+
+    /**
+     * 填充类
+     */
+    seedRunner?: SeederConstructor;
+    /**
+     * 填充类列表
+     */
+    seeders?: SeederConstructor[];
+
+    /**
+     * 数据构建函数列表
+     */
+    mockMaps?: (() => DbMockOption<any, any>)[];
 };
 
 /**
@@ -213,3 +239,128 @@ export interface MigrationRunOptions extends MigrationRevertOptions {
 }
 
 export type MigrationRunArguments = Arguments<MigrationRunOptions & BaseMigrationOptions>;
+
+/** ****************************************数据填充Mocker*************************************** */
+
+/**
+ * Mock解析器
+ */
+export interface DbMock {
+    <Entity>(
+        entity: EntityTarget<Entity>,
+    ): <Options>(options?: Options) => DataMock<Entity, Options>;
+}
+
+/**
+ * 数据mock器解析后的元数据
+ * E entity
+ * O 模拟数据的interface
+ */
+export type DbMockOption<E, O> = {
+    entity: ObjectType<E>;
+    handler: DbMockHandler<E, O>;
+};
+
+/**
+ * 各个entity的mock配置集合
+ */
+export type DbMockMaps = {
+    [entityName: string]: DbMockOption<any, any>;
+};
+
+/**
+ * 生成mock data的函数
+ */
+export type DbMockHandler<E, O> = (configure: Configure, options: O) => Promise<E>;
+
+/**
+ * Mock自定义参数覆盖，用于覆盖模拟entity的某些字段
+ */
+export type MockOverride<Entity> = {
+    [Property in keyof Entity]?: Entity[Property];
+};
+
+/**
+ * mock构造器
+ */
+export type DbMockBuilder = (
+    Configure: Configure,
+    dataSource: DataSource,
+    factories: {
+        [entityName: string]: DbMockOption<any, any>;
+    },
+) => DbMock;
+
+/**
+ * 定义一个Mock
+ */
+export type DefineMock = <E, O>(
+    entity: ObjectType<E>,
+    handler: DbMockHandler<E, O>,
+) => () => DbMockOption<E, O>;
+
+/** *****************************seeder*************************** */
+
+/**
+ * 数据填充命令参数
+ */
+export type SeederArguments = Arguments<TypeormOption & SeederOptions>;
+
+/**
+ * 数据填充handler参数
+ */
+export interface SeederOptions {
+    connection?: string;
+    transaction?: boolean;
+    ignoreLock?: boolean;
+}
+
+/**
+ * 数据填充类接口
+ */
+export interface SeederConstructor {
+    new (spinner: Ora, args: SeederOptions): Seeder;
+}
+
+/**
+ * 数据填充类对象
+ */
+export interface Seeder {
+    load: (params: SeederLoadParams) => Promise<void>;
+}
+
+export interface SeederLoadParams {
+    /**
+     * 数据库连接名称
+     */
+    connection: string;
+    /**
+     * 数据库连接对象
+     */
+    dataSource: DataSource;
+
+    /**
+     * EntityManager实例
+     */
+    em: EntityManager;
+
+    /**
+     * 各个entity的mock解析器
+     */
+    mock?: DbMock;
+
+    /**
+     * mock函数列表
+     */
+    mocks?: DbMockMaps;
+
+    /**
+     * 全局配置实例
+     */
+    configure: Configure;
+
+    /**
+     * 是否忽略锁定
+     */
+    ignoreLock?: boolean;
+}

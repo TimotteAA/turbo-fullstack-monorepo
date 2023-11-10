@@ -36,17 +36,13 @@ import {
     useImperativeHandle,
 } from 'react';
 import { createPortal } from 'react-dom';
-
 import { matchRoutes, useLocation, useOutlet } from 'react-router-dom';
-
 import { useUnmount } from 'react-use';
 
 import { deepMerge } from '@/utils';
 
 import { useNavigator } from '../router/hooks';
-
 import { RouterStore } from '../router/store';
-
 import { factoryRoutes } from '../router/utils';
 
 import { KeepAliveDispatchContext, KeepAliveIdContext, KeepAliveAction } from './constants';

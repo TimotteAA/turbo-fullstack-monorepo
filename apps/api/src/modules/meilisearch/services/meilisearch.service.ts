@@ -1,14 +1,13 @@
 import { Injectable } from '@nestjs/common';
-
 import MeiliSearch from 'meilisearch';
 
-import type { MeiliSeachModuleConfig } from '../types';
+import type { MeiliSearchModuleConfig } from '../types';
 
 @Injectable()
 export class MeiliSearchService {
     private clients: Map<string, MeiliSearch> = new Map();
 
-    constructor(protected config: MeiliSeachModuleConfig) {}
+    constructor(protected config: MeiliSearchModuleConfig) {}
 
     getClient(key?: string) {
         let name = 'default';

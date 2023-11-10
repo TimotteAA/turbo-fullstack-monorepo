@@ -5,12 +5,12 @@ import { Configure } from '../config/configure';
 import { panic } from '../core/utils';
 
 import { RedisService } from './services';
-import type { RedisOption } from './types';
+import type { RedisModuleConfig } from './types';
 
 @Module({})
 export class RedisModule {
     static async forRoot(configure: Configure) {
-        const redis = await configure.get<RedisOption>('redis');
+        const redis = await configure.get<RedisModuleConfig>('redis');
         if (isNil(redis)) panic('redis模块没有配置！');
 
         const providers: ModuleMetadata['providers'] = [];

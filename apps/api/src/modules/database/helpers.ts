@@ -3,16 +3,19 @@ import { resolve } from 'path';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { EntityClassOrSchema } from '@nestjs/typeorm/dist/interfaces/entity-class-or-schema.type';
 import { isNil } from 'lodash';
-import { ObjectLiteral, SelectQueryBuilder } from 'typeorm';
+import { EntityManager, EntityTarget, ObjectLiteral, SelectQueryBuilder } from 'typeorm';
 
 import { Configure } from '../config/configure';
 import { createConnectionOptions } from '../config/helpers';
 import { ConfigureFactory, ConfigureRegister } from '../config/types';
 import { deepMerge } from '../config/utils';
 
+import { DataMock } from './resolver';
 import {
     DbConfig,
+    DbMockBuilder,
     DbOptions,
+    DefineMock,
     OrderQueryType,
     PaginateOptions,
     PaginateReturn,
@@ -196,3 +199,63 @@ export const addEntities = async (
     );
     return TypeOrmModule.forFeature(entities, name);
 };
+
+/** ***************************数据填充相关*********************************** */
+/**
+ * mock构建起
+ * @param configure 全局配置
+ * @param dataSource 数据源
+ * @param mocks mock函数组
+ */
+export const mockBuilder: DbMockBuilder =
+    (configure, dataSource, mocks) => (entity) => (settings) => {
+        const name = entityName(entity);
+        if (!mocks[name]) {
+            throw new Error(`没有找到Entity ${name}的mock`);
+        }
+        return new DataMock(
+            name,
+            configure,
+            entity,
+            dataSource.createEntityManager(),
+            mocks[name].handler,
+            settings,
+        );
+    };
+
+export const entityName = <T>(entity: EntityTarget<T>) => {
+    if (entity instanceof Function) return entity.name;
+    if (!isNil(entity)) return new (entity as any)().constructor.name;
+    throw new Error('Entity is not defined');
+};
+
+/**
+ * 定义一个mock
+ * @param entity
+ * @param handler
+ */
+export const defindMock: DefineMock = (entity, handler) => () => ({ entity, handler });
+
+/**
+ * 忽略外键
+ * @param em EntityManager实例
+ * @param type 数据库类型
+ * @param disabled 是否禁用
+ */
+export async function resetForeignKey(
+    em: EntityManager,
+    type = 'mysql',
+    disabled = true,
+): Promise<EntityManager> {
+    let key: string;
+    let query: string;
+    if (type === 'sqlite') {
+        key = disabled ? 'OFF' : 'ON';
+        query = `PRAGMA foreign_keys = ${key};`;
+    } else {
+        key = disabled ? '0' : '1';
+        query = `SET FOREIGN_KEY_CHECKS = ${key};`;
+    }
+    await em.query(query);
+    return em;
+}

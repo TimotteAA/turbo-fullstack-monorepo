@@ -17,6 +17,7 @@ export const MigrationCreateHandler = async (
     const spinner = ora('开始创建迁移').start();
     const cname = args.connection ?? 'default';
     try {
+        spinner.start();
         const database = await configure.get<DbOptions>('database');
         if (isNil(database)) throw new Error('数据库连接没有配置');
         const connection = database.connections.find((c) => c.name === cname);

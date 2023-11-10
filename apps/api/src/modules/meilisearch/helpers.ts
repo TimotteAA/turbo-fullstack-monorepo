@@ -1,9 +1,9 @@
 import { createConnectionOptions } from '../config/helpers';
 import { ConfigureFactory, ConfigureRegister } from '../config/types';
 
-import { MeiliSeachModuleConfig } from './types';
+import { MeiliSearchModuleConfig } from './types';
 
-export const createMeiliSearchModuleConfig = async (options: MeiliSeachModuleConfig) => {
+export const createMeiliSearchModuleConfig = async (options: MeiliSearchModuleConfig) => {
     if (options.length < 0) return options;
     let config = options;
     const names = config.map(({ name }) => name);
@@ -20,8 +20,8 @@ export const createMeiliSearchModuleConfig = async (options: MeiliSeachModuleCon
 };
 
 export const createMeilliConfig: (
-    register: ConfigureRegister<RePartial<MeiliSeachModuleConfig>>,
-) => ConfigureFactory<MeiliSeachModuleConfig, MeiliSeachModuleConfig> = (register) => ({
+    register: ConfigureRegister<RePartial<MeiliSearchModuleConfig>>,
+) => ConfigureFactory<MeiliSearchModuleConfig, MeiliSearchModuleConfig> = (register) => ({
     register,
     hook: (_configure, value) => createConnectionOptions(value),
 });

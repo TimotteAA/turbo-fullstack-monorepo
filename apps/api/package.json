@@ -38,7 +38,7 @@
         "@timotte-app/ts-config": "workspace:*",
         "@types/lodash": "^4.14.200",
         "bcrypt": "^5.1.1",
-        "bun": "^1.0.6",
+        "bun": "^1.0.11",
         "chalk": "^4.1.2",
         "chokidar": "^3.5.3",
         "class-transformer": "^0.5.1",
