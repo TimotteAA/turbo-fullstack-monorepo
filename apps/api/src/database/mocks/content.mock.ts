@@ -5,7 +5,7 @@ import { getFakerLocales } from '@/modules/core/utils';
 import { defindMock } from '@/modules/database/helpers';
 
 // 用fakerjs模拟出来的数据字段
-export type IPostFactoryOptions = Partial<{
+export type IPostMockOptions = Partial<{
     title: string;
     summary: string;
     body: string;
@@ -14,12 +14,13 @@ export type IPostFactoryOptions = Partial<{
     tags: TagEntity[];
     comments: CommentEntity[];
 }>;
-export const ContentMock = defindMock<PostEntity, IPostFactoryOptions>(
+export const ContentMock = defindMock<PostEntity, IPostMockOptions>(
     PostEntity,
     async (configure, options) => {
         const faker = new fakerJs.Faker({
             locale: await getFakerLocales(configure),
         });
+
         const post = new PostEntity();
 
         if (options.title) post.title = options.title;

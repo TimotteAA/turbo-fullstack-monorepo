@@ -4,7 +4,7 @@
         "port": 3100,
         "https": false,
         "timezone": "Asia/Shanghai",
-        "locale": "zh-cn",
+        "locale": "zh_CN",
         "name": "main",
         "prefix": "api",
         "url": "http://127.0.0.1:3100"

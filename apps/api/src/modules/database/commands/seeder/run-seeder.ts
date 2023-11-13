@@ -41,7 +41,6 @@ export async function runSeeder(
         await queryRunner.startTransaction();
         try {
             const em = await resetForeignKey(queryRunner.manager, dataSource.options.type);
-            console.log('mockMaps ', mockMaps);
             await seeder.load({
                 mock: mockBuilder(configure, dataSource, mockMaps),
                 mocks: mockMaps,
@@ -54,7 +53,7 @@ export async function runSeeder(
             await resetForeignKey(em, dataSource.options.type, false);
             await queryRunner.commitTransaction();
         } catch (error) {
-            console.error(Error);
+            console.error(error);
             // 回滚
             await queryRunner.rollbackTransaction();
         } finally {
