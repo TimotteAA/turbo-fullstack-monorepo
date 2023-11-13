@@ -1,28 +1,25 @@
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
-
-import { Type } from '@nestjs/common';
-import { ensureFileSync, writeFileSync } from 'fs-extra';
-import { get, isNil, set } from 'lodash';
+import { isNil } from 'lodash';
 import { Ora } from 'ora';
 import { DataSource, EntityManager, EntityTarget, ObjectLiteral } from 'typeorm';
-import * as YAML from 'yaml';
 
 import { Configure } from '@/modules/config/configure';
 import { panic } from '@/modules/core/utils';
 
 import { mockBuilder } from '../helpers';
 import {
+    DbConfig,
     DbMock,
     DbMockOption,
-    DbOptions,
     Seeder,
     SeederConstructor,
     SeederLoadParams,
     SeederOptions,
 } from '../types';
 
-export class SeedRunner {
+/**
+ * 数据填充基类
+ */
+export abstract class BaseSeeder implements Seeder {
     protected dataSource: DataSource;
 
     protected em: EntityManager;
@@ -33,13 +30,12 @@ export class SeedRunner {
 
     protected ignoreLock = false;
 
+    // protected
+
     protected mocks!: {
         [entityName: string]: DbMockOption<any, any>;
     };
 
-    /**
-     * 清空的表结构
-     */
     protected truncates: EntityTarget<ObjectLiteral>[] = [];
 
     constructor(
@@ -64,24 +60,37 @@ export class SeedRunner {
                 await this.em.clear(truncate);
             }
         }
-        const result = await this.run(mock, this.dataSource, this.em);
+
+        const result = await this.run(mock, this.dataSource);
         return result;
     }
 
     protected async getDbConfig() {
-        const { connections = [] }: DbOptions = await this.configure.get<DbOptions>('database');
+        const { connections = [] }: DbConfig = await this.configure.get<DbConfig>('database');
         const dbConfig = connections.find(({ name }) => name === this.connection);
-        if (isNil(dbConfig)) panic(`Database connection named ${this.connection} does not exists!`);
+        if (isNil(dbConfig)) panic(`Database connection named ${this.connection} not exists!`);
         return dbConfig;
     }
 
     /**
+     * 运行seeder的关键方法
+     * @param factorier
+     * @param dataSource
+     * @param em
+     */
+    protected abstract run(
+        factorier?: DbMock,
+        dataSource?: DataSource,
+        em?: EntityManager,
+    ): Promise<any>;
+
+    /**
      * 运行子seeder
+     *
      * @param SubSeeder
      */
     protected async call(SubSeeder: SeederConstructor) {
         const subSeeder: Seeder = new SubSeeder(this.spinner, this.args);
-        console.log('call ', SubSeeder.name);
         await subSeeder.load({
             connection: this.connection,
             mock: mockBuilder(this.configure, this.dataSource, this.mocks),
@@ -91,39 +100,5 @@ export class SeedRunner {
             configure: this.configure,
             ignoreLock: this.ignoreLock,
         });
-    }
-
-    /**
-     * 运行一个连接的填充类
-     */
-    protected async run(_mock: DbMock, _dataSource: DataSource, _em: EntityManager): Promise<any> {
-        this.dataSource = _dataSource;
-        this.em = _em;
-
-        let seeders: Type<any>[] = ((await this.getDbConfig()) as any).seeders ?? [];
-        if (!this.ignoreLock) {
-            const seedLockFile = resolve(__dirname, '../../../..', 'seed-lock.yml');
-            ensureFileSync(seedLockFile);
-            const yml = YAML.parse(readFileSync(seedLockFile, 'utf-8'));
-            const locked = isNil(yml) ? {} : yml;
-            const lockNames = get<string[]>(locked, this.connection, []).reduce<string[]>(
-                (o, n) => (o.includes(n) ? o : [...o, n]),
-                [],
-            );
-            seeders = seeders.filter((s) => !lockNames.includes(s.name));
-
-            for (const seeder of seeders) {
-                await this.call(seeder);
-            }
-            set(locked, this.connection, [
-                ...lockNames.filter((n) => !isNil(n)),
-                ...seeders.map((s) => s.name).filter((n) => !isNil(n)),
-            ]);
-            writeFileSync(seedLockFile, JSON.stringify(locked, null, 4));
-        } else {
-            for (const seeder of seeders) {
-                await this.call(seeder);
-            }
-        }
     }
 }

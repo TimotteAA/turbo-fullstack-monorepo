@@ -43,7 +43,6 @@ export class Asset {
         if (assets.length <= 0) {
             return;
         }
-
         try {
             const isWatchEnabled = toBoolean(get(config, 'watchAssets', 'src'));
             const filesToWatch = assets.map<AssetEntry>((item) => {
@@ -71,15 +70,18 @@ export class Asset {
 
                 const watcher = chokidar
                     .watch(item.glob, { ignored: item.exclude })
-                    .on('add', (path: string) =>
-                        this.actionOnFile({ ...option, path, action: 'change' }, changer),
-                    )
-                    .on('change', (path: string) =>
-                        this.actionOnFile({ ...option, path, action: 'change' }, changer),
-                    )
-                    .on('unlink', (path: string) =>
-                        this.actionOnFile({ ...option, path, action: 'unlink' }, changer),
-                    );
+                    .on('add', (path: string) => {
+                        console.log('watcher add');
+                        this.actionOnFile({ ...option, path, action: 'change' }, changer);
+                    })
+                    .on('change', (path: string) => {
+                        console.log('change ', path);
+                        this.actionOnFile({ ...option, path, action: 'change' }, changer);
+                    })
+                    .on('unlink', (path: string) => {
+                        this.actionOnFile({ ...option, path, action: 'unlink' }, changer);
+                        console.log('remove ', path);
+                    });
 
                 this.watchers.push(watcher);
             }

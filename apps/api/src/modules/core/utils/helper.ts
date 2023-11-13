@@ -1,7 +1,10 @@
+import * as fakerjs from '@faker-js/faker';
 import chalk from 'chalk';
 import { isNil } from 'lodash';
 
-import { PanicOption } from '../types';
+import { Configure } from '@/modules/config/configure';
+
+import { AppConfig, PanicOption } from '../types';
 
 /**
  * 类似于lodash中的toNumber
@@ -51,4 +54,15 @@ export const getRandomCharString = (length: number) => {
         result += characters.charAt(Math.floor(Math.random() * characters.length));
     }
     return result;
+};
+
+export const getFakerLocales = async (configure: Configure) => {
+    const app = await configure.get<AppConfig>('app');
+    const locales: fakerjs.LocaleDefinition[] = [];
+    const locale = app.locale as keyof typeof fakerjs;
+    const fallbackLocale = app.fallbackLocale as keyof typeof fakerjs;
+    if (!isNil(fakerjs[locale])) locales.push(fakerjs[locale] as fakerjs.LocaleDefinition);
+    if (!isNil(fakerjs[fallbackLocale]))
+        locales.push(fakerjs[fallbackLocale] as fakerjs.LocaleDefinition);
+    return locales;
 };

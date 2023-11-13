@@ -41,6 +41,7 @@ export async function runSeeder(
         await queryRunner.startTransaction();
         try {
             const em = await resetForeignKey(queryRunner.manager, dataSource.options.type);
+            console.log('mockMaps ', mockMaps);
             await seeder.load({
                 mock: mockBuilder(configure, dataSource, mockMaps),
                 mocks: mockMaps,

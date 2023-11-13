@@ -66,7 +66,6 @@ export const createStartCommand: CommandItem<any, StartCommandArguments> = async
         const config = getCLIConfig(args.tsConfig, args.nestConfig, args.entry);
         if (args.prod || args.restart) {
             await startPM2(configure, args, config);
-            // console.log('args ', args, configure);
         } else await start(args, config);
     },
 });

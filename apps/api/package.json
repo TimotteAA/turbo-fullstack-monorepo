@@ -22,6 +22,7 @@
         "prod": "cross-env NODE_ENV=production pnpm cll start -w -p"
     },
     "dependencies": {
+        "@faker-js/faker": "^8.2.0",
         "@fastify/static": "^6.11.2",
         "@nestjs/cli": "10.2.1",
         "@nestjs/common": "^10.2.7",

@@ -58,7 +58,7 @@ export abstract class BaseSeeder implements Seeder {
                 await this.em.clear(truncate);
             }
         }
-        const result = await this.run(mock, this.dataSource);
+        const result = await this.run(mock, this.dataSource, this.em);
         return result;
     }
 

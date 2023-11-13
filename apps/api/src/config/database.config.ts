@@ -1,3 +1,5 @@
+import { ContentMock } from '@/database/mocks/content.mock';
+import ContentSeeder from '@/database/seeders/content.seeder';
 import { createDbConfig } from '@/modules/database/helpers';
 
 export const database = createDbConfig((_configure) => ({
@@ -13,11 +15,8 @@ export const database = createDbConfig((_configure) => ({
             username: 'root',
             password: 'root',
             database: 'timotte',
+            seeders: [ContentSeeder],
+            mockMaps: [ContentMock],
         },
-        // {
-        // 以下为sqlite配置
-        // type: 'better-sqlite3',
-        // database: resolve(__dirname, '../../database.db'),
-        // },
     ],
 }));

@@ -1,2 +1,2 @@
 export * from './data.mock';
-export * from './base.seeder';
+export * from './seed.runner';

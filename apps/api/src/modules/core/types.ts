@@ -117,6 +117,10 @@ export interface AppConfig {
      */
     locale: string;
     /**
+     * 替补语言
+     */
+    fallbackLocale?: string;
+    /**
      * 控制台打印的url,默认自动生成
      */
     url?: string;
