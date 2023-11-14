@@ -1,6 +1,11 @@
-import { isNil } from 'lodash';
+import { resolve } from 'path';
+
+import { Type } from '@nestjs/common';
+import { ensureFileSync, readFileSync, writeFileSync } from 'fs-extra';
+import { get, isNil, set } from 'lodash';
 import { Ora } from 'ora';
 import { DataSource, EntityManager, EntityTarget, ObjectLiteral } from 'typeorm';
+import * as YAML from 'yaml';
 
 import { Configure } from '@/modules/config/configure';
 import { panic } from '@/modules/core/utils';
@@ -16,7 +21,7 @@ import {
     SeederOptions,
 } from '../types';
 
-export abstract class BaseSeeder implements Seeder {
+export class BaseSeeder implements Seeder {
     protected dataSource: DataSource;
 
     protected em: EntityManager;
@@ -75,11 +80,42 @@ export abstract class BaseSeeder implements Seeder {
      * @param dataSource
      * @param em
      */
-    protected abstract run(
-        mock?: DbMock,
-        dataSource?: DataSource,
-        em?: EntityManager,
-    ): Promise<any>;
+
+    /**
+     * 运行一个连接的填充类，BaseSeeder中仅会对unlock的类进行运行
+     */
+    protected async run(_mock: DbMock, _dataSource: DataSource, _em: EntityManager): Promise<any> {
+        this.dataSource = _dataSource;
+        this.em = _em;
+
+        // 配置的各个数据填充类
+        let seeders: Type<any>[] = ((await this.getDbConfig()) as any).seeders ?? [];
+        if (!this.ignoreLock) {
+            const seedLockFile = resolve(__dirname, '../../../..', 'seed-lock.yml');
+            ensureFileSync(seedLockFile);
+            const yml = YAML.parse(readFileSync(seedLockFile, 'utf-8'));
+            const locked = isNil(yml) ? {} : yml;
+            const lockNames = get<string[]>(locked, this.connection, []).reduce<string[]>(
+                (o, n) => (o.includes(n) ? o : [...o, n]),
+                [],
+            );
+            seeders = seeders.filter((s) => !lockNames.includes(s.name));
+
+            for (const seeder of seeders) {
+                await this.call(seeder);
+            }
+            // 加入到locked中
+            set(locked, this.connection, [
+                ...lockNames.filter((n) => !isNil(n)),
+                ...seeders.map((s) => s.name).filter((n) => !isNil(n)),
+            ]);
+            writeFileSync(seedLockFile, JSON.stringify(locked, null, 4));
+        } else {
+            for (const seeder of seeders) {
+                await this.call(seeder);
+            }
+        }
+    }
 
     /**
      * 运行子seeder

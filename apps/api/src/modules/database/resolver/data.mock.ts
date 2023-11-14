@@ -8,6 +8,10 @@ import { panic } from '@/modules/core/utils';
 
 import { DbMockHandler, MockOverride } from '../types';
 
+/**
+ * 一个实体entity的mocker，用于创建单个、多个数据
+ * 创建的数据可以保存，也可以不保存
+ */
 export class DataMock<Entity, Settings> {
     private mapFunction!: (entity: Entity) => Promise<Entity>;
 

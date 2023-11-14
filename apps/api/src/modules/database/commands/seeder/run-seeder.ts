@@ -6,6 +6,14 @@ import { Configure } from '@/modules/config/configure';
 import { mockBuilder, resetForeignKey } from '../../helpers';
 import { DbMockMaps, Seeder, SeederConstructor, SeederOptions, TypeormOption } from '../../types';
 
+/**
+ * 运行seeder
+ * @param Clazz
+ * @param args
+ * @param spinner
+ * @param configure
+ * @param dbConfig
+ */
 export async function runSeeder(
     Clazz: SeederConstructor,
     args: SeederOptions,

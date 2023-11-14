@@ -10,7 +10,8 @@ import { createConnectionOptions } from '../config/helpers';
 import { ConfigureFactory, ConfigureRegister } from '../config/types';
 import { deepMerge } from '../config/utils';
 
-import { DataMock, SeedRunner } from './resolver';
+import { BaseSeeder } from './base';
+import { DataMock } from './resolver';
 import {
     DbConfig,
     DbMockBuilder,
@@ -130,7 +131,7 @@ export const createDbConfig: (
         common: {
             charset: 'utf8mb4',
             logging: ['error'],
-            seedRunner: SeedRunner,
+            seedRunner: BaseSeeder,
             mockMaps: [],
             seeders: [],
         },
