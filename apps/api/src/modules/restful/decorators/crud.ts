@@ -42,12 +42,15 @@ export function Crud(options: CrudOptions) {
 
                 Object.defineProperty(Target.prototype, name, {
                     ...descriptor,
-                    // async value(...args: any[]) {
+                    // async [name](...args: any[]) {
                     //     return descriptor.value.apply(this, args);
-                    // },
-                    async [name](..._args: any[]) {
-                        return descriptor.value.apply(this, _args);
-                    },
+                    // }
+                    // 上面这种不行。。。。
+                    value: {
+                        async [name](...args: any[]) {
+                            return descriptor.value.apply(this, args);
+                        },
+                    }[name],
                 });
             }
 
@@ -134,9 +137,6 @@ export function Crud(options: CrudOptions) {
             }
 
             if (!isNil(options.hook)) {
-                // if (Target.name === "UserController") {
-                //     console.log(123154, name, options.hook.toString())
-                // }
                 options.hook(Target, name);
             }
 

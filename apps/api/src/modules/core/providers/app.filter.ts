@@ -10,12 +10,15 @@ import { EntityPropertyNotFoundError, QueryFailedError, EntityNotFoundError } fr
  */
 @Catch()
 export class AppFilter<T = Error> extends BaseExceptionFilter<T> {
+    /**
+     * 这些错误会导致服务器500的挂逼
+     */
     protected resExceptions: Array<
         { class: Type<Error>; status?: number; message?: string } | Type<Error>
     > = [
-        { class: EntityNotFoundError, status: HttpStatus.NOT_FOUND, message: '未知错误' },
-        { class: QueryFailedError, status: HttpStatus.BAD_REQUEST, message: '未知错误' },
-        { class: EntityPropertyNotFoundError, status: HttpStatus.BAD_REQUEST, message: '未知错误' },
+        { class: EntityNotFoundError, status: HttpStatus.NOT_FOUND, message: '系统错误' },
+        { class: QueryFailedError, status: HttpStatus.BAD_REQUEST, message: '系统错误' },
+        { class: EntityPropertyNotFoundError, status: HttpStatus.BAD_REQUEST, message: '系统错误' },
     ];
 
     // eslint-disable-next-line consistent-return

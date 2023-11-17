@@ -1,5 +1,6 @@
 import { Configure } from '@/modules/config/configure';
 import * as contentControllerMaps from '@/modules/content/controllers';
+import * as rbacControllermaps from '@/modules/rbac/controllers';
 import { VersionOption } from '@/modules/restful/types';
 
 /**
@@ -22,6 +23,8 @@ export const v1 = async (_configure: Configure): Promise<VersionOption> => {
                         { name: '文章操作', description: '对文章进行的增删查改及搜索等操作' },
                         { name: '评论操作', description: '对评论的增删查操作' },
                         { name: '用户操作', description: '对用户的CRUD操作' },
+                        { name: 'rbac角色管理', description: '对角色的CRUD操作' },
+                        { name: 'rbac系统管理', description: '对系统的CRUD操作' },
                     ],
                 },
                 controllers: [],
@@ -36,6 +39,11 @@ export const v1 = async (_configure: Configure): Promise<VersionOption> => {
                         path: '/user',
                         // controllers: [...Object.values(userControllerMaps)],
                         controllers: [],
+                    },
+                    {
+                        name: 'rbac',
+                        path: '/rbac',
+                        controllers: [...Object.values(rbacControllermaps)],
                     },
                 ],
             },

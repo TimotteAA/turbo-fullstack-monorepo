@@ -3,6 +3,7 @@ import { ApiTags } from '@nestjs/swagger';
 
 import { BaseController } from '@/modules/restful/controller';
 import { Crud, Depends } from '@/modules/restful/decorators';
+import { createOptions } from '@/modules/restful/helpers';
 
 import { ContentModule } from '../content.module';
 import { CreateCommentDto, QueryCommentListDto, QueryCommentTreeDto } from '../dtos';
@@ -12,7 +13,32 @@ import { CommentService } from '../services';
 @Depends(ContentModule)
 @Crud({
     id: 'comment',
-    enabled: ['create', 'list', 'detail', 'delete'],
+    enabled: [
+        {
+            name: 'create',
+            options: createOptions(true, { summary: '创建评论' }),
+        },
+        {
+            name: 'update',
+            options: createOptions(true, { summary: '更新评论' }),
+        },
+        {
+            name: 'delete',
+            options: createOptions(true, { summary: '删除评论' }),
+        },
+        {
+            name: 'list',
+            options: createOptions(true, { summary: '分页查询评论' }),
+        },
+        {
+            name: 'restore',
+            options: createOptions(true, { summary: '恢复软删除评论' }),
+        },
+        {
+            name: 'detail',
+            options: createOptions(true, { summary: '查询评论详情' }),
+        },
+    ],
     dtos: {
         create: CreateCommentDto,
         query: QueryCommentListDto,

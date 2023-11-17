@@ -27,7 +27,6 @@ export class IsExistsConstraint implements ValidatorConstraintInterface {
 
     async validate(value: string, args: ValidationArguments) {
         // 有些uuid字段可能是nul
-        console.log('value ', value);
         if (!value) return true;
         const [condition] = args.constraints as Condition[];
         const { entity, field } = condition;
@@ -40,7 +39,7 @@ export class IsExistsConstraint implements ValidatorConstraintInterface {
         const queryCondition = {
             [findField]: value,
         };
-        const item = await repo.findBy(queryCondition);
+        const item = await repo.findOneBy(queryCondition);
         return !isNil(item);
     }
 

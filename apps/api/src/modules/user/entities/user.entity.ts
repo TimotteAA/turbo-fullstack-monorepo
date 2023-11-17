@@ -32,6 +32,9 @@ export class UserEntity extends BaseEntity {
     @Column({ comment: '用户简介', type: 'varchar', length: '300', nullable: true })
     summary?: string;
 
+    // @ManyToOne(() => SystemEntity, (s) => s.users)
+    // department?: Relation<SystemEntity> | null;
+
     @Expose()
     @CreateDateColumn()
     createtAt!: Date;

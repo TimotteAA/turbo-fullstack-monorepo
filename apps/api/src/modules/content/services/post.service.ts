@@ -116,7 +116,6 @@ export class PostService extends BaseService<PostEntity, PostRepository> {
     }
 
     async delete(ids: string[], trahsed?: boolean) {
-        console.log('trashed ', trahsed);
         // 待删除的items
         const items = await this.postRepo.find({
             where: {

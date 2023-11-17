@@ -10,6 +10,7 @@ import { App, CreateOptions } from './modules/core/types';
 import * as dbCommands from './modules/database/commands';
 import { DatabaseModule } from './modules/database/database.module';
 import { MeiliSearchModule } from './modules/meilisearch/meilisearch.module';
+import { RbacModule } from './modules/rbac/rbac.module';
 import { echoApi } from './modules/restful/helpers';
 import { Restful } from './modules/restful/restful';
 import { RestfulModule } from './modules/restful/restful.module';
@@ -26,6 +27,7 @@ export const createData: CreateOptions = {
         DatabaseModule.forRoot(configure),
         ContentModule.forRoot(configure),
         MeiliSearchModule.forRoot(configure),
+        RbacModule.forRoot(configure),
         // UserModule.forRoot(configure),
 
         // RedisModule.forRoot(configure),

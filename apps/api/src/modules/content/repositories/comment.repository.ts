@@ -3,7 +3,6 @@ import { FindTreeOptions } from 'typeorm';
 import { BaseTreeRepository } from '@/modules/database/base';
 import { TreeChildrenResolve } from '@/modules/database/constants';
 import { CUSTOM_REPOSITORY } from '@/modules/database/decorators';
-
 import { QueryParams } from '@/modules/database/types';
 
 import { CommentEntity } from '../entities';

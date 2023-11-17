@@ -2,8 +2,6 @@ import { Module, ModuleMetadata } from '@nestjs/common';
 
 import { Configure } from '../config/configure';
 import { DatabaseModule } from '../database/database.module';
-
-// import * as controllerMaps from './controllers';
 import { addEntities } from '../database/helpers';
 
 import * as entityMaps from './entities';

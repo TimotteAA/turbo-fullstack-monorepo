@@ -27,7 +27,6 @@ export class UniqueConstraint implements ValidatorConstraintInterface {
     constructor(private dataSource: DataSource) {}
 
     async validate(value: any, args: ValidationArguments) {
-        console.log('isUnique ', value, args);
         // 获取要验证的模型和字段
         const config: Omit<Condition, 'entity'> = {
             property: args.property,
