@@ -15,6 +15,6 @@ export class ResourceRepository extends BaseTreeRepository<ResourceEntity> {
     buildBaseQB(): SelectQueryBuilder<ResourceEntity> {
         return this.createQueryBuilder('resource')
             .leftJoinAndSelect('resource.parent', 'parent')
-            .orderBy('resource.createtAt', 'ASC');
+            .orderBy('resource.createdAt', 'ASC');
     }
 }

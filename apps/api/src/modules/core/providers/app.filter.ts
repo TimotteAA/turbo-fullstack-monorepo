@@ -23,6 +23,7 @@ export class AppFilter<T = Error> extends BaseExceptionFilter<T> {
 
     // eslint-disable-next-line consistent-return
     catch(exception: T, host: ArgumentsHost) {
+        console.log('exception ', exception);
         // 源码内容
         const applicationRef =
             this.applicationRef || (this.httpAdapterHost && this.httpAdapterHost.httpAdapter)!;

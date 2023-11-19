@@ -25,6 +25,7 @@ export const v1 = async (_configure: Configure): Promise<VersionOption> => {
                         { name: '用户操作', description: '对用户的CRUD操作' },
                         { name: 'rbac角色管理', description: '对角色的CRUD操作' },
                         { name: 'rbac系统管理', description: '对系统的CRUD操作' },
+                        { name: 'rbac资源管理', description: '对资源的crud操作' },
                     ],
                 },
                 controllers: [],

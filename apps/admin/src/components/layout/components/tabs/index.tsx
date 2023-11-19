@@ -1,14 +1,10 @@
 import { Dropdown, MenuProps, Tabs, TabsProps, theme as AntdTheme } from 'antd';
-
 import { memo, useCallback, useMemo, useState } from 'react';
-
 import { useDeepCompareEffect } from 'react-use';
 
 import Icon from '@/components/icon/Icon';
 import { useActived, useKeepAliveDispatch, useKeepAlives } from '@/components/keepalive/hooks';
-
 import { useRouterStore } from '@/components/router/hooks';
-
 import { RouteOption } from '@/components/router/types';
 import { useDeepCompareUpdateEffect } from '@/utils/hooks';
 

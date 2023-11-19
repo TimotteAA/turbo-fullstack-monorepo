@@ -38,6 +38,7 @@ export default [
         timeout: 200,
         method: 'post',
         response({ body }: { body: any }) {
+            console.log('mcok cmock');
             const { credential, password } = body;
             const checkUser = createFakeUserList().find(
                 (item) =>

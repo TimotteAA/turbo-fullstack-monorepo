@@ -1,12 +1,13 @@
-import { theme } from 'antd';
-import { MappingAlgorithm } from 'antd/es/config-provider/context';
+import { theme, MappingAlgorithm } from 'antd';
+import { MapToken } from 'antd/es/theme/interface';
+import { SeedToken } from 'antd/es/theme/internal';
 
 /**
  * 自定义主题算法
  * @param seedToken
  * @param mapToken
  */
-const customDarkAlgorithm: MappingAlgorithm = (seedToken, mapToken) => {
+const customDarkAlgorithm: MappingAlgorithm = (seedToken: SeedToken, mapToken: MapToken) => {
     const mergeToken = theme.darkAlgorithm(seedToken, mapToken);
 
     return {

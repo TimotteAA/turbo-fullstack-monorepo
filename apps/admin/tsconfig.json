@@ -1,5 +1,5 @@
 {
-    "extends": "@timotte-app/ts-config/react",
+    "extends": "@timotte-app/ts-config/react.json",
     "compilerOptions": {
         // alias
         "baseUrl": "./",

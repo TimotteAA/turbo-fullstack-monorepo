@@ -32,7 +32,10 @@ export function resultPageSuccess<T = any>(
     };
 }
 
-export function resultError(message = 'Request failed', { code = -1, result = null } = {}) {
+export function resultError(
+    message = 'Request failed',
+    { code = -1, result = null }: { code?: number; result?: any } = {},
+) {
     return {
         code,
         result,

@@ -1,15 +1,14 @@
 import { useDebounceFn } from 'ahooks';
 import { Drawer, Layout, theme as AntdTheme } from 'antd';
-
 import { CollapseType } from 'antd/es/layout/Sider';
 import { useCallback, useMemo, useState } from 'react';
-
 import { useUpdateEffect } from 'react-use';
 
 import { useResponsiveMobileCheck } from '@/utils/hooks';
 
-import { useLayout, useLayoutAction, useLayoutTheme } from '../../hooks';
 import { EmbedMenu, SideMenu } from '../menu';
+
+import { useLayout, useLayoutAction, useLayoutTheme } from '../../hooks';
 
 import { Logo } from './logo';
 
@@ -87,7 +86,11 @@ export const Sidebar = () => {
             onClose={closeDrawer}
             width={layoutStyles.sidebarWidth}
             closable={false}
-            bodyStyle={{ padding: 0 }}
+            styles={{
+                body: {
+                    padding: 0,
+                },
+            }}
         >
             <Layout className="tw-h-full">
                 <Sider

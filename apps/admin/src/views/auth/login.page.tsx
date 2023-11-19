@@ -1,8 +1,6 @@
 import clsx from 'clsx';
 import type { FC } from 'react';
 
-import bgimg from '@/assets/images/login-box-bg.svg';
-
 import CredentialForm from './credential.form';
 import $styles from './login.module.css';
 
@@ -15,7 +13,6 @@ const Login: FC = () => {
                 <div className="tw-flex tw-h-full">
                     <div className={$styles.leftBlock}>
                         <div className="tw-my-auto">
-                            <img alt="title" src={bgimg} className="tw-w-1/2 -tw-mt-16 -enter-x" />
                             <div className="tw-mt-10 tw-font-medium tw-text-white -tw-enter-x">
                                 <span className="tw-mt-4 tw-text-3xl tw-inline-block">
                                     基于Vite+React的管理面板

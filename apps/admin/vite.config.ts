@@ -21,5 +21,13 @@ export default ({ mode }) => {
         resolve: {
             alias: [{ find: '@', replacement: path.resolve(__dirname, 'src') }],
         },
+        server: {
+            proxy: {
+                '/api': {
+                    target: 'http://127.0.0.1:3100',
+                    changeOrigin: false,
+                },
+            },
+        },
     });
 };

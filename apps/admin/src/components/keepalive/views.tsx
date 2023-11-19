@@ -161,7 +161,7 @@ const KeepContainer = forwardRef<ParentRef, { active: string; reset: string | nu
             });
         }, [reset]);
         useLayoutEffect(() => {
-            if (isNil(active)) return;
+            if (isNil(active)) return null;
             // 超过缓存数量，干掉第一个
             if (pages.current.length >= maxLen) {
                 pages.current = pages.current.slice(1);

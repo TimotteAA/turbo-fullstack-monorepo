@@ -40,33 +40,6 @@ const processMatches = (routes: RouteOption[], matches: RouteOption[]): RouteOpt
     return result;
 };
 
-const menuItems = [
-    {
-        key: '1',
-        label: (
-            <a target="_blank" rel="noopener noreferrer" href="http://www.alipay.com/">
-                General
-            </a>
-        ),
-    },
-    {
-        key: '2',
-        label: (
-            <a target="_blank" rel="noopener noreferrer" href="http://www.taobao.com/">
-                Layout
-            </a>
-        ),
-    },
-    {
-        key: '3',
-        label: (
-            <a target="_blank" rel="noopener noreferrer" href="http://www.tmall.com/">
-                Navigation
-            </a>
-        ),
-    },
-];
-
 const Breadcrumb: FC = () => {
     const isMobile = useResponsiveMobileCheck();
 
@@ -127,7 +100,7 @@ const Breadcrumb: FC = () => {
     const items: ItemType[] = useMemo(() => {
         return matches?.slice(1).map((matchItem, index) => {
             const route = matchItem.route as RouteOption;
-            const { name, icon } = route?.meta as MenuRouteMeta;
+            const { name } = route?.meta as MenuRouteMeta;
             const classes = clsx(
                 { breadActive: matchItem.pathname === location.pathname },
                 $styles.link,

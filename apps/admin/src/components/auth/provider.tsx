@@ -19,6 +19,7 @@ const Auth: FC<{ children?: ReactNode }> = ({ children }) => {
     const token = FetcherStore((state) => state.token);
     const fetcher = useFetcher();
     const [auth, setAuth] = useState<IAuth | null>(null);
+    // 未登录配置
     const { api, error } = config().auth ?? {};
     const requested = useRef(false);
     useEffect(() => {
@@ -29,13 +30,17 @@ const Auth: FC<{ children?: ReactNode }> = ({ children }) => {
                 try {
                     const { data } = await fetcher.get(api);
                     setAuth(data);
+                    // setAuth({ token: 'test', username: 'test', permissions: ['asda'] });
                 } catch (err) {
                     setAuth(null);
+                    // setAuth({ token: 'test', username: 'test', permissions: ['asda'] });
                     !isNil(error) ? error() : console.log(err);
                 }
             }
         };
-        if (requested.current) getInfo();
+        // if (requested.current) getInfo();
+        getInfo();
+
         return () => {
             requested.current = true;
         };

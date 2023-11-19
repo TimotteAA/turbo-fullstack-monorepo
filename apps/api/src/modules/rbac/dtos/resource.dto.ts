@@ -1,12 +1,26 @@
 import { PartialType } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsEnum, IsNotEmpty, IsOptional, IsUUID, MaxLength, ValidateIf } from 'class-validator';
+import {
+    IsBoolean,
+    IsEnum,
+    IsNotEmpty,
+    IsOptional,
+    IsString,
+    IsUUID,
+    MaxLength,
+    ValidateIf,
+} from 'class-validator';
 
 import { DTO_VALIDATION } from '@/modules/core/decorators';
+import { toBoolean } from '@/modules/core/utils';
 import { IsExists } from '@/modules/database/constraints';
+import { ListQueryDto } from '@/modules/restful/dtos';
 
 import { ResourceType, Status } from '../constants';
 import { ResourceEntity } from '../entities';
+
+@DTO_VALIDATION({ type: 'query' })
+export class QueryResoureceDto extends ListQueryDto {}
 
 @DTO_VALIDATION({ groups: ['create'] })
 export class CreateResourceDto {
@@ -14,11 +28,6 @@ export class CreateResourceDto {
     @IsOptional({ groups: ['update'] })
     @IsNotEmpty({ groups: ['create'], message: '资源名称不能为空' })
     name: string;
-
-    @MaxLength(300, { message: '资源键的最大长度不能超过300', always: true })
-    @IsOptional({ groups: ['update'] })
-    @IsNotEmpty({ groups: ['create'], message: '资源键不能为空' })
-    key: string;
 
     @MaxLength(300, { message: '资源的描述最大长度不能超过300', always: true })
     @IsOptional({ always: true })
@@ -44,6 +53,59 @@ export class CreateResourceDto {
     @IsOptional({ always: true })
     @Transform(({ value }) => (value !== 'null' ? value : null))
     parent?: string;
+
+    // 下面的属性和type有关系
+    @IsOptional({ always: true })
+    @IsString({ always: true })
+    @ValidateIf((value) => value.type !== null && value.type !== ResourceType.ACTION, {
+        always: true,
+    })
+    icon?: string;
+
+    @IsOptional({ always: true })
+    @IsString({ always: true })
+    @ValidateIf((value) => value.type !== null && value.type !== ResourceType.ACTION, {
+        always: true,
+    })
+    path?: string;
+
+    @IsOptional({ always: true })
+    @IsString({ always: true })
+    @ValidateIf((value) => value.type !== null && value.type !== ResourceType.ACTION, {
+        always: true,
+    })
+    component?: string;
+
+    @IsBoolean({ always: true })
+    @IsOptional({ always: true })
+    @Transform(({ value }) => toBoolean(value))
+    @ValidateIf((value) => value.type !== null && value.type !== ResourceType.ACTION, {
+        always: true,
+    })
+    external?: boolean;
+
+    @IsBoolean({ always: true })
+    @IsOptional({ always: true })
+    @Transform(({ value }) => toBoolean(value))
+    @ValidateIf((value) => value.type !== null && value.type !== ResourceType.ACTION, {
+        always: true,
+    })
+    show?: boolean;
+
+    @IsBoolean({ always: true })
+    @IsOptional({ always: true })
+    @Transform(({ value }) => toBoolean(value))
+    @ValidateIf((value) => value.type !== null && value.type === ResourceType.MENU, {
+        always: true,
+    })
+    keepAlive?: boolean;
+
+    @IsOptional({ always: true })
+    @IsString({ always: true })
+    @ValidateIf((value) => value.type !== null && value.type === ResourceType.ACTION, {
+        always: true,
+    })
+    permission?: string;
 }
 
 @DTO_VALIDATION({ groups: ['update'] })

@@ -1,8 +1,6 @@
 import axios from 'axios';
 import type { AxiosRequestConfig, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
-
 import { enableMapSet, produce } from 'immer';
-
 import { isNil, omit } from 'lodash';
 
 import { deepMerge } from '@/utils';
@@ -20,8 +18,10 @@ const customOptions: Array<keyof FetchOption> = ['token', 'interceptors', 'cance
 export const createRequest: (config?: Omit<FetcherConfig, 'swr'>) => AxiosInstance = (config) => {
     // 将全局配置和自定义配置合并
     const configed: FetcherConfig = deepMerge(FetcherStore.getState(), config ?? {}, 'replace');
+
     // 保存重复请求的cancel token
     let pendingMap = new Map();
+    console.log('test ', omit(configed, customOptions));
     const instance = axios.create(omit(configed, customOptions));
     if (configed.interceptors?.request) {
         configed.interceptors.request(instance.interceptors.request);

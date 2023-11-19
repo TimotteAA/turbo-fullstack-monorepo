@@ -4,7 +4,6 @@ import {
     CreateDateColumn,
     Entity,
     Index,
-    OneToMany,
     Tree,
     TreeChildren,
     TreeParent,
@@ -15,8 +14,6 @@ import type { Relation } from 'typeorm';
 import { BaseEntity } from '@/modules/database/base';
 
 import { Status } from '../constants';
-
-import { RoleEntity } from './role.entity';
 
 @Exclude()
 @Tree('materialized-path')
@@ -36,11 +33,6 @@ export class SystemEntity extends BaseEntity {
     //     cascade: true,
     // })
     // users: Relation<UserEntity[]>;
-
-    @OneToMany(() => RoleEntity, (role) => role.system, {
-        cascade: true,
-    })
-    roles: Relation<RoleEntity[]>;
 
     @Expose()
     @Column({ type: 'varchar', default: Status.ENABLED, comment: '资源状态' })

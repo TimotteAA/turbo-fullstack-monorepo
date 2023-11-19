@@ -1,17 +1,12 @@
 import 'dayjs/locale/zh-cn';
-
 import { produce } from 'immer';
 import { useEffect, useState } from 'react';
-
-import { MappingAlgorithm, ThemeConfig } from 'antd/es/config-provider/context';
-
-import { App as AntdApp, ConfigProvider, theme } from 'antd';
-
+import { ThemeConfig } from 'antd/es/config-provider/context';
+import { MappingAlgorithm, App as AntdApp, ConfigProvider, theme } from 'antd';
 import { StyleProvider } from '@ant-design/cssinjs';
 
 import { Fetcher } from './components/fetcher/provider';
 import Router from './components/router/router';
-
 import { useTheme, useThemeListener } from './components/theme/hooks';
 import { customDarkAlgorithm } from './utils/customDark';
 
@@ -62,18 +57,6 @@ const App = () => {
             );
         }
     }, [mode, compact]);
-
-    // const AppTree = useMemo(() => {
-    //     return (
-    //         <StyleProvider hashPriority="high">
-    //             <AntdApp>
-    //                 <Fetcher>
-    //                     <Router />
-    //                 </Fetcher>
-    //             </AntdApp>
-    //         </StyleProvider>
-    //     );
-    // }, []);
 
     return (
         <ConfigProvider

@@ -1,14 +1,11 @@
 import { Layout } from 'antd';
-
-import { FC, ReactNode, useEffect, useMemo, useState } from 'react';
-
+import { FC, ReactNode, memo, useEffect, useMemo, useState } from 'react';
 import { useLocation } from 'react-router';
 
 import { useResponsiveMobileCheck } from '@/utils/hooks';
 
 import KeepAlive from '../keepalive/views';
 import { useRouterStore } from '../router/hooks';
-
 import { ThemeStore } from '../theme/store';
 
 import { ConfigDrawer } from './components/drawer';
@@ -18,7 +15,6 @@ import KeepAliveTabs from './components/tabs';
 import { LayoutActionType, LayoutThemeContext, layoutDarkTheme } from './constants';
 import { useLayout } from './hooks';
 import { LayoutStore } from './store';
-
 import $styles from './styles/index.module.css';
 import { LayoutConfig, LayoutTheme } from './types';
 import { getMenuData, getLayoutCssStyle, getLayoutClasses } from './utils';
@@ -73,7 +69,7 @@ const ContentLayout: FC<{ children?: ReactNode }> = ({ children }) => {
         <>
             <LayoutHeader />
             <section className="layout-main">
-                <Layout>
+                <Layout hasSider>
                     <Sidebar />
                     <Content>
                         <LayoutContent>{children}</LayoutContent>
@@ -113,7 +109,7 @@ const EmbedLayout: FC<{ children?: ReactNode }> = ({ children }) => {
         <>
             <Sidebar />
             <section className="layout-main">
-                <Layout>
+                <Layout hasSider>
                     <EmbedSidebar />
                     <Layout>
                         <LayoutHeader />
@@ -169,7 +165,7 @@ const LayoutWrapper: FC<LayoutConfig & { children?: ReactNode }> = ({ children }
     }, [mode, isMobile]);
 
     return (
-        <Layout className={classes} style={getLayoutCssStyle(styles)}>
+        <Layout className={classes} style={getLayoutCssStyle(styles)} hasSider>
             <LayoutThemeProvider>{Main}</LayoutThemeProvider>
         </Layout>
     );
@@ -182,4 +178,4 @@ const MainLayout: FC<{ children?: ReactNode }> = ({ children }) => {
         </ConfigDrawer>
     );
 };
-export default MainLayout;
+export default memo(MainLayout);

@@ -2,7 +2,6 @@ import { ProForm, ProFormText } from '@ant-design/pro-components';
 import { App } from 'antd';
 import { isNil } from 'lodash';
 import { FC, useCallback, useEffect } from 'react';
-
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useAuth } from '@/components/auth/hooks';
@@ -51,14 +50,17 @@ const CredentialForm: FC = () => {
                         const {
                             data: { token },
                         } = await fetcher.post('/user/auth/login', values);
+                        console.log('token ', token);
                         if (!isNil(token)) {
                             FetcherStore.setState((state) => {
                                 state.token = token;
                             });
+                            console.log('FetcherStore ', FetcherStore.getState());
                         }
                         message.success('登录成功');
                         // waitTime();
                     } catch (err) {
+                        console.error('error ', err);
                         message.error('用户名或密码错误');
                     }
                 }}

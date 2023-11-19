@@ -1,5 +1,4 @@
 import { config } from '@/config';
-
 import { deepMerge } from '@/utils';
 
 import { createPersistStore } from '../store';

@@ -1,22 +1,18 @@
 import { PartialType } from '@nestjs/swagger';
-import { IsEnum, IsNotEmpty, IsOptional, IsUUID, MaxLength } from 'class-validator';
+import { IsArray, IsEnum, IsNotEmpty, IsOptional, IsUUID, MaxLength } from 'class-validator';
 
 import { DTO_VALIDATION } from '@/modules/core/decorators';
 import { IsExists } from '@/modules/database/constraints';
 import { ListQueryDto } from '@/modules/restful/dtos';
 
 import { Status } from '../constants';
-import { SystemEntity } from '../entities';
+import { ResourceEntity } from '../entities';
 
 @DTO_VALIDATION({ type: 'query' })
 export class QueryRoleDto extends ListQueryDto {
     @MaxLength(30, { message: '搜索内容最长为30个字符' })
     @IsOptional()
     search?: string;
-
-    @IsUUID(undefined, { message: '部门id格式错误', each: true })
-    @IsOptional()
-    system?: string;
 }
 
 @DTO_VALIDATION({ groups: ['create'] })
@@ -30,11 +26,11 @@ export class CreateRoleDto {
     @IsOptional({ always: true })
     description?: string;
 
-    @IsExists({ entity: SystemEntity }, { message: '部门不存在', always: true })
-    @IsUUID(undefined, { message: '部分id格式不对' })
-    @IsOptional({ groups: ['update'] })
-    @IsNotEmpty({ groups: ['create'], message: '角色所属部门不能为空' })
-    system: string;
+    @IsExists({ entity: ResourceEntity }, { message: '资源不存在', always: true, each: true })
+    @IsUUID(undefined, { message: '部分id格式不对', each: true, always: true })
+    @IsArray({ always: true })
+    @IsOptional({ always: true })
+    resources?: string[];
 
     @IsEnum(Status, {
         always: true,

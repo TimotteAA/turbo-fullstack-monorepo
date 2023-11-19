@@ -26,7 +26,6 @@ export const MigrationGenerateHandler = async (
         console.log();
         const { connections = [] }: DbOptions = await configure.get<DbOptions>('database');
         const dbConfig = connections.find(({ name }) => name === cname);
-        console.log('dbConfig ', dbConfig);
         if (isNil(dbConfig))
             panic({ error: `Database connection named ${cname} does not exist`, spinner });
         console.log();

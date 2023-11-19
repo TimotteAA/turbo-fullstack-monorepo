@@ -1,13 +1,13 @@
 import { isNil } from 'lodash';
 import { useCallback, useEffect } from 'react';
-
 import { NavigateOptions, To, useNavigate } from 'react-router';
 
 import { config } from '@/config';
 import { deepMerge } from '@/utils';
 
-import { useAuth } from '../auth/hooks';
 import { createStoreHooks } from '../store';
+
+import { useAuth } from '../auth/hooks';
 
 import { getDefaultRouterConfig } from './_default.config';
 import { RouterStore } from './store';
