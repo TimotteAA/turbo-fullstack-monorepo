@@ -63,13 +63,19 @@ export class RoleService extends BaseService<RoleEntity, RoleRepository> {
             },
         });
 
-        const resources = await this.resRepo
-            .createQueryBuilder('resource')
-            .leftJoinAndSelect('resource.parent', 'parent')
-            // .leftJoinAndSelect('resource.children', 'children')
-            .leftJoinAndSelect('resource.roles', 'role')
-            .where('role.id IN (:...roleIds)', { roleIds: roles.map((r) => r.id) })
-            .getMany();
+        // reduce拿到去重
+        const resources = (
+            await this.resRepo
+                .createQueryBuilder('resource')
+                .leftJoinAndSelect('resource.parent', 'parent')
+                // .leftJoinAndSelect('resource.children', 'children')
+                .leftJoinAndSelect('resource.roles', 'role')
+                .where('role.id IN (:...roleIds)', { roleIds: roles.map((r) => r.id) })
+                .getMany()
+        ).reduce<ResourceEntity[]>(
+            (o, n) => (o.findIndex((i) => i.id === n.id) !== -1 ? [...o] : [...o, n]),
+            [],
+        );
 
         const flatMenus = resources
             .filter((resource) => resource.type !== ResourceType.ACTION)
