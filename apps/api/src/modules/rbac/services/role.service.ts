@@ -5,8 +5,9 @@ import { In, SelectQueryBuilder } from 'typeorm';
 import { BaseService } from '@/modules/database/base';
 import { QueryHook } from '@/modules/database/types';
 
+import { ResourceType } from '../constants';
 import { CreateRoleDto, QueryRoleDto, UpdateRoleDto } from '../dtos';
-import { RoleEntity } from '../entities';
+import { ResourceEntity, RoleEntity } from '../entities';
 import { ResourceRepository, RoleRepository, SystemRepository } from '../repositories';
 
 type FindParams = {
@@ -25,7 +26,7 @@ export class RoleService extends BaseService<RoleEntity, RoleRepository> {
 
     async create(data: CreateRoleDto): Promise<RoleEntity> {
         const item = await this.repo.save({
-            ...omit(data, ['system']),
+            ...omit(data, ['resources']),
             resources: !isNil(data.resources)
                 ? await this.resRepo.find({
                       where: {
@@ -38,8 +39,13 @@ export class RoleService extends BaseService<RoleEntity, RoleRepository> {
     }
 
     async update(data: UpdateRoleDto): Promise<RoleEntity> {
-        const role = await this.repo.save(omit(data, ['id', 'resources']));
-
+        await this.repo.update(data.id, omit(data, ['id', 'resources']));
+        const role = await this.repo.findOne({
+            where: {
+                id: data.id,
+            },
+            relations: ['resources'],
+        });
         if (!isNil(data.resources) && Array.isArray(data.resources)) {
             await this.repo
                 .createQueryBuilder('role')
@@ -48,6 +54,32 @@ export class RoleService extends BaseService<RoleEntity, RoleRepository> {
                 .addAndRemove(data.resources ?? [], role.resources ?? []);
         }
         return this.detail(role.id);
+    }
+
+    async getMenusAndPermissions(ids: string[]) {
+        const roles = await this.repo.find({
+            where: {
+                id: In(ids),
+            },
+        });
+
+        const resources = await this.resRepo
+            .createQueryBuilder('resource')
+            .leftJoinAndSelect('resource.parent', 'parent')
+            // .leftJoinAndSelect('resource.children', 'children')
+            .leftJoinAndSelect('resource.roles', 'role')
+            .where('role.id IN (:...roleIds)', { roleIds: roles.map((r) => r.id) })
+            .getMany();
+
+        const flatMenus = resources
+            .filter((resource) => resource.type !== ResourceType.ACTION)
+            .map((r) => omit(r, ['permission', 'description', 'createdAt', 'updatedAt', 'roles']));
+
+        const permissions = resources
+            .filter((resource) => resource.type === ResourceType.ACTION)
+            .map((r) => r.permission);
+
+        return { menus: this.getMenuTree(flatMenus as ResourceEntity[], null), permissions };
     }
 
     protected async buildListQB(
@@ -63,5 +95,43 @@ export class RoleService extends BaseService<RoleEntity, RoleRepository> {
             }).andWhere('MATCH (role.description) AGAINST (:search IN BOOLEAN MODE)', { search });
         }
         return qb;
+    }
+
+    /**
+     * 感觉下面的构建菜单树很蠢。。。
+     * @param flat
+     * @param parent
+     */
+    protected getMenuTree(flat: ResourceEntity[], parent: ResourceEntity | null) {
+        const res: ResourceEntity[] = [];
+        for (const resource of flat) {
+            // 检查是否是当前父节点的子节
+            if (
+                (parent === null && resource.parent === parent) ||
+                (resource.parent !== null && parent !== null && resource.parent.id === parent.id)
+            ) {
+                // 递归地构建这个资源的子树
+                resource.children = this.getMenuTree(flat, resource);
+                res.push(resource);
+            }
+        }
+
+        // 清理所有节点的 parent 引用
+        this.cleanParentReferences(res);
+
+        return res;
+    }
+
+    protected cleanParentReferences(tree: ResourceEntity[]) {
+        tree.forEach((node) => {
+            // 删除 parent 属性
+            delete node.parent;
+            delete node.id;
+
+            // 如果有子节点，递归地清理它们
+            if (node.children && node.children.length > 0) {
+                this.cleanParentReferences(node.children);
+            }
+        });
     }
 }

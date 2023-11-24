@@ -71,7 +71,6 @@ export class Asset {
                 const watcher = chokidar
                     .watch(item.glob, { ignored: item.exclude })
                     .on('add', (path: string) => {
-                        console.log('watcher add');
                         this.actionOnFile({ ...option, path, action: 'change' }, changer);
                     })
                     .on('change', (path: string) => {

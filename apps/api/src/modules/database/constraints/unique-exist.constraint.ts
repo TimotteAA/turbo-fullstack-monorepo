@@ -50,6 +50,7 @@ export class UniqueExistContraint implements ValidatorConstraintInterface {
         // 通过entity获取repository
         const repo = this.dataSource.getRepository(condition.entity);
         // 查询忽略字段之外的数据是否对queryProperty的值唯一
+
         return isNil(
             await repo.findOne({
                 where: {

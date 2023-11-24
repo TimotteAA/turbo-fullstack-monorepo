@@ -26,13 +26,13 @@ export class QuerySystemTreeDto {
 export class CreateSystemDto {
     @IsTreeUniqueExist(
         { entity: SystemEntity },
-        { groups: ['update'], message: '同级部门中部门名称重复22' },
+        { groups: ['update'], message: '同级部门中部门名称重复' },
     )
     @IsTreeUnique(
         { entity: SystemEntity },
         {
             groups: ['create'],
-            message: '同级部门中部门名称重复',
+            message: '同级部门中部门名称重复111',
         },
     )
     @MaxLength(30, { message: '部门名称长度不能超过30' })

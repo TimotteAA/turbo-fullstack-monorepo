@@ -1,4 +1,4 @@
-import { Body, Controller, Get } from '@nestjs/common';
+import { Body, Controller, Get, SerializeOptions } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { BaseController } from '@/modules/restful/controller';
@@ -50,6 +50,7 @@ export class SystemController extends BaseController<SystemService, SystemReposi
 
     @ApiOperation({ description: '查询部门树' })
     @Get('tree')
+    @SerializeOptions({ groups: ['system-tree'] })
     async tree(@Body() data: QuerySystemTreeDto) {
         return this.service.tree(data);
     }

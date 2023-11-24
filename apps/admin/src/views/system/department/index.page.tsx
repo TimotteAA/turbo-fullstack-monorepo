@@ -8,56 +8,38 @@ import {
     ProTable,
     TableDropdown,
 } from '@ant-design/pro-components';
-import { Button, Dropdown, Space, Tag } from 'antd';
+import { Button, Dropdown, message } from 'antd';
 import { useRef, useState } from 'react';
 
 import { useFetcher } from '@/components/fetcher/hooks';
 
-type GithubIssueItem = {
-    url: string;
-    id: number;
-    number: number;
-    title: string;
-    labels: {
-        name: string;
-        color: string;
-    }[];
-    state: string;
-    comments: number;
-    created_at: string;
-    updated_at: string;
-    closed_at?: string;
-};
-
-const columns: ProColumns<GithubIssueItem>[] = [
+const columns: ProColumns<any>[] = [
     {
         dataIndex: 'index',
         valueType: 'indexBorder',
         width: 48,
     },
     {
-        title: '标题',
-        dataIndex: 'title',
+        title: '名称',
+        dataIndex: 'name',
         copyable: true,
         ellipsis: true,
-        tip: '标题过长会自动收缩',
-        formItemProps: {
-            rules: [
-                {
-                    required: true,
-                    message: '此项为必填项',
-                },
-            ],
-        },
+        tip: '名称过长会自动收缩',
     },
     {
         disable: true,
         title: '状态',
-        dataIndex: 'state',
+        dataIndex: 'status',
         filters: true,
         onFilter: true,
         ellipsis: true,
         valueType: 'select',
+        render(_dom, entity, _index, _action, _schema) {
+            if (entity.status === 'enabled') {
+                return <Button type="link">禁用</Button>;
+            }
+            return <Button type="primary">启用</Button>;
+        },
         valueEnum: {
             all: { text: '超长'.repeat(50) },
             open: {
@@ -76,44 +58,20 @@ const columns: ProColumns<GithubIssueItem>[] = [
         },
     },
     {
-        disable: true,
-        title: '标签',
-        dataIndex: 'labels',
-        search: false,
-        renderFormItem: (_, { defaultRender }) => {
-            return defaultRender(_);
-        },
-        render: (_, record) => (
-            <Space>
-                {record.labels.map(({ name, color }) => (
-                    <Tag color={color} key={name}>
-                        {name}
-                    </Tag>
-                ))}
-            </Space>
-        ),
-    },
-    {
         title: '创建时间',
         key: 'showTime',
-        dataIndex: 'created_at',
+        dataIndex: 'createdAt',
         valueType: 'date',
         sorter: true,
         hideInSearch: true,
+        editable: false,
     },
     {
-        title: '创建时间',
-        dataIndex: 'created_at',
+        title: '修改时间',
+        dataIndex: 'updatedAt',
         valueType: 'dateRange',
         hideInTable: true,
-        search: {
-            transform: (value) => {
-                return {
-                    startTime: value[0],
-                    endTime: value[1],
-                };
-            },
-        },
+        editable: false,
     },
     {
         title: '操作',
@@ -164,10 +122,11 @@ export default () => {
                     const { data } = await fetcher.get(
                         `/rbac/systems?page=${params.current}&limit=${params.pageSize}`,
                     );
+                    console.log('data ', data);
                     return {
                         data: data.data.items,
-                        success: data.msg === 'success',
-                        total: data.data.meta.totalPages,
+                        success: data.statusCode < 300,
+                        total: data.data.meta.totalItems,
                     };
                 }}
                 rowKey="id"
@@ -196,7 +155,7 @@ export default () => {
                     onChange: (page, pageSize) => setParams({ pageSize, current: page }),
                 }}
                 dateFormatter="string"
-                headerTitle="高级表格"
+                headerTitle="部门管理"
                 toolBarRender={() => [
                     <ModalForm
                         width={520}
@@ -210,6 +169,17 @@ export default () => {
                                 新建
                             </Button>
                         }
+                        onFinish={async (values) => {
+                            try {
+                                await fetcher.post('/rbac/systems', values);
+                                message.success('创建成功');
+                                return true;
+                            } catch (err) {
+                                console.error('创建部门失败 ', err);
+                                message.error('创建失败');
+                                return false;
+                            }
+                        }}
                         submitter={{
                             render: (_props, defaultDoms) => {
                                 return [...defaultDoms];
@@ -218,6 +188,9 @@ export default () => {
                         layout="horizontal"
                         labelCol={{ span: 4 }}
                         wrapperCol={{ span: 20 }}
+                        modalProps={{
+                            destroyOnClose: true,
+                        }}
                     >
                         <ProFormText
                             width="md"
@@ -229,7 +202,7 @@ export default () => {
                         />
 
                         <ProFormTreeSelect
-                            name="name"
+                            name="parent"
                             placeholder="Please select"
                             label="上级部门"
                             allowClear
@@ -237,43 +210,13 @@ export default () => {
                             secondary
                             request={async () => {
                                 const { data } = await fetcher.get('/rbac/systems/tree');
-                                console.log('data ', data);
-                                return [
-                                    {
-                                        title: 'Node1',
-                                        value: '0-0',
-                                        children: [
-                                            {
-                                                title: 'Child Node1',
-                                                value: '0-0-0',
-                                            },
-                                        ],
-                                    },
-                                    {
-                                        title: 'Node2',
-                                        value: '0-1',
-                                        children: [
-                                            {
-                                                title: 'Child Node3',
-                                                value: '0-1-0',
-                                            },
-                                            {
-                                                title: 'Child Node4',
-                                                value: '0-1-1',
-                                            },
-                                            {
-                                                title: 'Child Node5',
-                                                value: '0-1-2',
-                                            },
-                                        ],
-                                    },
-                                ];
+                                return data.data;
                             }}
                         />
 
                         <ProFormTextArea
                             width="md"
-                            name="company"
+                            name="description"
                             label="备注"
                             placeholder="备注"
                             labelCol={{ span: 4 }}

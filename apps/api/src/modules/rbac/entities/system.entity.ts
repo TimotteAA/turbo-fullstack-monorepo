@@ -38,13 +38,13 @@ export class SystemEntity extends BaseEntity {
     @Column({ type: 'varchar', default: Status.ENABLED, comment: '资源状态' })
     status: Status;
 
-    @Expose({ groups: ['system-list'] })
     // 父亲被删了，我也die了
     // null表示顶级部门
+    @Expose({ groups: ['system-list', 'system-detail'] })
     @TreeParent({ onDelete: 'CASCADE' })
     parent: Relation<SystemEntity | null>;
 
-    @Expose()
+    @Expose({ groups: ['system-tree'] })
     // cascade表示父部门被插入时，子部门如果未被插，则也插进去
     @TreeChildren({ cascade: true })
     children: Relation<SystemEntity[]>;

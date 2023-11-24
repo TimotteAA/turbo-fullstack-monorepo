@@ -2,11 +2,11 @@ import { PartialType } from '@nestjs/swagger';
 import { IsArray, IsEnum, IsNotEmpty, IsOptional, IsUUID, MaxLength } from 'class-validator';
 
 import { DTO_VALIDATION } from '@/modules/core/decorators';
-import { IsExists } from '@/modules/database/constraints';
+import { IsExists, IsUnique, IsUniqueExist } from '@/modules/database/constraints';
 import { ListQueryDto } from '@/modules/restful/dtos';
 
 import { Status } from '../constants';
-import { ResourceEntity } from '../entities';
+import { ResourceEntity, RoleEntity } from '../entities';
 
 @DTO_VALIDATION({ type: 'query' })
 export class QueryRoleDto extends ListQueryDto {
@@ -17,6 +17,8 @@ export class QueryRoleDto extends ListQueryDto {
 
 @DTO_VALIDATION({ groups: ['create'] })
 export class CreateRoleDto {
+    @IsUniqueExist({ entity: RoleEntity }, { message: '角色名称重复222', groups: ['update'] })
+    @IsUnique({ entity: RoleEntity }, { message: '角色名称重复', groups: ['create'] })
     @MaxLength(30, { message: '角色名称的最大长度为30', always: true })
     @IsOptional({ groups: ['update'] })
     @IsNotEmpty({ groups: ['create'], message: '角色名称不能为空' })

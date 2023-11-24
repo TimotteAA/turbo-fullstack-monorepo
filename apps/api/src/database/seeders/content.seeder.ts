@@ -9,7 +9,7 @@ import { panic } from '@/modules/core/utils';
 import { BaseSeeder } from '@/modules/database/base';
 import { DbMock } from '@/modules/database/types';
 
-import { CategoryData, PostData, TagData, categories, posts, tags } from '../mocks/content.data';
+import { CategoryData, PostData, TagData, categories } from '../mocks/content.data';
 import { IPostMockOptions } from '../mocks/content.mock';
 
 export default class ContentSeeder extends BaseSeeder {
@@ -113,7 +113,7 @@ export default class ContentSeeder extends BaseSeeder {
         this.dataSource = _dataSource;
         this.em = _em;
         await this.loadCategorys(categories);
-        await this.loadTags(tags);
-        await this.loadPosts(posts);
+        // await this.loadTags(tags);
+        // await this.loadPosts(posts);
     }
 }

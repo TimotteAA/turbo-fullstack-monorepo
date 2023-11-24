@@ -10,9 +10,7 @@ import { CreateSystemDto, QuerySystemTreeDto, UpdateSystemDto } from '../dtos';
 import { SystemEntity } from '../entities';
 import { SystemRepository } from '../repositories';
 
-// type FindParams = {
-//     [key in keyof Omit<QuerySystemDto, 'limit' | 'page'>]: QuerySystemDto[key];
-// };
+type System = ClassToPlain<SystemEntity> & { label: string; value: string };
 
 @Injectable()
 export class SystemService extends BaseService<SystemEntity, SystemRepository> {
@@ -26,6 +24,7 @@ export class SystemService extends BaseService<SystemEntity, SystemRepository> {
             return this.repo.findDescendantsTree(s);
         }
         return this.repo.findTrees();
+        // return this.entityToDomain(tree);
     }
 
     async create(data: CreateSystemDto): Promise<SystemEntity> {
@@ -116,5 +115,22 @@ export class SystemService extends BaseService<SystemEntity, SystemRepository> {
                 );
         }
         return parent;
+    }
+
+    protected entityToDomain(data: SystemEntity[]): System[] {
+        const res: System[] = [];
+
+        for (const re of data) {
+            const r: System = {
+                ...(re as ClassToPlain<SystemEntity>),
+                label: re.name,
+                value: re.id,
+            };
+            res.push(r);
+            if (Array.isArray(re.children) && re.children.length) {
+                r.children = this.entityToDomain(re.children);
+            }
+        }
+        return res;
     }
 }

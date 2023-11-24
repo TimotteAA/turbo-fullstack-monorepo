@@ -57,7 +57,7 @@ export class ResourceEntity extends BaseEntity {
     // 父亲被删了，我也die了
     // null表示顶级资源
     @TreeParent({ onDelete: 'CASCADE' })
-    parent: Relation<ResourceEntity | null>;
+    parent?: Relation<ResourceEntity | null>;
 
     // cascade表示父被插入时，子如果未被插，则也插进去
     @TreeChildren({ cascade: true })

@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { BaseController } from '@/modules/restful/controller';
@@ -46,5 +46,11 @@ import { RoleService } from '../services';
 export class RoleController extends BaseController<RoleService, RoleRepository> {
     constructor(protected service: RoleService) {
         super(service);
+    }
+
+    /** **********模拟多个角色下，获得用户的权限和菜单树*********** */
+    @Post('test')
+    async test(@Body() data: { ids: string[] }) {
+        return this.service.getMenusAndPermissions(data.ids);
     }
 }

@@ -10,8 +10,6 @@ export class RoleRepository extends BaseRepository<RoleEntity> {
     protected _alias: string = 'role';
 
     buildBaseQB(): SelectQueryBuilder<RoleEntity> {
-        return this.createQueryBuilder('role')
-            .leftJoinAndSelect('role.system', 'system')
-            .orderBy('role.createdAt', 'ASC');
+        return this.createQueryBuilder('role').orderBy('role.createdAt', 'ASC');
     }
 }

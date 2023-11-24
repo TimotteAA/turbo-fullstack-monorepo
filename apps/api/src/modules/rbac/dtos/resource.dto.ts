@@ -20,7 +20,7 @@ import { ResourceType, Status } from '../constants';
 import { ResourceEntity } from '../entities';
 
 @DTO_VALIDATION({ type: 'query' })
-export class QueryResoureceDto extends ListQueryDto {}
+export class QueryResourceDto extends ListQueryDto {}
 
 @DTO_VALIDATION({ groups: ['create'] })
 export class CreateResourceDto {

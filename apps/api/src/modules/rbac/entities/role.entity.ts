@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, ManyToMany, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, UpdateDateColumn } from 'typeorm';
 import type { Relation } from 'typeorm';
 
 import { BaseEntity } from '@/modules/database/base';
@@ -26,5 +26,6 @@ export class RoleEntity extends BaseEntity {
 
     /** **************************************角色的关联关系 */
     @ManyToMany(() => ResourceEntity, (resource) => resource.roles)
+    @JoinTable()
     resources: Relation<RoleEntity[]>;
 }

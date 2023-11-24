@@ -9,10 +9,6 @@ import { ResourceRepository } from '../repositories';
 import { CreateResourceDto, UpdateResourceDto } from '../dtos/resource.dto';
 import { ResourceEntity } from '../entities/resource.entity';
 
-// type FindParams = {
-//     [key in keyof Omit<QuerySystemDto, 'limit' | 'page'>]: QuerySystemDto[key];
-// };
-
 @Injectable()
 export class ResourceService extends BaseService<ResourceEntity, ResourceRepository> {
     constructor(private repo: ResourceRepository) {
@@ -20,6 +16,7 @@ export class ResourceService extends BaseService<ResourceEntity, ResourceReposit
     }
 
     async findTrees() {
+        // return this.entityToDomain(tree);
         return this.repo.findTrees();
     }
 
@@ -51,41 +48,6 @@ export class ResourceService extends BaseService<ResourceEntity, ResourceReposit
         }
         return updatedRes;
     }
-
-    // async paginate(
-    //     options?: PaginateOptions & { search?: string },
-    // ): Promise<PaginateReturn<SystemEntity>> {
-    //     const data = await this.list(
-    //         undefined,
-    //         !isNil(options.search)
-    //             ? async (qb) =>
-    //                   qb
-    //                       .andWhere('MATCH (system.name) AGAINST (:search IN BOOLEAN MODE)', {
-    //                           search: options.search,
-    //                       })
-    //                       .andWhere(
-    //                           'MATCH (system.description) AGAINST (:search IN BOOLEAN MODE)',
-    //                           { search: options.search },
-    //                       )
-    //             : null,
-    //     );
-    //     return manualPaginate(options, data) as PaginateReturn<SystemEntity>;
-    // }
-
-    // // protected async buildListQB(
-    // //     qb: SelectQueryBuilder<SystemEntity>,
-    // //     options?: FindParams,
-    // //     callback?: QueryHook<SystemEntity>,
-    // // ): Promise<SelectQueryBuilder<SystemEntity>> {
-    // //     if (!isNil(callback)) await callback(qb);
-    // //     const { search } = options ?? {};
-    // //     if (!isNil(search)) {
-    // //         qb.andWhere('MATCH (system.name) AGAINST (:search IN BOOLEAN MODE)', {
-    // //             search,
-    // //         }).andWhere('MATCH (system.description) AGAINST (:search IN BOOLEAN MODE)', { search });
-    // //     }
-    // //     return qb;
-    // // }
 
     /**
      * 获取当前分类的父id
