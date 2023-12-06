@@ -8,4 +8,4 @@ export type RedisOption = IoRedisOptions & { name: string };
 /**
  * redis模块配置
  */
-export type RedisModuleConfig = RedisOption[];
+// export type RedisModuleConfig = RedisOption[];

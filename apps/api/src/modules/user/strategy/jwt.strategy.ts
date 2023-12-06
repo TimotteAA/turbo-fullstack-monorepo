@@ -5,7 +5,7 @@ import { isNil, omit } from 'lodash';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
 import { AuthService } from '../services';
-import { JwtPayload, UserModuleConfig } from '../types';
+import type { JwtPayload, UserModuleConfig } from '../types';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {

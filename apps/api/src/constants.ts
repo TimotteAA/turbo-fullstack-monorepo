@@ -11,9 +11,11 @@ import * as dbCommands from './modules/database/commands';
 import { DatabaseModule } from './modules/database/database.module';
 import { MeiliSearchModule } from './modules/meilisearch/meilisearch.module';
 import { RbacModule } from './modules/rbac/rbac.module';
+import { RedisModule } from './modules/redis/redis.module';
 import { echoApi } from './modules/restful/helpers';
 import { Restful } from './modules/restful/restful';
 import { RestfulModule } from './modules/restful/restful.module';
+import { UserModule } from './modules/user/user.module';
 
 export const WEBAPP = 'web';
 export const createData: CreateOptions = {
@@ -28,9 +30,9 @@ export const createData: CreateOptions = {
         ContentModule.forRoot(configure),
         MeiliSearchModule.forRoot(configure),
         RbacModule.forRoot(configure),
-        // UserModule.forRoot(configure),
+        UserModule.forRoot(configure),
 
-        // RedisModule.forRoot(configure),
+        RedisModule.forRoot(configure),
     ],
     // globals: { guard: JwtAuthGuard },
     builder: async ({ configure, BootModule }) => {

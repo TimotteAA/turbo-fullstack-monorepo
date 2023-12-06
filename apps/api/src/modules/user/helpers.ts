@@ -1,10 +1,36 @@
+import { toNumber } from 'lodash';
+
+import { Configure } from '../config/configure';
 import { ConfigureFactory, ConfigureRegister } from '../config/types';
 
-import { UserModuleConfig } from './types';
+import type { UserModuleConfig } from './types';
 
+/**
+ * 用户配置创建函数
+ * @param register
+ */
 export const createUserModuleConfig: (
     register: ConfigureRegister<RePartial<UserModuleConfig>>,
 ) => ConfigureFactory<UserModuleConfig> = (register) => ({
     register,
-    storage: true,
+    defaultRegister: defaultUserConfig,
 });
+
+/**
+ * 默认用户配置
+ */
+export const defaultUserConfig = (configure: Configure): UserModuleConfig => {
+    return {
+        hash: 10,
+        jwt: {
+            accessTokenSecret: configure.env.get('USER_TOKEN_SECRET', 'my-refresh-secret'),
+            accessTokenExpiresIn: configure.env.get('USER_TOKEN_EXPIRED', (v) => toNumber(v), 3600),
+            refreshTokenSecret: configure.env.get('USER_REFRESH_TOKEN_SECRET', 'my-refresh-secret'),
+            refreshTokenExpiresIn: configure.env.get(
+                'USER_REFRESH_TOKEN_EXPIRED',
+                (v) => toNumber(v),
+                3600 * 30,
+            ),
+        },
+    };
+};

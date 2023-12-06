@@ -15,7 +15,7 @@ import * as repoMaps from './repositorys';
 import * as serviceMaps from './services';
 import * as stragetyMaps from './strategy';
 import * as subscriberMaps from './subscriber';
-import { UserModuleConfig } from './types';
+import type { UserModuleConfig } from './types';
 
 @Module({})
 export class UserModule {
