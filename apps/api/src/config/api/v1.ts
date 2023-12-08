@@ -1,7 +1,8 @@
 import { Configure } from '@/modules/config/configure';
 import * as contentControllerMaps from '@/modules/content/controllers';
-import * as rbacControllermaps from '@/modules/rbac/controllers';
+import * as rbacControllerMaps from '@/modules/rbac/controllers';
 import { VersionOption } from '@/modules/restful/types';
+import * as userControllerMaps from '@/modules/user/controllers';
 
 /**
  * 此次路由中的doc为总的路由doc
@@ -38,13 +39,12 @@ export const v1 = async (_configure: Configure): Promise<VersionOption> => {
                     {
                         name: 'user',
                         path: '/user',
-                        // controllers: [...Object.values(userControllerMaps)],
-                        controllers: [],
+                        controllers: [...Object.values(userControllerMaps)],
                     },
                     {
                         name: 'rbac',
                         path: '/rbac',
-                        controllers: [...Object.values(rbacControllermaps)],
+                        controllers: [...Object.values(rbacControllerMaps)],
                     },
                 ],
             },

@@ -1,6 +1,6 @@
 import { Controller, Post, Req, Request, UseGuards } from '@nestjs/common';
 import { ApiOkResponse } from '@nestjs/swagger';
-import { FastifyRequest } from 'fastify';
+import type { FastifyRequest } from 'fastify';
 
 import { ResponseMessage } from '@/modules/core/decorators';
 import { ALLOW_GUEST } from '@/modules/rbac/decorators/guest.decorator';
@@ -14,7 +14,7 @@ import { UserModule } from '../user.module';
 
 @Depends(UserModule)
 @Controller('auth')
-// @ALLOW_GUEST(true)
+@ALLOW_GUEST(true)
 export class AuthController {
     constructor(protected readonly authService: AuthService) {}
 

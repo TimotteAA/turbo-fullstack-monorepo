@@ -1,7 +1,7 @@
 import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
-import { FastifyRequest } from 'fastify';
+import type { FastifyRequest } from 'fastify';
 import { Redis } from 'ioredis';
 import { isNil, omit, toNumber } from 'lodash';
 import * as uuid from 'uuid';

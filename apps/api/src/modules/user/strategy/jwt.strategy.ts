@@ -1,6 +1,6 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { FastifyRequest } from 'fastify';
+import type { FastifyRequest } from 'fastify';
 import { isNil, omit } from 'lodash';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 

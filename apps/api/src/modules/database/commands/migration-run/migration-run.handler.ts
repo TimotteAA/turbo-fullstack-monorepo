@@ -53,11 +53,10 @@ export const MigrationRunHandler = async (configure: Configure, args: MigrationR
             transaction: args.transaction,
             fake: args.fake,
         });
+        await dataSource.destroy();
         spinner.succeed(chalk.greenBright.underline('\n 👍 Finished run migrations'));
     } catch (error) {
         if (dataSource && dataSource.isInitialized) await dataSource.destroy();
         panic({ spinner, message: 'Run migrations failed!', error });
     }
-
-    if (dataSource && dataSource.isInitialized) await dataSource.destroy();
 };

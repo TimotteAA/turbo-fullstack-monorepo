@@ -1,12 +1,12 @@
 import { Module, ModuleMetadata } from '@nestjs/common';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { isNil } from 'lodash';
 
 import { Configure } from '../config/configure';
 import { panic } from '../core/utils';
 import { DatabaseModule } from '../database/database.module';
+import { addEntities } from '../database/helpers';
 import { RedisModule } from '../redis/redis.module';
 
 import * as entityMaps from './entities';
@@ -51,7 +51,8 @@ export class UserModule {
         );
 
         const imports: ModuleMetadata['imports'] = [
-            TypeOrmModule.forFeature(Object.values(entityMaps)),
+            // TypeOrmModule.forFeature(Object.values(entityMaps)),
+            addEntities(configure, [...Object.values(entityMaps)]),
             DatabaseModule.forRepository(Object.values(repoMaps)),
             // passport
             PassportModule,
