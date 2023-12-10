@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { omit } from 'lodash';
+import { isNil, omit } from 'lodash';
+import { EntityNotFoundError } from 'typeorm';
 
 import { BaseService } from '@/modules/database/base';
 
@@ -39,6 +40,21 @@ export class UserService extends BaseService<UserEntity, UserRepository> {
                 id,
             },
         });
+        return user;
+    }
+
+    async findOneByConditions(conditions: Record<string, any>) {
+        const query = this.repo.buildBaseQB();
+        if (Object.keys(conditions).length > 0) {
+            const wheres = Object.fromEntries(
+                Object.entries(conditions).map(([key, value]) => [key, value]),
+            );
+            query.andWhere(wheres);
+        }
+        const user = query.getOne();
+        if (isNil(user)) {
+            throw new EntityNotFoundError(UserEntity, `${Object.keys(conditions).join(',')}`);
+        }
         return user;
     }
 }

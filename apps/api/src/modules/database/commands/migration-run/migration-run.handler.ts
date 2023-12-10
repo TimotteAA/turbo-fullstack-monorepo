@@ -18,9 +18,9 @@ export const MigrationRunHandler = async (configure: Configure, args: MigrationR
     let dataSource: DataSource | undefined;
     try {
         spinner.start();
-        const { connections = [] } = await configure.get<DbOptions>('database');
+        const { connections = [] }: DbOptions = await configure.get<DbOptions>('database');
         const dbConfig = connections.find(({ name }) => name === cname);
-        if (isNil(dbConfig)) panic(`Database connection named ${cname} does not exist`);
+        if (isNil(dbConfig)) panic(`Database connection named ${cname} not exists!`);
         let dropSchema = false;
         dropSchema = args.refresh || args.onlydrop;
         console.log();
@@ -53,10 +53,12 @@ export const MigrationRunHandler = async (configure: Configure, args: MigrationR
             transaction: args.transaction,
             fake: args.fake,
         });
-        await dataSource.destroy();
         spinner.succeed(chalk.greenBright.underline('\n 👍 Finished run migrations'));
     } catch (error) {
         if (dataSource && dataSource.isInitialized) await dataSource.destroy();
         panic({ spinner, message: 'Run migrations failed!', error });
     }
+
+    if (dataSource && dataSource.isInitialized) await dataSource.destroy();
+    // process.exit(0);
 };

@@ -1,4 +1,4 @@
-import { toNumber } from 'lodash';
+import { get, isNil, toNumber } from 'lodash';
 
 import { Configure } from '../config/configure';
 import { ConfigureFactory, ConfigureRegister } from '../config/types';
@@ -23,8 +23,8 @@ export const defaultUserConfig = (configure: Configure): UserModuleConfig => {
     return {
         hash: 10,
         jwt: {
-            accessTokenSecret: configure.env.get('USER_TOKEN_SECRET', 'my-refresh-secret'),
-            accessTokenExpiresIn: configure.env.get('USER_TOKEN_EXPIRED', (v) => toNumber(v), 3600),
+            accessTokenSecret: configure.env.get('USER_TOKEN_SECRET', 'access-token-secret'),
+            accessTokenExpiresIn: configure.env.get('USER_TOKEN_EXPIRED', (v) => toNumber(v), 1),
             refreshTokenSecret: configure.env.get('USER_REFRESH_TOKEN_SECRET', 'my-refresh-secret'),
             refreshTokenExpiresIn: configure.env.get(
                 'USER_REFRESH_TOKEN_EXPIRED',
@@ -33,4 +33,10 @@ export const defaultUserConfig = (configure: Configure): UserModuleConfig => {
             ),
         },
     };
+};
+
+export const getUserConfig = async <T>(configure: Configure, key?: string) => {
+    const userConfig = await configure.get<UserModuleConfig>('user');
+    if (!isNil(key)) return get(userConfig, key) as T;
+    return userConfig;
 };

@@ -43,6 +43,7 @@ export const start = async (args: Arguments<StartCommandArguments>, config: CLIC
             child.kill();
             process.exit(0);
         });
+        console.log('wtf');
     } else {
         // if (args.typescript)
         Bun.spawn(params, {

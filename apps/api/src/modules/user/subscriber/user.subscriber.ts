@@ -1,5 +1,5 @@
+import Bun from 'bun';
 import { DataSource, EntitySubscriberInterface, EventSubscriber, InsertEvent } from 'typeorm';
-import bcrypt from 'bcrypt';
 
 import { UserEntity } from '../entities';
 
@@ -13,7 +13,10 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
         return UserEntity;
     }
 
-    beforeInsert(event: InsertEvent<UserEntity>) {
-        event.entity.password = bcrypt.hashSync(event.entity.password, 10);
+    async beforeInsert(event: InsertEvent<UserEntity>) {
+        event.entity.password = await Bun.password.hash(event.entity.password, {
+            cost: 10,
+            algorithm: 'bcrypt',
+        });
     }
 }

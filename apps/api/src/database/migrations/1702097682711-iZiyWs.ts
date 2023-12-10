@@ -1,8 +1,8 @@
 /* eslint-disable import/no-import-module-exports */
         import { MigrationInterface, QueryRunner } from "typeorm";
 
-class NwXRJV1701852823595 implements MigrationInterface {
-    name = 'NwXRJV1701852823595'
+class IZiyWs1702097682711 implements MigrationInterface {
+    name = 'IZiyWs1702097682711'
 
     public async up(queryRunner: QueryRunner): Promise<void> {
         await queryRunner.query(`CREATE TABLE \`content_categories\` (\`id\` varchar(36) NOT NULL, \`name\` varchar(255) NOT NULL COMMENT '分类名称', \`customOrder\` int NOT NULL COMMENT '自定义排序字段' DEFAULT '0', \`deletedAt\` datetime(6) NULL COMMENT '删除时间', \`mpath\` varchar(255) NULL DEFAULT '', \`parentId\` varchar(36) NULL, FULLTEXT INDEX \`IDX_d6aaf8517ca57297a8c3a44d3d\` (\`name\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
@@ -12,6 +12,7 @@ class NwXRJV1701852823595 implements MigrationInterface {
         await queryRunner.query(`CREATE TABLE \`rbac_systems\` (\`id\` varchar(36) NOT NULL, \`name\` varchar(255) NOT NULL COMMENT '部门名称', \`description\` varchar(255) NULL COMMENT '部门描述', \`status\` varchar(255) NOT NULL COMMENT '资源状态' DEFAULT 'enabled', \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`mpath\` varchar(255) NULL DEFAULT '', \`parentId\` varchar(36) NULL, FULLTEXT INDEX \`IDX_63a1ed6d9eae1b57ab970baf01\` (\`name\`), FULLTEXT INDEX \`IDX_8c8f7efc45e11ded3c5aed4bf0\` (\`description\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
         await queryRunner.query(`CREATE TABLE \`rbac_roles\` (\`id\` varchar(36) NOT NULL, \`name\` varchar(255) NOT NULL COMMENT '角色名称', \`description\` varchar(255) NULL COMMENT '角色描述', \`status\` varchar(255) NOT NULL COMMENT '角色状态' DEFAULT 'enabled', \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
         await queryRunner.query(`CREATE TABLE \`rbac_resources\` (\`id\` varchar(36) NOT NULL, \`name\` varchar(255) NOT NULL COMMENT '资源名称', \`description\` varchar(255) NULL COMMENT '资源描述', \`type\` enum ('directory', 'menu', 'action') NOT NULL COMMENT '资源类型' DEFAULT 'menu', \`icon\` varchar(255) NULL COMMENT '用于侧边栏展示icon', \`path\` varchar(255) NULL COMMENT '菜单项路由路径', \`component\` varchar(255) NULL COMMENT '目录、菜单对应前端组件地址', \`status\` varchar(255) NOT NULL COMMENT '资源状态' DEFAULT 'enabled', \`external\` tinyint NULL COMMENT '是否外链' DEFAULT 0, \`show\` tinyint NULL COMMENT '是否显示在侧边栏中，用于目录或者菜单' DEFAULT 1, \`keepAlive\` tinyint NULL COMMENT '是否缓存，用于菜单项' DEFAULT 1, \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`permission\` varchar(255) NULL COMMENT '权限标识', \`mpath\` varchar(255) NULL DEFAULT '', \`parentId\` varchar(36) NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`users\` (\`id\` varchar(36) NOT NULL, \`name\` varchar(100) NOT NULL COMMENT '用户名称', \`nickname\` varchar(100) NULL COMMENT '用户昵称', \`email\` varchar(255) NULL COMMENT '用户邮箱', \`phone\` varchar(255) NULL COMMENT '用户手机号', \`password\` varchar(255) NOT NULL COMMENT '用户密码', \`summary\` varchar(300) NULL COMMENT '用户简介', \`createtAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deletedAt\` datetime(6) NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
         await queryRunner.query(`CREATE TABLE \`content_posts_tags_content_tags\` (\`contentPostsId\` varchar(36) NOT NULL, \`contentTagsId\` varchar(36) NOT NULL, INDEX \`IDX_1e8c41827d0d509e70de1f6b70\` (\`contentPostsId\`), INDEX \`IDX_888e6754015ee17f9e22faae57\` (\`contentTagsId\`), PRIMARY KEY (\`contentPostsId\`, \`contentTagsId\`)) ENGINE=InnoDB`);
         await queryRunner.query(`CREATE TABLE \`rbac_roles_resources_rbac_resources\` (\`rbacRolesId\` varchar(36) NOT NULL, \`rbacResourcesId\` varchar(36) NOT NULL, INDEX \`IDX_b509f84977db92343ae15e7de1\` (\`rbacRolesId\`), INDEX \`IDX_7896ef92e20eb1773c337ebdab\` (\`rbacResourcesId\`), PRIMARY KEY (\`rbacRolesId\`, \`rbacResourcesId\`)) ENGINE=InnoDB`);
         await queryRunner.query(`ALTER TABLE \`content_categories\` ADD CONSTRAINT \`FK_a03aea27707893300382b6f18ae\` FOREIGN KEY (\`parentId\`) REFERENCES \`content_categories\`(\`id\`) ON DELETE NO ACTION ON UPDATE NO ACTION`);
@@ -43,6 +44,7 @@ class NwXRJV1701852823595 implements MigrationInterface {
         await queryRunner.query(`DROP INDEX \`IDX_888e6754015ee17f9e22faae57\` ON \`content_posts_tags_content_tags\``);
         await queryRunner.query(`DROP INDEX \`IDX_1e8c41827d0d509e70de1f6b70\` ON \`content_posts_tags_content_tags\``);
         await queryRunner.query(`DROP TABLE \`content_posts_tags_content_tags\``);
+        await queryRunner.query(`DROP TABLE \`users\``);
         await queryRunner.query(`DROP TABLE \`rbac_resources\``);
         await queryRunner.query(`DROP TABLE \`rbac_roles\``);
         await queryRunner.query(`DROP INDEX \`IDX_8c8f7efc45e11ded3c5aed4bf0\` ON \`rbac_systems\``);
@@ -62,4 +64,4 @@ class NwXRJV1701852823595 implements MigrationInterface {
 
 }
 
-module.exports = NwXRJV1701852823595
+module.exports = IZiyWs1702097682711

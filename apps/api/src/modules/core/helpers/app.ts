@@ -78,7 +78,11 @@ export async function createBootModule(
     //     ConfigModule.forRoot(configure),
     // ];
     const imports: ModuleMetadata['imports'] = (
-        await Promise.all([...modules, CoreModule.forRoot(), ConfigModule.forRoot(configure)])
+        await Promise.all([
+            ...modules,
+            CoreModule.forRoot(configure),
+            ConfigModule.forRoot(configure),
+        ])
     ).map((item) => {
         if ('module' in item) {
             const meta = omit(item, ['module', 'global']);

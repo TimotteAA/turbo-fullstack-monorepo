@@ -1,6 +1,7 @@
 import { ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
+import { FastifyReply } from 'fastify';
 import { isNil } from 'lodash';
 import { ExtractJwt } from 'passport-jwt';
 
@@ -34,20 +35,28 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
             context.getClass().prototype,
             context.getHandler().name,
         );
-
         const guest = allowGuest ?? crudGuest;
 
         if (guest) return true;
         const request = context.switchToHttp().getRequest();
+        const response = context.switchToHttp().getResponse() as FastifyReply;
         const headerToken = ExtractJwt.fromAuthHeaderAsBearerToken()(request);
         // 没有携带token
         if (isNil(headerToken)) throw new UnauthorizedException();
         // 利用原生的jwt stragety校验
 
         try {
-            return (await super.canActivate(context)) as boolean;
+            const res = await super.canActivate(context);
+            return res as boolean;
         } catch (err) {
-            // 校验出错，让前端去续期token
+            if (!isNil(headerToken)) {
+                const accessToken = await this.authService.refreshToken(headerToken);
+                if (isNil(accessToken)) return false;
+                request.headers.authorization = `Bearer ${accessToken}`;
+                // response.setHeader('x-jwt-token', accessToken);
+                response.header('x-jwt-token', accessToken);
+                return (await super.canActivate(context)) as boolean;
+            }
             throw new UnauthorizedException();
         }
     }

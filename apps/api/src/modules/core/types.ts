@@ -133,6 +133,10 @@ export interface AppConfig {
      * 自定义pm2配置，对其中部分配置进行了修改
      */
     pm2?: Omit<StartOptions, 'name' | 'cwd' | 'script' | 'args' | 'interpreter' | 'watch'>;
+    limit: {
+        interval: number;
+        rate: number;
+    };
 }
 
 /**
