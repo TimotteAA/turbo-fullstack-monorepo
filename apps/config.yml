@@ -6,6 +6,10 @@
         "timezone": "Asia/Shanghai",
         "locale": "zh_CN",
         "name": "main",
+        "limit": {
+            "interval": 60000,
+            "rate": 100
+        },
         "prefix": "api",
         "url": "http://127.0.0.1:3100"
     },

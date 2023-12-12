@@ -12,8 +12,14 @@ export class RoleEntity extends BaseEntity {
     @Column({ comment: '角色名称', nullable: false })
     name!: string;
 
+    @Column({ comment: '角色显示名称', nullable: true })
+    label?: string;
+
     @Column({ comment: '角色描述', nullable: true })
     description?: string;
+
+    @Column({ comment: '是否为系统角色', default: true })
+    systemed?: boolean;
 
     @Column({ type: 'varchar', comment: '角色状态', default: Status.ENABLED })
     status: Status;

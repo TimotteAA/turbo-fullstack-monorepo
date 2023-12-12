@@ -1,18 +1,20 @@
 import { AbilityOptions, AbilityTuple, MongoQuery, SubjectType } from '@casl/ability';
-import { Injectable, InternalServerErrorException, OnApplicationBootstrap } from '@nestjs/common';
+import { Injectable, OnApplicationBootstrap } from '@nestjs/common';
 import { isNil, omit, isArray } from 'lodash';
 import { DataSource, EntityManager, In, Not } from 'typeorm';
 
-import { deepMerge } from '@/modules/core/helpers';
-
 import { Configure } from '../config/configure';
-import { UserEntity } from '../user/entities';
+import { deepMerge } from '../config/utils';
 
 import { SystemRoles } from './constants';
-import { PermissionEntity } from './entities/permission.entity';
+import { ResourceEntity } from './entities';
 import { RoleEntity } from './entities/role.entity';
-import { PermissionType, Role } from './types';
+import { ResourceType, Role } from './types';
 
+/**
+ * casl管理的对象subject
+ * @param subject
+ */
 const getSubject = <S extends SubjectType>(subject: S) => {
     if (typeof subject === 'string') return subject;
     if (subject.modelName) return subject;
@@ -26,22 +28,22 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
 
     protected options: AbilityOptions<A, C>;
 
+    // 内置角色
     protected _roles: Role[] = [
         {
             name: SystemRoles.USER,
             label: '普通用户',
-            description: '新用户的默认角色',
-            permissions: [],
+            resources: [],
         },
         {
             name: SystemRoles.SUPER_ADMIN,
             label: '超级管理员',
-            description: '拥有整个系统的管理权限',
-            permissions: [],
+            resources: [],
         },
     ];
 
-    protected _permissions: PermissionType<A, C>[] = [
+    // 内置超级管理员权限
+    protected _permissions: ResourceType<A, C>[] = [
         {
             name: 'system-manage',
             label: '系统管理',
@@ -78,11 +80,12 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
         this._roles = [...this.roles, ...data];
     }
 
-    addPermissions(data: PermissionType<A, C>[]) {
+    addPermissions(data: ResourceType<A, C>[]) {
         this._permissions = [...this.permissions, ...data].map((item) => {
             let subject: typeof item.rule.subject;
             if (isArray(item.rule.subject)) subject = item.rule.subject.map((v) => getSubject(v));
             else subject = getSubject(item.rule.subject);
+            // 此处在于将subject转换成字符串
             const rule = { ...item.rule, subject };
             return { ...item, rule };
         });
@@ -98,7 +101,7 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
         try {
             await this.syncRoles(queryRunner.manager);
             await this.syncPermissions(queryRunner.manager);
-            await this.syncSuperAdmin(queryRunner.manager);
+            // await this.syncSuperAdmin(queryRunner.manager);
             await queryRunner.commitTransaction();
         } catch (err) {
             console.log(err);
@@ -110,30 +113,31 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
     }
 
     /**
-     * 同步角色
+     * 同步系统角色
      * @param manager
      */
     async syncRoles(manager: EntityManager) {
         this._roles = this.roles.reduce((o, n) => {
             if (o.map(({ name }) => name).includes(n.name)) {
+                // 同名角色进行合并
                 return o.map((e) => (e.name === n.name ? deepMerge(e, n, 'merge') : e));
             }
             return [...o, n];
         }, []);
         for (const item of this.roles) {
             let role = await manager.findOne(RoleEntity, {
-                relations: ['permissions'],
+                relations: ['resources'],
                 where: {
                     name: item.name,
                 },
             });
 
+            // 角色不存在则创建
             if (isNil(role)) {
                 role = await manager.save(
                     manager.create(RoleEntity, {
                         name: item.name,
                         label: item.label,
-                        description: item.description,
                         systemed: true,
                     }),
                     {
@@ -159,9 +163,10 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
      * @param manager
      */
     async syncPermissions(manager: EntityManager) {
-        const permissions = await manager.find(PermissionEntity);
+        const permissions = await manager.find(ResourceEntity);
+        // 除超级管理员的所有角色
         const roles = await manager.find(RoleEntity, {
-            relations: ['permissions'],
+            relations: ['resources'],
             where: { name: Not(SystemRoles.SUPER_ADMIN) },
         });
         const roleRepo = manager.getRepository(RoleEntity);
@@ -172,31 +177,32 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
         );
         const names = this.permissions.map(({ name }) => name);
 
-        /** *********** 同步权限  ************ */
+        /** *********** 先同步权限  ************ */
 
         for (const item of this.permissions) {
             const permission = omit(item, ['conditions']);
-            const old = await manager.findOneBy(PermissionEntity, {
+            const old = await manager.findOneBy(ResourceEntity, {
                 name: permission.name,
             });
             if (isNil(old)) {
-                await manager.save(manager.create(PermissionEntity, permission));
+                await manager.save(manager.create(ResourceEntity, permission));
             } else {
-                await manager.update(PermissionEntity, old.id, permission);
+                await manager.update(ResourceEntity, old.id, permission);
             }
         }
 
-        // 删除冗余权限
+        // 删除不存在的系统权限
         const toDels: string[] = [];
         for (const item of permissions) {
             if (!names.includes(item.name) && item.name !== 'system-manage') toDels.push(item.id);
         }
-        if (toDels.length > 0) await manager.delete(PermissionEntity, toDels);
+        if (toDels.length > 0) await manager.delete(ResourceEntity, toDels);
 
         /** *********** 同步普通角色  ************ */
         for (const role of roles) {
-            const rolePermissions = await manager.findBy(PermissionEntity, {
-                name: In(this.roles.find(({ name }) => name === role.name).permissions),
+            // 新绑定的权限
+            const rolePermissions = await manager.findBy(ResourceEntity, {
+                name: In(this.roles.find(({ name }) => name === role.name).resources),
             });
             await roleRepo
                 .createQueryBuilder('role')
@@ -204,7 +210,7 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
                 .of(role)
                 .addAndRemove(
                     rolePermissions.map(({ id }) => id),
-                    (role.permissions ?? []).map(({ id }) => id),
+                    (role.resources ?? []).map(({ id }) => id),
                 );
         }
 
@@ -212,11 +218,11 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
 
         // 查询出超级管理员角色
         const superRole = await manager.findOneOrFail(RoleEntity, {
-            relations: ['permissions'],
+            relations: ['resources'],
             where: { name: SystemRoles.SUPER_ADMIN },
         });
 
-        const systemManage = await manager.findOneOrFail(PermissionEntity, {
+        const systemManage = await manager.findOneOrFail(ResourceEntity, {
             where: { name: 'system-manage' },
         });
         // 添加系统管理权限到超级管理员角色
@@ -226,41 +232,41 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
             .of(superRole)
             .addAndRemove(
                 [systemManage.id],
-                (superRole.permissions ?? []).map(({ id }) => id),
+                (superRole.resources ?? []).map(({ id }) => id),
             );
     }
 
-    /**
-     * 同步超级管理员
-     * @param manager
-     */
-    async syncSuperAdmin(manager: EntityManager) {
-        const superRole = await manager.findOneOrFail(RoleEntity, {
-            relations: ['permissions'],
-            where: { name: SystemRoles.SUPER_ADMIN },
-        });
+    // /**
+    //  * 同步超级管理员
+    //  * @param manager
+    //  */
+    // async syncSuperAdmin(manager: EntityManager) {
+    //     const superRole = await manager.findOneOrFail(RoleEntity, {
+    //         relations: ['permissions'],
+    //         where: { name: SystemRoles.SUPER_ADMIN },
+    //     });
 
-        const superUsers = await manager
-            .createQueryBuilder(UserEntity, 'user')
-            .leftJoinAndSelect('user.roles', 'roles')
-            .where('roles.id IN (:...ids)', { ids: [superRole.id] })
-            .getMany();
-        if (superUsers.length < 1) {
-            const userRepo = manager.getRepository(UserEntity);
-            if ((await userRepo.count()) < 1) {
-                throw new InternalServerErrorException(
-                    'Please add a super-admin user first before run server!',
-                );
-            }
-            const firstUser = await userRepo.findOneByOrFail({ id: undefined });
-            await userRepo
-                .createQueryBuilder('user')
-                .relation(UserEntity, 'roles')
-                .of(firstUser)
-                .addAndRemove(
-                    [superRole.id],
-                    ((firstUser.roles ?? []) as RoleEntity[]).map(({ id }) => id),
-                );
-        }
-    }
+    //     const superUsers = await manager
+    //         .createQueryBuilder(UserEntity, 'user')
+    //         .leftJoinAndSelect('user.roles', 'roles')
+    //         .where('roles.id IN (:...ids)', { ids: [superRole.id] })
+    //         .getMany();
+    //     if (superUsers.length < 1) {
+    //         const userRepo = manager.getRepository(UserEntity);
+    //         if ((await userRepo.count()) < 1) {
+    //             throw new InternalServerErrorException(
+    //                 'Please add a super-admin user first before run server!',
+    //             );
+    //         }
+    //         const firstUser = await userRepo.findOneByOrFail({ id: undefined });
+    //         await userRepo
+    //             .createQueryBuilder('user')
+    //             .relation(UserEntity, 'roles')
+    //             .of(firstUser)
+    //             .addAndRemove(
+    //                 [superRole.id],
+    //                 ((firstUser.roles ?? []) as RoleEntity[]).map(({ id }) => id),
+    //             );
+    //     }
+    // }
 }

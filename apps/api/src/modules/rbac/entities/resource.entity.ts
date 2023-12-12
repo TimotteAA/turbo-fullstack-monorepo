@@ -1,3 +1,4 @@
+import { AbilityTuple, MongoQuery, RawRuleFrom } from '@casl/ability';
 import {
     Column,
     CreateDateColumn,
@@ -18,9 +19,15 @@ import { RoleEntity } from './role.entity';
 
 @Tree('materialized-path')
 @Entity('rbac_resources')
-export class ResourceEntity extends BaseEntity {
+export class ResourceEntity<
+    A extends AbilityTuple = AbilityTuple,
+    C extends MongoQuery = MongoQuery,
+> extends BaseEntity {
     @Column({ comment: '资源名称', nullable: false })
     name!: string;
+
+    @Column({ comment: '资源显示名称', nullable: true })
+    label?: string;
 
     @Column({ comment: '资源描述', nullable: true })
     description?: string;
@@ -75,4 +82,7 @@ export class ResourceEntity extends BaseEntity {
     /** **************************************角色的关联关系 */
     @ManyToMany(() => RoleEntity, (role) => role.resources)
     roles: Relation<RoleEntity[]>;
+
+    @Column({ comment: '具体的权限规则', type: 'simple-json' })
+    rule?: Omit<RawRuleFrom<A, C>, 'conditions'>;
 }
