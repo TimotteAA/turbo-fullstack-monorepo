@@ -2,6 +2,7 @@ import { Column, CreateDateColumn, Entity, JoinTable, ManyToMany, UpdateDateColu
 import type { Relation } from 'typeorm';
 
 import { BaseEntity } from '@/modules/database/base';
+import { UserEntity } from '@/modules/user/entities';
 
 import { Status } from '../constants';
 
@@ -24,6 +25,9 @@ export class RoleEntity extends BaseEntity {
     @Column({ type: 'varchar', comment: '角色状态', default: Status.ENABLED })
     status: Status;
 
+    @Column({ comment: '角色排序字段', default: 0 })
+    customOrder: number;
+
     @CreateDateColumn()
     createdAt!: Date;
 
@@ -31,7 +35,13 @@ export class RoleEntity extends BaseEntity {
     updatedAt!: Date;
 
     /** **************************************角色的关联关系 */
-    @ManyToMany(() => ResourceEntity, (resource) => resource.roles)
-    @JoinTable()
+    @ManyToMany(() => ResourceEntity, (resource) => resource.roles, {
+        cascade: true,
+        eager: true,
+    })
     resources: Relation<RoleEntity[]>;
+
+    @ManyToMany(() => UserEntity, (user) => user.roles)
+    @JoinTable()
+    users: Relation<UserEntity[]>;
 }

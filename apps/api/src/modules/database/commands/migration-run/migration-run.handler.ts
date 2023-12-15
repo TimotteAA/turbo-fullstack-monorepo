@@ -55,6 +55,7 @@ export const MigrationRunHandler = async (configure: Configure, args: MigrationR
         });
         spinner.succeed(chalk.greenBright.underline('\n 👍 Finished run migrations'));
     } catch (error) {
+        console.log('error ', error);
         if (dataSource && dataSource.isInitialized) await dataSource.destroy();
         panic({ spinner, message: 'Run migrations failed!', error });
     }

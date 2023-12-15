@@ -19,12 +19,14 @@ export type Role = Pick<ClassToPlain<RoleEntity>, 'name' | 'label'> & {
 };
 export type ResourceType<A extends AbilityTuple, C extends MongoQuery> = Pick<
     ClassToPlain<ResourceEntity<A, C>>,
-    'name'
+    'name' | 'type'
 > &
     Partial<Pick<ClassToPlain<ResourceEntity<A, C>>, 'label' | 'description'>> & {
         rule: Omit<RawRuleFrom<A, C>, 'conditions'> & {
             conditions?: (user: ClassToPlain<UserEntity>) => Record<string, any>;
         };
+        children?: ResourceType<A, C>[];
+        parent?: string;
     };
 export type CheckerParams = {
     resolver: RbacResolver;
@@ -32,4 +34,19 @@ export type CheckerParams = {
     checkers: PermissionChecker[];
     moduleRef?: ModuleRef;
     request?: any;
+};
+
+export type Route = {
+    id: string;
+    path: string;
+    name: string;
+    component: string;
+    meta?: {
+        name: string;
+        icon: string;
+        ignoreKeepAlive?: boolean;
+        hide?: boolean;
+    };
+    redirect?: string;
+    children?: Route[];
 };

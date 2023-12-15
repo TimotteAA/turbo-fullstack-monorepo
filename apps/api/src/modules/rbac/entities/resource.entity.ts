@@ -3,6 +3,7 @@ import {
     Column,
     CreateDateColumn,
     Entity,
+    JoinTable,
     ManyToMany,
     Tree,
     TreeChildren,
@@ -76,13 +77,11 @@ export class ResourceEntity<
     @UpdateDateColumn()
     updatedAt!: Date;
 
-    @Column({ comment: '权限标识', nullable: true })
-    permission?: string;
-
     /** **************************************角色的关联关系 */
     @ManyToMany(() => RoleEntity, (role) => role.resources)
+    @JoinTable()
     roles: Relation<RoleEntity[]>;
 
-    @Column({ comment: '具体的权限规则', type: 'simple-json' })
+    @Column({ comment: '具体的权限规则', type: 'simple-json', nullable: true })
     rule?: Omit<RawRuleFrom<A, C>, 'conditions'>;
 }

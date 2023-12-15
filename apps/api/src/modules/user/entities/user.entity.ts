@@ -1,7 +1,16 @@
 import { Exclude, Expose } from 'class-transformer';
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, UpdateDateColumn } from 'typeorm';
+import {
+    Column,
+    CreateDateColumn,
+    DeleteDateColumn,
+    Entity,
+    ManyToMany,
+    UpdateDateColumn,
+} from 'typeorm';
+import type { Relation } from 'typeorm';
 
 import { BaseEntity } from '@/modules/database/base';
+import { RoleEntity } from '@/modules/rbac/entities';
 
 /**
  * 用户entity、考虑普通注册、手机注册、邮箱注册、github oauth2注册
@@ -47,4 +56,8 @@ export class UserEntity extends BaseEntity {
     @Expose()
     @DeleteDateColumn()
     deletedAt!: Date;
+
+    /** **************************用户表的关联关系 */
+    @ManyToMany(() => RoleEntity, (role) => role.users)
+    roles: Relation<RoleEntity[]>;
 }

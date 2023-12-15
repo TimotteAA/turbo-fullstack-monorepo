@@ -6,7 +6,7 @@ import { DataSource, EntityManager, In, Not } from 'typeorm';
 import { Configure } from '../config/configure';
 import { deepMerge } from '../config/utils';
 
-import { SystemRoles } from './constants';
+import { ResourceType as PermissionType, SystemRoles } from './constants';
 import { ResourceEntity } from './entities';
 import { RoleEntity } from './entities/role.entity';
 import { ResourceType, Role } from './types';
@@ -52,6 +52,7 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
                 action: 'manage',
                 subject: 'all',
             } as any,
+            type: PermissionType.ACTION,
         },
     ];
 
@@ -170,34 +171,51 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
             where: { name: Not(SystemRoles.SUPER_ADMIN) },
         });
         const roleRepo = manager.getRepository(RoleEntity);
-        // 合并并去除重复权限
-        this._permissions = this.permissions.reduce(
-            (o, n) => (o.map(({ name }) => name).includes(n.name) ? o : [...o, n]),
-            [],
-        );
+
+        this._permissions = this.flatPermissions(this._permissions);
+        this._permissions =
+            // 合并并去除重复权限
+            this._permissions = this.permissions.reduce(
+                (o, n) => (o.map(({ name }) => name).includes(n.name) ? o : [...o, n]),
+                [],
+            );
         const names = this.permissions.map(({ name }) => name);
 
-        /** *********** 先同步权限  ************ */
-
+        /** *********** 先同步权限到数据库中  ************ */
         for (const item of this.permissions) {
             const permission = omit(item, ['conditions']);
             const old = await manager.findOneBy(ResourceEntity, {
                 name: permission.name,
             });
             if (isNil(old)) {
-                await manager.save(manager.create(ResourceEntity, permission));
+                await manager.save(
+                    manager.create(ResourceEntity, {
+                        ...omit(permission, ['parent', 'children']),
+                        parent: !isNil(permission.parent)
+                            ? await manager.findOneBy(ResourceEntity, {
+                                  name: permission.parent,
+                              })
+                            : null,
+                    }),
+                );
             } else {
-                await manager.update(ResourceEntity, old.id, permission);
+                await manager.update(ResourceEntity, old.id, {
+                    ...omit(permission, ['parent', 'children']),
+                    parent: !isNil(permission.parent)
+                        ? await manager.findOneBy(ResourceEntity, {
+                              name: permission.parent,
+                          })
+                        : null,
+                });
             }
         }
-
         // 删除不存在的系统权限
         const toDels: string[] = [];
         for (const item of permissions) {
             if (!names.includes(item.name) && item.name !== 'system-manage') toDels.push(item.id);
         }
         if (toDels.length > 0) await manager.delete(ResourceEntity, toDels);
-
+        console.log('123456');
         /** *********** 同步普通角色  ************ */
         for (const role of roles) {
             // 新绑定的权限
@@ -206,7 +224,7 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
             });
             await roleRepo
                 .createQueryBuilder('role')
-                .relation(RoleEntity, 'permissions')
+                .relation(RoleEntity, 'resources')
                 .of(role)
                 .addAndRemove(
                     rolePermissions.map(({ id }) => id),
@@ -225,15 +243,42 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
         const systemManage = await manager.findOneOrFail(ResourceEntity, {
             where: { name: 'system-manage' },
         });
+
         // 添加系统管理权限到超级管理员角色
         await roleRepo
             .createQueryBuilder('role')
-            .relation(RoleEntity, 'permissions')
+            .relation(RoleEntity, 'resources')
             .of(superRole)
             .addAndRemove(
                 [systemManage.id],
                 (superRole.resources ?? []).map(({ id }) => id),
             );
+    }
+
+    private resolvePermissions(
+        permission: ResourceType<A, C>,
+        flatList: ResourceType<A, C>[],
+        parent?: ResourceType<A, C>,
+    ) {
+        const flatPermission = {
+            ...permission,
+            parent: parent ? parent.name : undefined, // 只保留父权限的名称或其他标识信息
+        };
+        flatList.push(flatPermission);
+
+        if (permission.children && permission.children.length) {
+            permission.children.forEach((child) => {
+                this.resolvePermissions(child, flatList, flatPermission);
+            });
+        }
+    }
+
+    private flatPermissions(permissions: ResourceType<A, C>[]) {
+        const flatList: ResourceType<A, C>[] = [];
+        permissions.forEach((permission) => {
+            this.resolvePermissions(permission, flatList);
+        });
+        return flatList;
     }
 
     // /**

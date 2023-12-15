@@ -1,14 +1,15 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { isNil, omit } from 'lodash';
-import { In, SelectQueryBuilder } from 'typeorm';
+import { In, IsNull, Not, SelectQueryBuilder } from 'typeorm';
 
 import { BaseService } from '@/modules/database/base';
 import { QueryHook } from '@/modules/database/types';
 
-import { ResourceType } from '../constants';
+import { ResourceType, SystemRoles } from '../constants';
 import { CreateRoleDto, QueryRoleDto, UpdateRoleDto } from '../dtos';
 import { ResourceEntity, RoleEntity } from '../entities';
 import { ResourceRepository, RoleRepository, SystemRepository } from '../repositories';
+import { generateRouters } from '../utils';
 
 type FindParams = {
     [key in keyof Omit<QueryRoleDto, 'page' | 'limit'>]: QueryRoleDto[key];
@@ -36,6 +37,20 @@ export class RoleService extends BaseService<RoleEntity, RoleRepository> {
                 : null,
         });
         return this.detail(item.id);
+    }
+
+    async delete(ids: string[], trashed?: boolean): Promise<RoleEntity[]> {
+        const items = await this.repo.find({
+            where: {
+                id: In(ids),
+            },
+        });
+        items.forEach((item) => {
+            if (item.systemed) {
+                throw new BadRequestException(RoleEntity, '不能删除系统角色');
+            }
+        });
+        return super.delete(ids, false);
     }
 
     async update(data: UpdateRoleDto): Promise<RoleEntity> {
@@ -88,6 +103,70 @@ export class RoleService extends BaseService<RoleEntity, RoleRepository> {
         return { menus: this.getMenuTree(flatMenus as ResourceEntity[], null), permissions };
     }
 
+    async getMenus(userId: string) {
+        const roles = await this.repo.find({
+            where: {
+                users: {
+                    id: userId,
+                },
+            },
+        });
+        // 超级管理员
+        if (roles.map(({ name }) => name).includes(SystemRoles.SUPER_ADMIN)) {
+            const menus = await this.resRepo
+                .createQueryBuilder('resource')
+                .leftJoinAndSelect('resource.parent', 'parent')
+                .orderBy('resource.customOrder', 'ASC')
+                .getMany();
+            return generateRouters(menus);
+        }
+        const menus = await this.resRepo.find({
+            where: {
+                roles: {
+                    id: In(roles.map(({ id }) => id)),
+                },
+            },
+            relations: ['parent'],
+        });
+        return generateRouters(menus);
+    }
+
+    async getPermissions(userId: string) {
+        const roles = await this.repo.find({
+            where: {
+                users: {
+                    id: userId,
+                },
+            },
+        });
+        const res: string[] = [];
+        // 超级管理员
+        if (roles.map(({ name }) => name).includes(SystemRoles.SUPER_ADMIN)) {
+            const permissions = await this.resRepo.find({
+                where: {
+                    type: ResourceType.ACTION,
+                    rule: Not(IsNull()),
+                    roles: {
+                        name: SystemRoles.SUPER_ADMIN,
+                    },
+                },
+            });
+            res.push(...permissions.map((permission) => permission.name));
+        } else {
+            const permissions = await this.resRepo.find({
+                where: {
+                    type: ResourceType.ACTION,
+                    rule: Not(IsNull()),
+                    roles: {
+                        id: In(roles.map((role) => role.id)),
+                    },
+                },
+            });
+            res.push(...permissions.map((p) => p.name));
+        }
+        return res;
+    }
+
     protected async buildListQB(
         qb: SelectQueryBuilder<RoleEntity>,
         options?: FindParams,
@@ -101,43 +180,5 @@ export class RoleService extends BaseService<RoleEntity, RoleRepository> {
             }).andWhere('MATCH (role.description) AGAINST (:search IN BOOLEAN MODE)', { search });
         }
         return qb;
-    }
-
-    /**
-     * 感觉下面的构建菜单树很蠢。。。
-     * @param flat
-     * @param parent
-     */
-    protected getMenuTree(flat: ResourceEntity[], parent: ResourceEntity | null) {
-        const res: ResourceEntity[] = [];
-        for (const resource of flat) {
-            // 检查是否是当前父节点的子节
-            if (
-                (parent === null && resource.parent === parent) ||
-                (resource.parent !== null && parent !== null && resource.parent.id === parent.id)
-            ) {
-                // 递归地构建这个资源的子树
-                resource.children = this.getMenuTree(flat, resource);
-                res.push(resource);
-            }
-        }
-
-        // 清理所有节点的 parent 引用
-        this.cleanParentReferences(res);
-
-        return res;
-    }
-
-    protected cleanParentReferences(tree: ResourceEntity[]) {
-        tree.forEach((node) => {
-            // 删除 parent 属性
-            delete node.parent;
-            delete node.id;
-
-            // 如果有子节点，递归地清理它们
-            if (node.children && node.children.length > 0) {
-                this.cleanParentReferences(node.children);
-            }
-        });
     }
 }

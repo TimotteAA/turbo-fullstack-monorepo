@@ -1,10 +1,13 @@
 import { Module, ModuleMetadata } from '@nestjs/common';
+import { getDataSourceToken } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 
 import { Configure } from '../config/configure';
 import { DatabaseModule } from '../database/database.module';
 import { addEntities } from '../database/helpers';
 
 import * as entityMaps from './entities';
+import { RbacResolver } from './rbac.resolver';
 import * as repoMaps from './repositories';
 import * as serviceMaps from './services';
 
@@ -18,10 +21,22 @@ export class RbacModule {
         ];
         // const controllers: ModuleMetadata['controllers'] = Object.values(controllerMaps);
 
-        const providers: ModuleMetadata['providers'] = [...Object.values(serviceMaps)];
+        const providers: ModuleMetadata['providers'] = [
+            ...Object.values(serviceMaps),
+            {
+                provide: RbacResolver,
+                useFactory: async (dataSource: DataSource) => {
+                    const resolver = new RbacResolver(dataSource, configure);
+                    resolver.setOptions({});
+                    return resolver;
+                },
+                inject: [getDataSourceToken()],
+            },
+        ];
         const exports: ModuleMetadata['exports'] = [
             ...Object.values(serviceMaps),
             DatabaseModule.forRepository(Object.values(repoMaps)),
+            RbacResolver,
         ];
 
         return {
