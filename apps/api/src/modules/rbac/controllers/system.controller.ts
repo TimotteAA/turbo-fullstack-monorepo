@@ -10,30 +10,30 @@ import { RbacModule } from '../rbac.module';
 import { SystemRepository } from '../repositories';
 import { SystemService } from '../services';
 
-@ApiTags('rbac系统管理')
+@ApiTags('rbac部门管理')
 @Depends(RbacModule)
 @Crud({
-    id: 'system',
+    id: 'department',
     enabled: [
         {
             name: 'create',
-            options: createOptions(true, { summary: '创建系统' }),
+            options: createOptions(true, { summary: '创建部门' }),
         },
         {
             name: 'update',
-            options: createOptions(true, { summary: '更新系统' }),
+            options: createOptions(true, { summary: '更新部门' }),
         },
         {
             name: 'delete',
-            options: createOptions(true, { summary: '删除系统' }),
+            options: createOptions(true, { summary: '删除部门' }),
         },
         {
             name: 'list',
-            options: createOptions(true, { summary: '分页查询系统' }),
+            options: createOptions(true, { summary: '分页查询部门' }),
         },
         {
             name: 'detail',
-            options: createOptions(true, { summary: '查询系统详情' }),
+            options: createOptions(true, { summary: '查询部门详情' }),
         },
     ],
     dtos: {
@@ -42,7 +42,7 @@ import { SystemService } from '../services';
         query: QuerySystemDto,
     },
 })
-@Controller('systems')
+@Controller('departments')
 export class SystemController extends BaseController<SystemService, SystemRepository> {
     constructor(protected service: SystemService) {
         super(service);

@@ -19,7 +19,7 @@ export class RoleEntity extends BaseEntity {
     @Column({ comment: '角色描述', nullable: true })
     description?: string;
 
-    @Column({ comment: '是否为系统角色', default: true })
+    @Column({ comment: '是否为系统角色', default: false })
     systemed?: boolean;
 
     @Column({ type: 'varchar', comment: '角色状态', default: Status.ENABLED })
@@ -39,7 +39,7 @@ export class RoleEntity extends BaseEntity {
         cascade: true,
         eager: true,
     })
-    resources: Relation<RoleEntity[]>;
+    resources: Relation<ResourceEntity[]>;
 
     @ManyToMany(() => UserEntity, (user) => user.roles)
     @JoinTable()

@@ -32,7 +32,7 @@ export const createCLI = async (creator: () => Promise<App>) => {
     // 从文档里抄来的
     const bin = yargs(hideBin(process.argv));
     // 注册命令
-    app.commands.forEach((comamnd) => bin.command(comamnd));
+    app.commands.forEach((command) => bin.command(command));
     bin.usage('Usage: $0 <command> [options]')
         .scriptName('cli')
         .demandCommand(1, '')
@@ -44,6 +44,7 @@ export const createCLI = async (creator: () => Promise<App>) => {
             // const { default: chalk } = await import('chalk');
             if (!isNil(msg)) console.error(chalk.red(msg));
             if (!isNil(err)) console.error(chalk.red(err));
+            process.exit();
         })
         .strict()
         .alias('v', 'version')

@@ -2,13 +2,18 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsOptional } from 'class-validator';
 
 import { DTO_VALIDATION } from '@/modules/core/decorators';
-import { IsMatch } from '@/modules/database/constraints';
+import { IsMatch, IsUnique } from '@/modules/database/constraints';
+
+import { UserEntity } from '../entities';
 
 /**
  * 用户名+密码注册
  */
 @DTO_VALIDATION()
 export class UserRegisterDto {
+    @IsUnique(UserEntity, {
+        message: '用户名称重复',
+    })
     @ApiProperty({ description: '用户名' })
     @IsNotEmpty({ message: '用户名称不能为空', always: true })
     name!: string;

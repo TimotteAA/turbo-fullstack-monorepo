@@ -2,7 +2,8 @@ import { ApiProperty, ApiPropertyOptional, PartialType, PickType } from '@nestjs
 import { IsEmail, IsNotEmpty, IsOptional, IsUUID, MaxLength } from 'class-validator';
 
 import { DTO_VALIDATION } from '@/modules/core/decorators';
-import { IsMatchPhone, IsPassword, IsUnique } from '@/modules/database/constraints';
+import { IsExists, IsMatchPhone, IsPassword, IsUnique } from '@/modules/database/constraints';
+import { RoleEntity } from '@/modules/rbac/entities';
 import { ListQueryDtoWithTrashed } from '@/modules/restful/dtos';
 
 import { UserEntity } from '../entities';
@@ -47,6 +48,18 @@ export class CreateUserDto {
     @IsOptional({ groups: ['update'] })
     @IsNotEmpty({ groups: ['create'], message: '用户密码不能为空' })
     password!: string;
+
+    @IsExists(
+        { entity: RoleEntity },
+        {
+            message: '角色不存在',
+            always: true,
+            each: true,
+        },
+    )
+    @IsUUID(undefined, { message: '角色id格式错误', each: true, always: true })
+    @IsOptional({ always: true })
+    roles: string[];
 }
 
 @DTO_VALIDATION()

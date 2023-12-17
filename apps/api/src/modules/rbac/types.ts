@@ -19,10 +19,19 @@ export type Role = Pick<ClassToPlain<RoleEntity>, 'name' | 'label'> & {
 };
 export type ResourceType<A extends AbilityTuple, C extends MongoQuery> = Pick<
     ClassToPlain<ResourceEntity<A, C>>,
-    'name' | 'type'
+    | 'name'
+    | 'type'
+    | 'component'
+    | 'path'
+    | 'icon'
+    | 'keepAlive'
+    | 'external'
+    | 'status'
+    | 'show'
+    | 'customOrder'
 > &
     Partial<Pick<ClassToPlain<ResourceEntity<A, C>>, 'label' | 'description'>> & {
-        rule: Omit<RawRuleFrom<A, C>, 'conditions'> & {
+        rule?: Omit<RawRuleFrom<A, C>, 'conditions'> & {
             conditions?: (user: ClassToPlain<UserEntity>) => Record<string, any>;
         };
         children?: ResourceType<A, C>[];

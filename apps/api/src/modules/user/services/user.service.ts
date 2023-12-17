@@ -1,26 +1,73 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { isNil, omit } from 'lodash';
-import { EntityNotFoundError } from 'typeorm';
+import { EntityNotFoundError, In } from 'typeorm';
 
+import { Configure } from '@/modules/config/configure';
 import { BaseService } from '@/modules/database/base';
+import { RoleRepository } from '@/modules/rbac/repositories';
 
 import { CreateUserDto, UdpateUserDto } from '../dtos';
 import { UserEntity } from '../entities';
 import { UserRepository } from '../repositorys';
+import type { UserModuleConfig } from '../types';
 
 @Injectable()
-export class UserService extends BaseService<UserEntity, UserRepository> {
-    constructor(private readonly repo: UserRepository) {
+export class UserService extends BaseService<UserEntity, UserRepository> implements OnModuleInit {
+    async onModuleInit() {
+        if (!(await this.configure.get<boolean>('app.start', false))) return null;
+        const adminConf = await this.configure.get<UserModuleConfig['super']>('user.super');
+        const admin = await this.findOneByCredential(adminConf.name);
+        if (!isNil(admin)) {
+            return admin;
+        }
+        const res = await this.create({
+            ...adminConf,
+            roles: [],
+        });
+        return res;
+    }
+
+    constructor(
+        private readonly repo: UserRepository,
+        private readonly roleRepo: RoleRepository,
+        private readonly configure: Configure,
+    ) {
         super(repo);
     }
 
     async create(data: CreateUserDto) {
-        const res = await this.repo.save(data);
+        const res = await this.repo.save({
+            ...omit(data, ['id', 'roles']),
+            roles: !isNil(data.roles)
+                ? await this.roleRepo.find({
+                      where: {
+                          id: In(data.roles),
+                      },
+                  })
+                : null,
+        });
         return this.detail(res.id);
     }
 
     async update(data: UdpateUserDto) {
-        const res = await this.repo.save(omit(data, ['id']));
+        const res = await this.repo.save({
+            ...omit(data, ['id', 'roles']),
+        });
+
+        if (!isNil(data.roles) && Array.isArray(data.roles) && data.roles.length) {
+            const user = await this.repo.findOne({
+                where: {
+                    id: data.id,
+                },
+                relations: ['roles'],
+            });
+            await this.repo
+                .createQueryBuilder('user')
+                .relation(UserEntity, 'roles')
+                .of(user)
+                .addAndRemove(data.roles ?? [], user.roles ?? []);
+        }
+
         return this.detail(res.id);
     }
 

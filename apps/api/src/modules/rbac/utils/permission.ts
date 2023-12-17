@@ -11,10 +11,10 @@ export const generateRouters = (menus: ResourceEntity[]) => {
 
 const filterRoutes = (menus: ResourceEntity[], parent?: ResourceEntity) => {
     const res: Route[] = [];
-
     menus.forEach((menu) => {
         if (menu.type === ResourceType.ACTION || menu.status === Status.DISABLED) {
             // 权限或禁用
+            return;
         }
         let route;
         if (!parent && !menu.parent && menu.type === ResourceType.MENU) {
@@ -41,6 +41,7 @@ const filterRoutes = (menus: ResourceEntity[], parent?: ResourceEntity) => {
             res.push(route);
         }
     });
+
     return res;
 };
 

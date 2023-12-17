@@ -24,7 +24,8 @@ type TypeormMigrationGenerateOptions = {
 export class TypeormMigrationGenerate {
     async handler(args: TypeormMigrationGenerateOptions) {
         const timestamp = new Date().getTime();
-        const extension = '.ts';
+        // const extension = '.ts';
+        const extension = '.js';
         const directory = args.dir.startsWith('/')
             ? args.dir
             : path.resolve(process.cwd(), args.dir);
@@ -131,17 +132,17 @@ export class TypeormMigrationGenerate {
         const migrationName = `${camelCase(upperFirst(name), true)}${timestamp}`;
 
         return `/* eslint-disable import/no-import-module-exports */
-        import { MigrationInterface, QueryRunner } from "typeorm";
+        
 
-class ${migrationName} implements MigrationInterface {
+class ${migrationName} {
     name = '${migrationName}'
 
-    public async up(queryRunner: QueryRunner): Promise<void> {
+    async up(queryRunner) {
 ${upSqls.join(`
 `)}
     }
 
-    public async down(queryRunner: QueryRunner): Promise<void> {
+    async down(queryRunner) {
 ${downSqls.join(`
 `)}
     }

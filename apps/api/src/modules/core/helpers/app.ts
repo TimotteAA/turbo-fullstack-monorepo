@@ -43,13 +43,7 @@ export const createApp = (name: string, options: CreateOptions) => async (): Pro
         configure: apps[name].configure,
         BootModule,
     });
-    // // 设置api前缀
-    // if (apps[name].configure.has('app.prefix')) {
-    //     apps[name].container.setGlobalPrefix(
-    //         await apps[name].configure.get<string>('app.prefix', 'api'),
-    //     );
-    // }
-    // 为class-validator添加容器以便在自定义约束中可以注入dataSource等依赖
+
     useContainer(apps[name].container.select(BootModule), {
         fallbackOnErrors: true,
     });
@@ -143,12 +137,7 @@ export async function createBootModule(
  * @param creator
  * @param listend 对应用启动后做监听
  */
-// export const startApp = async (creator: () => Promise<App>, listend?: (app: App) => () => void) => {
-//     const app = await creator();
-//     const { container, configure } = app;
-//     const { port, host } = await configure.get<AppConfig>('app');
-//     await container.listen(port, host, listend(app));
-// };
+
 export async function startApp(
     creator: () => Promise<App>,
     listened?: (app: App, startTime: Date) => () => Promise<void>,
@@ -156,6 +145,7 @@ export async function startApp(
     const startTime = new Date();
     const app = await creator();
     const { container, configure } = app;
+    configure.set('app.start', true);
     const { port, host } = await configure.get<AppConfig>('app');
     await container.listen(port, host, listened(app, startTime));
 }

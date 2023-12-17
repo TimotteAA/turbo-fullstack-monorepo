@@ -13,6 +13,7 @@ import {
 import type { Relation } from 'typeorm';
 
 import { BaseEntity } from '@/modules/database/base';
+import { UserEntity } from '@/modules/user/entities';
 
 import { ResourceType, Status } from '../constants';
 
@@ -62,6 +63,9 @@ export class ResourceEntity<
     @Column({ type: 'boolean', comment: '是否缓存，用于菜单项', default: true, nullable: true })
     keepAlive?: boolean;
 
+    @Column({ comment: '权限排序字段', default: 0 })
+    customOrder: number;
+
     // 父亲被删了，我也die了
     // null表示顶级资源
     @TreeParent({ onDelete: 'CASCADE' })
@@ -84,4 +88,8 @@ export class ResourceEntity<
 
     @Column({ comment: '具体的权限规则', type: 'simple-json', nullable: true })
     rule?: Omit<RawRuleFrom<A, C>, 'conditions'>;
+
+    @ManyToMany(() => UserEntity, (user: UserEntity) => user.permissions)
+    @JoinTable()
+    users: Relation<UserEntity>[];
 }

@@ -15,7 +15,7 @@ export class LocalAuthGuard extends AuthGuard('local') {
         const request = context.switchToHttp().getRequest();
         // 由于使用了class-transform，而原生的guard不支持校验，因此在此加入校验的过程
         try {
-            await validateOrReject(plainToClass(UserLoginDto, request.body), {
+            await validateOrReject(plainToClass(UserLoginDto, request.body ?? {}), {
                 // 不暴露校验的对象
                 validationError: {
                     target: false,

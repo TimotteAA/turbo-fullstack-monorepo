@@ -7,7 +7,7 @@ import { QueryHook } from '@/modules/database/types';
 
 import { ResourceType, SystemRoles } from '../constants';
 import { CreateRoleDto, QueryRoleDto, UpdateRoleDto } from '../dtos';
-import { ResourceEntity, RoleEntity } from '../entities';
+import { RoleEntity } from '../entities';
 import { ResourceRepository, RoleRepository, SystemRepository } from '../repositories';
 import { generateRouters } from '../utils';
 
@@ -71,38 +71,6 @@ export class RoleService extends BaseService<RoleEntity, RoleRepository> {
         return this.detail(role.id);
     }
 
-    async getMenusAndPermissions(ids: string[]) {
-        const roles = await this.repo.find({
-            where: {
-                id: In(ids),
-            },
-        });
-
-        // reduce拿到去重
-        const resources = (
-            await this.resRepo
-                .createQueryBuilder('resource')
-                .leftJoinAndSelect('resource.parent', 'parent')
-                // .leftJoinAndSelect('resource.children', 'children')
-                .leftJoinAndSelect('resource.roles', 'role')
-                .where('role.id IN (:...roleIds)', { roleIds: roles.map((r) => r.id) })
-                .getMany()
-        ).reduce<ResourceEntity[]>(
-            (o, n) => (o.findIndex((i) => i.id === n.id) !== -1 ? [...o] : [...o, n]),
-            [],
-        );
-
-        const flatMenus = resources
-            .filter((resource) => resource.type !== ResourceType.ACTION)
-            .map((r) => omit(r, ['permission', 'description', 'createdAt', 'updatedAt', 'roles']));
-
-        const permissions = resources
-            .filter((resource) => resource.type === ResourceType.ACTION)
-            .map((r) => r.permission);
-
-        return { menus: this.getMenuTree(flatMenus as ResourceEntity[], null), permissions };
-    }
-
     async getMenus(userId: string) {
         const roles = await this.repo.find({
             where: {
@@ -118,6 +86,7 @@ export class RoleService extends BaseService<RoleEntity, RoleRepository> {
                 .leftJoinAndSelect('resource.parent', 'parent')
                 .orderBy('resource.customOrder', 'ASC')
                 .getMany();
+
             return generateRouters(menus);
         }
         const menus = await this.resRepo.find({

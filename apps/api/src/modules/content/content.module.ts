@@ -5,6 +5,7 @@ import { DatabaseModule } from '../database/database.module';
 import { addEntities } from '../database/helpers';
 
 import * as entityMaps from './entities';
+import { ContentRbac } from './rbac';
 import * as repoMaps from './repositories';
 import * as serviceMaps from './services';
 import { PostService } from './services/post.service';
@@ -48,6 +49,7 @@ export class ContentModule {
                     );
                 },
             },
+            ContentRbac,
         ];
         const exports: ModuleMetadata['exports'] = [
             ...Object.values(serviceMaps),

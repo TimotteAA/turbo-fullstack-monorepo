@@ -64,6 +64,5 @@ export const getFakerLocales = async (configure: Configure) => {
     if (!isNil(fakerjs[locale])) locales.push(fakerjs[locale] as fakerjs.LocaleDefinition);
     if (!isNil(fakerjs[fallbackLocale]))
         locales.push(fakerjs[fallbackLocale] as fakerjs.LocaleDefinition);
-    console.log('locales ', locale);
     return locales;
 };

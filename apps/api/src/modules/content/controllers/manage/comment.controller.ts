@@ -5,9 +5,9 @@ import { BaseController } from '@/modules/restful/controller';
 import { Crud, Depends } from '@/modules/restful/decorators';
 import { createOptions } from '@/modules/restful/helpers';
 
-import { ContentModule } from '../content.module';
-import { CreateCommentDto, QueryCommentListDto, QueryCommentTreeDto } from '../dtos';
-import { CommentService } from '../services';
+import { ContentModule } from '../../content.module';
+import { CreateCommentDto, QueryCommentListDto, QueryCommentTreeDto } from '../../dtos';
+import { CommentService } from '../../services';
 
 @ApiTags('评论操作')
 @Depends(ContentModule)

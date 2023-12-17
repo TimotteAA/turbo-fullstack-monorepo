@@ -10,12 +10,12 @@ import { App, CreateOptions } from './modules/core/types';
 import * as dbCommands from './modules/database/commands';
 import { DatabaseModule } from './modules/database/database.module';
 import { MeiliSearchModule } from './modules/meilisearch/meilisearch.module';
+import { RbacGuard } from './modules/rbac/guard';
 import { RbacModule } from './modules/rbac/rbac.module';
 import { RedisModule } from './modules/redis/redis.module';
 import { echoApi } from './modules/restful/helpers';
 import { Restful } from './modules/restful/restful';
 import { RestfulModule } from './modules/restful/restful.module';
-import { JwtAuthGuard } from './modules/user/guards';
 import { UserModule } from './modules/user/user.module';
 
 export const WEBAPP = 'web';
@@ -34,7 +34,7 @@ export const createData: CreateOptions = {
         UserModule.forRoot(configure),
         RedisModule.forRoot(configure),
     ],
-    globals: { guard: JwtAuthGuard },
+    globals: { guard: RbacGuard },
     builder: async ({ configure, BootModule }) => {
         const container = await NestFactory.create<NestFastifyApplication>(
             BootModule,

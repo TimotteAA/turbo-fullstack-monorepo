@@ -17,11 +17,11 @@ import { QueryResourceDto, UpdateResourceDto } from '../dtos/resource.dto';
     enabled: [
         {
             name: 'list',
-            options: createOptions(true, { summary: '分页查询资源' }),
+            options: createOptions(false, { summary: '分页查询资源' }),
         },
         {
             name: 'update',
-            options: createOptions(true, { summary: '更新单挑资源' }),
+            options: createOptions(false, { summary: '更新单挑资源' }),
         },
     ],
     dtos: {

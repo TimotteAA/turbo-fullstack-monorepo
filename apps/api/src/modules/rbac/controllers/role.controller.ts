@@ -1,9 +1,10 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Controller } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { BaseController } from '@/modules/restful/controller';
 import { Crud, Depends } from '@/modules/restful/decorators';
 import { createOptions } from '@/modules/restful/helpers';
+import { UserEntity } from '@/modules/user/entities';
 
 import { CreateRoleDto, QueryRoleDto, UpdateRoleDto } from '../dtos';
 import { RbacModule } from '../rbac.module';
@@ -17,7 +18,9 @@ import { RoleService } from '../services';
     enabled: [
         {
             name: 'create',
-            options: createOptions(true, { summary: '创建角色' }),
+            options: createOptions(false, { summary: '创建角色' }, [
+                async (ab) => ab.can('create', UserEntity.name),
+            ]),
         },
         {
             name: 'update',
@@ -46,11 +49,5 @@ import { RoleService } from '../services';
 export class RoleController extends BaseController<RoleService, RoleRepository> {
     constructor(protected service: RoleService) {
         super(service);
-    }
-
-    /** **********模拟多个角色下，获得用户的权限和菜单树*********** */
-    @Post('test')
-    async test(@Body() data: { ids: string[] }) {
-        return this.service.getMenusAndPermissions(data.ids);
     }
 }

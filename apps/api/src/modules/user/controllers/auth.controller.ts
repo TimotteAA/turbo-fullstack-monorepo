@@ -1,5 +1,5 @@
 import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import type { FastifyRequest } from 'fastify';
 
 import { ResponseMessage } from '@/modules/core/decorators';
@@ -12,8 +12,9 @@ import { LocalAuthGuard } from '../guards';
 import { AuthService, UserService } from '../services';
 import { UserModule } from '../user.module';
 
-import { UserRegisterDto } from '../dtos/auth.dto';
+import { UserLoginDto, UserRegisterDto } from '../dtos/auth.dto';
 
+@ApiTags('账户操作')
 @Depends(UserModule)
 @Controller('auth')
 export class AuthController {
@@ -22,15 +23,15 @@ export class AuthController {
         protected readonly userService: UserService,
     ) {}
 
+    @ApiOperation({ summary: '用户登录，可以通过用户名、手机、邮箱+密码登录' })
     @Post('/login')
     @ALLOW_GUEST(true)
     @UseGuards(LocalAuthGuard)
-    async login(@Req() request: FastifyRequest) {
+    async login(@Req() request: FastifyRequest, @Body() _data: UserLoginDto) {
         // 颁发jwt token
         return this.authService.login((request as any).user.id, request.headers['user-agent']);
     }
 
-    // @ApiOkResponse({ description: '用户注册，并直接登录' })
     @ApiOperation({ summary: '用户注册' })
     @ALLOW_GUEST(true)
     @Post('/register')
@@ -38,15 +39,11 @@ export class AuthController {
         return this.authService.register(data);
     }
 
+    @ApiOperation({ summary: '退出登录' })
     @ResponseMessage('退出成功')
     @Post('/logout')
     async logout(@reqUser() user: ClassToPlain<UserEntity> & { ssid: string }): Promise<null> {
         await this.authService.logout(user.ssid);
         return null;
-    }
-
-    @Post('test')
-    async test() {
-        return 'test';
     }
 }

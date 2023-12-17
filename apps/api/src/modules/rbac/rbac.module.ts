@@ -7,6 +7,7 @@ import { DatabaseModule } from '../database/database.module';
 import { addEntities } from '../database/helpers';
 
 import * as entityMaps from './entities';
+import { RbacGuard } from './guard';
 import { RbacResolver } from './rbac.resolver';
 import * as repoMaps from './repositories';
 import * as serviceMaps from './services';
@@ -22,6 +23,7 @@ export class RbacModule {
         // const controllers: ModuleMetadata['controllers'] = Object.values(controllerMaps);
 
         const providers: ModuleMetadata['providers'] = [
+            RbacGuard,
             ...Object.values(serviceMaps),
             {
                 provide: RbacResolver,

@@ -78,9 +78,6 @@ export const Crud = <T extends BaseController<any>>(options: CrudOptions) => {
                 );
                 ApiBody({ type: dtos.update })(Target, name, descriptor);
             } else if (name === 'list') {
-                // if (Target.name === "UserController") {
-                //   console.log(name, options)
-                // }
                 const dto = dtos.query ?? ListQueryDto;
                 Reflect.defineMetadata(
                     'design:paramtypes',

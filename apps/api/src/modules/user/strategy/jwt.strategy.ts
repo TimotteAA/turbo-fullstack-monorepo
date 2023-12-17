@@ -23,7 +23,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
 
     async validate(request: FastifyRequest, payload: JwtPayload) {
-        console.log('wtf');
         const user = await this.authService.verifyPayload(request, payload);
         if (isNil(user)) throw new UnauthorizedException();
 

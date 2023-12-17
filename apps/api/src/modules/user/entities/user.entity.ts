@@ -10,7 +10,8 @@ import {
 import type { Relation } from 'typeorm';
 
 import { BaseEntity } from '@/modules/database/base';
-import { RoleEntity } from '@/modules/rbac/entities';
+import { ResourceEntity, RoleEntity } from '@/modules/rbac/entities';
+import type { Route } from '@/modules/rbac/types';
 
 /**
  * 用户entity、考虑普通注册、手机注册、邮箱注册、github oauth2注册
@@ -60,4 +61,15 @@ export class UserEntity extends BaseEntity {
     /** **************************用户表的关联关系 */
     @ManyToMany(() => RoleEntity, (role) => role.users)
     roles: Relation<RoleEntity[]>;
+
+    @ManyToMany(() => ResourceEntity, (permission) => permission.users)
+    permissions: Relation<ResourceEntity[]>;
+
+    /** 用户菜单的虚拟字段 */
+    @Expose()
+    menus: Route[];
+
+    @Expose()
+    /** 用户权限码 */
+    permissionCodes: string[];
 }

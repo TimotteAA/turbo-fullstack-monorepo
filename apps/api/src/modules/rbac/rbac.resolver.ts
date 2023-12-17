@@ -5,8 +5,10 @@ import { DataSource, EntityManager, In, Not } from 'typeorm';
 
 import { Configure } from '../config/configure';
 import { deepMerge } from '../config/utils';
+import { UserEntity } from '../user/entities';
+import type { UserModuleConfig } from '../user/types';
 
-import { ResourceType as PermissionType, SystemRoles } from './constants';
+import { ResourceType as PermissionType, Status, SystemRoles } from './constants';
 import { ResourceEntity } from './entities';
 import { RoleEntity } from './entities/role.entity';
 import { ResourceType, Role } from './types';
@@ -45,14 +47,152 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
     // 内置超级管理员权限
     protected _permissions: ResourceType<A, C>[] = [
         {
-            name: 'system-manage',
-            label: '系统管理',
+            name: 'manage-all',
+            label: '超级管理员权限',
             description: '管理系统的所有功能',
             rule: {
                 action: 'manage',
                 subject: 'all',
             } as any,
             type: PermissionType.ACTION,
+            status: Status.ENABLED,
+            customOrder: 0,
+        },
+        {
+            name: 'system',
+            label: '系统管理',
+            path: '/system',
+            status: Status.ENABLED,
+            type: PermissionType.DIRECTORY,
+            customOrder: 1,
+            children: [
+                {
+                    name: 'system.user',
+                    path: '/system/user',
+                    label: '用户管理',
+                    description: '用户管理菜单',
+                    status: Status.ENABLED,
+                    type: PermissionType.MENU,
+                    customOrder: 2,
+                    rule: {
+                        action: 'list',
+                        subject: UserEntity,
+                    } as any,
+                    children: [
+                        {
+                            name: 'system.user.create',
+                            path: '',
+                            label: '新增',
+                            status: Status.ENABLED,
+                            type: PermissionType.ACTION,
+                            customOrder: 4,
+                            rule: {
+                                action: 'create',
+                                subject: UserEntity,
+                            } as any,
+                        },
+                        {
+                            name: 'system.user.detail',
+                            path: '',
+                            label: '详情',
+                            status: Status.ENABLED,
+                            type: PermissionType.ACTION,
+                            customOrder: 5,
+                            rule: {
+                                action: 'detail',
+                                subject: UserEntity,
+                            } as any,
+                        },
+                        {
+                            name: 'system.user.delete',
+                            path: '',
+                            label: '删除',
+                            status: Status.ENABLED,
+                            type: PermissionType.ACTION,
+                            customOrder: 6,
+                            rule: {
+                                action: 'delete',
+                                subject: UserEntity,
+                            } as any,
+                        },
+                        {
+                            name: 'system.user.update',
+                            path: '',
+                            label: '更新',
+                            status: Status.ENABLED,
+                            type: PermissionType.ACTION,
+                            customOrder: 7,
+                            rule: {
+                                action: 'update',
+                                subject: UserEntity,
+                            } as any,
+                        },
+                    ],
+                },
+                {
+                    name: 'system.role',
+                    path: '/system/role',
+                    label: '角色管理',
+                    description: '角色管理菜单',
+                    status: Status.ENABLED,
+                    type: PermissionType.MENU,
+                    rule: {
+                        action: 'list',
+                        subject: RoleEntity,
+                    } as any,
+                    customOrder: 3,
+                    children: [
+                        {
+                            name: 'system.role.create',
+                            path: '',
+                            label: '新增',
+                            status: Status.ENABLED,
+                            type: PermissionType.ACTION,
+                            customOrder: 8,
+                            rule: {
+                                action: 'create',
+                                subject: RoleEntity,
+                            } as any,
+                        },
+                        {
+                            name: 'system.role.detail',
+                            path: '',
+                            label: '详情',
+                            status: Status.ENABLED,
+                            type: PermissionType.ACTION,
+                            customOrder: 9,
+                            rule: {
+                                action: 'detail',
+                                subject: RoleEntity,
+                            } as any,
+                        },
+                        {
+                            name: 'system.role.delete',
+                            path: '',
+                            label: '删除',
+                            status: Status.ENABLED,
+                            type: PermissionType.ACTION,
+                            customOrder: 10,
+                            rule: {
+                                action: 'delete',
+                                subject: RoleEntity,
+                            } as any,
+                        },
+                        {
+                            name: 'system.user.update',
+                            path: '',
+                            label: '更新',
+                            status: Status.ENABLED,
+                            type: PermissionType.ACTION,
+                            customOrder: 11,
+                            rule: {
+                                action: 'update',
+                                subject: UserEntity,
+                            } as any,
+                        },
+                    ],
+                },
+            ],
         },
     ];
 
@@ -84,6 +224,7 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
     addPermissions(data: ResourceType<A, C>[]) {
         this._permissions = [...this.permissions, ...data].map((item) => {
             let subject: typeof item.rule.subject;
+            if (!item.rule) return { ...item };
             if (isArray(item.rule.subject)) subject = item.rule.subject.map((v) => getSubject(v));
             else subject = getSubject(item.rule.subject);
             // 此处在于将subject转换成字符串
@@ -102,7 +243,7 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
         try {
             await this.syncRoles(queryRunner.manager);
             await this.syncPermissions(queryRunner.manager);
-            // await this.syncSuperAdmin(queryRunner.manager);
+            await this.syncSuperAdmin(queryRunner.manager);
             await queryRunner.commitTransaction();
         } catch (err) {
             console.log(err);
@@ -150,13 +291,18 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
             }
         }
 
-        // 清理已经不存在的系统角色
-        const systemRoles = await manager.findBy(RoleEntity, { systemed: true });
-        const toDels: string[] = [];
-        for (const sRole of systemRoles) {
-            if (isNil(this.roles.find(({ name }) => sRole.name === name))) toDels.push(sRole.id);
+        try {
+            const systemRoles = await manager.findBy(RoleEntity, { systemed: true });
+            const toDels: string[] = [];
+            for (const sRole of systemRoles) {
+                if (isNil(this.roles.find(({ name }) => sRole.name === name)))
+                    toDels.push(sRole.id);
+            }
+            if (toDels.length > 0) await manager.delete(RoleEntity, toDels);
+        } catch (err) {
+            console.log('err ', err);
         }
-        if (toDels.length > 0) await manager.delete(RoleEntity, toDels);
+        // 清理已经不存在的系统角色
     }
 
     /**
@@ -168,7 +314,7 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
         // 除超级管理员的所有角色
         const roles = await manager.find(RoleEntity, {
             relations: ['resources'],
-            where: { name: Not(SystemRoles.SUPER_ADMIN) },
+            where: { name: Not(SystemRoles.SUPER_ADMIN), systemed: true },
         });
         const roleRepo = manager.getRepository(RoleEntity);
 
@@ -212,13 +358,13 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
         // 删除不存在的系统权限
         const toDels: string[] = [];
         for (const item of permissions) {
-            if (!names.includes(item.name) && item.name !== 'system-manage') toDels.push(item.id);
+            if (!names.includes(item.name) && item.name !== 'manage-all') toDels.push(item.id);
         }
         if (toDels.length > 0) await manager.delete(ResourceEntity, toDels);
-        console.log('123456');
         /** *********** 同步普通角色  ************ */
         for (const role of roles) {
             // 新绑定的权限
+
             const rolePermissions = await manager.findBy(ResourceEntity, {
                 name: In(this.roles.find(({ name }) => name === role.name).resources),
             });
@@ -241,7 +387,7 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
         });
 
         const systemManage = await manager.findOneOrFail(ResourceEntity, {
-            where: { name: 'system-manage' },
+            where: { name: 'manage-all' },
         });
 
         // 添加系统管理权限到超级管理员角色
@@ -281,37 +427,34 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
         return flatList;
     }
 
-    // /**
-    //  * 同步超级管理员
-    //  * @param manager
-    //  */
-    // async syncSuperAdmin(manager: EntityManager) {
-    //     const superRole = await manager.findOneOrFail(RoleEntity, {
-    //         relations: ['permissions'],
-    //         where: { name: SystemRoles.SUPER_ADMIN },
-    //     });
+    /**
+     * 同步超级管理员
+     * @param manager
+     */
+    async syncSuperAdmin(manager: EntityManager) {
+        const superRole = await manager.findOneOrFail(RoleEntity, {
+            relations: ['resources'],
+            where: { name: SystemRoles.SUPER_ADMIN },
+        });
+        const adminConf = await this.configure.get<UserModuleConfig['super']>('user.super');
+        const superAdmin = await manager.findOne(UserEntity, {
+            where: {
+                name: adminConf.name,
+            },
+            relations: ['roles'],
+        });
 
-    //     const superUsers = await manager
-    //         .createQueryBuilder(UserEntity, 'user')
-    //         .leftJoinAndSelect('user.roles', 'roles')
-    //         .where('roles.id IN (:...ids)', { ids: [superRole.id] })
-    //         .getMany();
-    //     if (superUsers.length < 1) {
-    //         const userRepo = manager.getRepository(UserEntity);
-    //         if ((await userRepo.count()) < 1) {
-    //             throw new InternalServerErrorException(
-    //                 'Please add a super-admin user first before run server!',
-    //             );
-    //         }
-    //         const firstUser = await userRepo.findOneByOrFail({ id: undefined });
-    //         await userRepo
-    //             .createQueryBuilder('user')
-    //             .relation(UserEntity, 'roles')
-    //             .of(firstUser)
-    //             .addAndRemove(
-    //                 [superRole.id],
-    //                 ((firstUser.roles ?? []) as RoleEntity[]).map(({ id }) => id),
-    //             );
-    //     }
-    // }
+        if (!isNil(superAdmin)) {
+            const userRepo = manager.getRepository(UserEntity);
+
+            await userRepo
+                .createQueryBuilder('user')
+                .relation(UserEntity, 'roles')
+                .of(superAdmin)
+                .addAndRemove(
+                    [superRole.id],
+                    ((superAdmin.roles ?? []) as RoleEntity[]).map(({ id }) => id),
+                );
+        }
+    }
 }

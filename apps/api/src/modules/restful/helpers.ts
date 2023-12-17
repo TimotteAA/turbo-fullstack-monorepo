@@ -7,6 +7,8 @@ import { camelCase, isNil, omit, trim, upperFirst } from 'lodash';
 
 import { Configure } from '../config/configure';
 import { CreateModule } from '../core/helpers';
+import { PERMISSION_CHECKERS } from '../rbac/constants';
+import { PermissionChecker } from '../rbac/types';
 
 import { CONTROLLER_DEPENDS } from './constants';
 import { Restful } from './restful';
@@ -186,6 +188,7 @@ async function echoApiDocs(name: string, doc: APIDocOption, appUrl: string) {
 export const createOptions = (
     guest?: boolean,
     endpointOption?: ApiOperationOptions,
+    checkers?: PermissionChecker[],
 ): CrudMethodOption => {
     return {
         allowGuest: guest,
@@ -196,6 +199,9 @@ export const createOptions = (
                     method,
                     Object.getOwnPropertyDescriptor(target.prototype, method),
                 );
+            }
+            if (!isNil(checkers) && checkers.length) {
+                Reflect.defineMetadata(PERMISSION_CHECKERS, checkers, target.prototype, method);
             }
         },
     };

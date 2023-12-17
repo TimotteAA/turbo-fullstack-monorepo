@@ -24,13 +24,21 @@ export const defaultUserConfig = (configure: Configure): UserModuleConfig => {
         hash: 10,
         jwt: {
             accessTokenSecret: configure.env.get('USER_TOKEN_SECRET', 'access-token-secret'),
-            accessTokenExpiresIn: configure.env.get('USER_TOKEN_EXPIRED', (v) => toNumber(v), 1),
+            accessTokenExpiresIn: configure.env.get(
+                'USER_TOKEN_EXPIRED',
+                (v) => toNumber(v),
+                3600 * 3,
+            ),
             refreshTokenSecret: configure.env.get('USER_REFRESH_TOKEN_SECRET', 'my-refresh-secret'),
             refreshTokenExpiresIn: configure.env.get(
                 'USER_REFRESH_TOKEN_EXPIRED',
                 (v) => toNumber(v),
-                3600 * 30,
+                3600 * 24 * 30,
             ),
+        },
+        super: {
+            name: 'timotte',
+            password: '123456aA!',
         },
     };
 };

@@ -36,7 +36,6 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
             context.getHandler().name,
         );
         const guest = allowGuest ?? crudGuest;
-
         if (guest) return true;
         const request = context.switchToHttp().getRequest();
         const response = context.switchToHttp().getResponse() as FastifyReply;

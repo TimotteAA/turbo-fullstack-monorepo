@@ -7,14 +7,14 @@ import { Crud, Depends } from '@/modules/restful/decorators';
 import { DeleteWithTrashDto } from '@/modules/restful/dtos';
 import { createOptions } from '@/modules/restful/helpers';
 
-import { ContentModule } from '../content.module';
+import { ContentModule } from '../../content.module';
 import {
     CreateCategoryDto,
     QueryCategoryDto,
     QueryCategoryTreeDto,
     UpdateCategoryDto,
-} from '../dtos';
-import { CategoryService } from '../services';
+} from '../../dtos';
+import { CategoryService } from '../../services';
 
 @ApiTags('分类操作')
 @Depends(ContentModule)

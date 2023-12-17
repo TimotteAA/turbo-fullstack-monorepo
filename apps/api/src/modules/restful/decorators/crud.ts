@@ -12,6 +12,8 @@ import { isNil } from 'lodash';
 
 // import { ALLOW_GUEST_KEY } from '@/modules/user/constants';
 
+import { ALLOW_GUEST_KEY } from '@/modules/user/constants';
+
 import { BaseController } from '../controller';
 import { DeleteDto, ListQueryDto, RestoreDto } from '../dtos';
 import { CrudOptions, CrudItem } from '../types';
@@ -96,9 +98,9 @@ export function Crud(options: CrudOptions) {
                 ApiBody({ type: RestoreDto })(Target, name, descriptor);
             }
 
-            // if (options.allowGuest) {
-            //     Reflect.defineMetadata(ALLOW_GUEST, true, Target.prototype, name);
-            // }
+            if (options.allowGuest) {
+                Reflect.defineMetadata(ALLOW_GUEST_KEY, true, Target.prototype, name);
+            }
 
             // 添加序列化group
             let serialize = {};

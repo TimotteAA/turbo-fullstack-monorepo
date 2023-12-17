@@ -123,7 +123,6 @@ export const startPM2 = async (
     };
     pm2.connect((cerr) => {
         connectCallback(cerr);
-        // generateSwaggerMetadata(args, config, false);
         args.restart
             ? pm2.restart(name, restartCallback)
             : pm2.start(pm2Config, (serr) => startCallback(serr));

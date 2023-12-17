@@ -5,9 +5,9 @@ import { ResponseMessage } from '@/modules/core/decorators';
 import { BaseController } from '@/modules/restful/controller';
 import { Crud, Depends } from '@/modules/restful/decorators';
 
-import { ContentModule } from '../content.module';
-import { CreateTagDto, QueryCategoryDto, UpdateTagDto } from '../dtos';
-import { TagService } from '../services';
+import { ContentModule } from '../../content.module';
+import { CreateTagDto, QueryCategoryDto, UpdateTagDto } from '../../dtos';
+import { TagService } from '../../services';
 
 @ApiTags('标签操作')
 @Depends(ContentModule)

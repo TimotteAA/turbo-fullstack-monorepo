@@ -7,6 +7,7 @@ import { Configure } from '../config/configure';
 import { panic } from '../core/utils';
 import { DatabaseModule } from '../database/database.module';
 import { addEntities } from '../database/helpers';
+import { RbacModule } from '../rbac/rbac.module';
 import { RedisModule } from '../redis/redis.module';
 
 import * as entityMaps from './entities';
@@ -66,15 +67,14 @@ export class UserModule {
             }),
             // redis
             RedisModule,
+            RbacModule,
         ];
 
         const exports: ModuleMetadata['exports'] = [
             DatabaseModule.forRepository(Object.values(repoMaps)),
             serviceMaps.UserService,
             serviceMaps.AuthService,
-            // refresh token service
             'REFRESH_TOKEN_JWT_SERVICE',
-            // stragetyMaps.
         ];
 
         return {

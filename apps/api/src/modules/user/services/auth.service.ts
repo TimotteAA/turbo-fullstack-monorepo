@@ -101,7 +101,7 @@ export class AuthService {
     ): Promise<ClassToPlain<UserEntity>> {
         const { ua, userId, ssid, signAt } = payload;
         const userAgent = request.headers['user-agent'];
-        if (userAgent !== ua) return null;
+        // if (userAgent !== ua) return null;
         const isLogOut = await this.checkIsLogout(ssid);
         if (isLogOut) {
             return null;

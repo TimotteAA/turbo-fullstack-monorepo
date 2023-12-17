@@ -128,6 +128,10 @@ export interface AppConfig {
      * 由url+api前缀生成的基础api url
      */
     prefix?: string;
+    /**
+     * 是否是启动命令
+     */
+    start?: boolean;
 
     /**
      * 自定义pm2配置，对其中部分配置进行了修改
