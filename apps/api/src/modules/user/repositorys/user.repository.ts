@@ -12,6 +12,6 @@ export class UserRepository extends BaseRepository<UserEntity> {
     protected orderBy = 'createtAt';
 
     buildBaseQB(): SelectQueryBuilder<UserEntity> {
-        return this.createQueryBuilder('user');
+        return this.createQueryBuilder('user').leftJoinAndSelect('user.roles', 'roles');
     }
 }

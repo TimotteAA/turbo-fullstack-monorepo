@@ -58,7 +58,11 @@ export class UserEntity extends BaseEntity {
     @DeleteDateColumn()
     deletedAt!: Date;
 
+    @Column({ comment: '用户是否启用', default: true })
+    actived?: boolean;
+
     /** **************************用户表的关联关系 */
+    @Expose({ groups: ['user-detail'] })
     @ManyToMany(() => RoleEntity, (role) => role.users)
     roles: Relation<RoleEntity[]>;
 
@@ -66,9 +70,10 @@ export class UserEntity extends BaseEntity {
     permissions: Relation<ResourceEntity[]>;
 
     /** 用户菜单的虚拟字段 */
-    @Expose()
+    @Expose({ groups: ['user-detail'] })
     menus: Route[];
 
+    @Expose({ groups: ['user-detail'] })
     @Expose()
     /** 用户权限码 */
     permissionCodes: string[];

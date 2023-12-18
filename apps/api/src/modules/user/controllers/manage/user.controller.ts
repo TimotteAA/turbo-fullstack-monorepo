@@ -1,9 +1,10 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 
 import { ResponseMessage } from '@/modules/core/decorators';
 import { BaseController } from '@/modules/restful/controller';
 import { Crud, Depends } from '@/modules/restful/decorators';
+import { DeleteDto } from '@/modules/restful/dtos';
 import { createOptions } from '@/modules/restful/helpers';
 
 import { BlockUserDto, CreateUserDto, QueryUserDto, UdpateUserDto } from '../../dtos';
@@ -66,5 +67,10 @@ export class UserController extends BaseController<UserService> {
     @Post('block')
     async blockUser(@Body() data: BlockUserDto) {
         return 'test';
+    }
+
+    @Delete()
+    async delete(@Body() { ids }: DeleteDto): Promise<any> {
+        return this.service.delete(ids, false);
     }
 }

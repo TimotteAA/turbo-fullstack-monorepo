@@ -22,7 +22,7 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
 
     async beforeInsert(event: InsertEvent<UserEntity>) {
         // 手机号、邮箱注册的，创建用户名
-        if (!event.entity.name) {
+        if (!event.entity.name && !event.entity.id) {
             event.entity.name = await this.generateUserName(event);
         }
 

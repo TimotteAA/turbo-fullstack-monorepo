@@ -98,8 +98,6 @@ export const checkPermissions = async ({
         if (o.find(({ name }) => name === n.name)) return permissions;
         return [...o, n];
     }, []);
-    console.log('user ', permissions);
-    console.log('checkers ', checkers);
     // 去resolver中创建checkers
     const ability = createMongoAbility(
         permissions.map(({ rule, name }) => {
