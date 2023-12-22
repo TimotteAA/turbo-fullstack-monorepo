@@ -1,19 +1,30 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { isNil, omit } from 'lodash';
-import { EntityNotFoundError, In } from 'typeorm';
+import { EntityNotFoundError, In, IsNull, Not, SelectQueryBuilder } from 'typeorm';
 
 import { Configure } from '@/modules/config/configure';
 import { BaseService } from '@/modules/database/base';
+import { SelectTrashMode } from '@/modules/database/constants';
+import { QueryHook } from '@/modules/database/types';
 import { SystemRoles } from '@/modules/rbac/constants';
 import { ResourceRepository, RoleRepository } from '@/modules/rbac/repositories';
 
-import { CreateUserDto, UdpateUserDto } from '../dtos';
+import { UserOrderBy } from '../constants';
+import { CreateUserDto, QueryUserDto, UdpateUserDto } from '../dtos';
 import { UserEntity } from '../entities';
 import { UserRepository } from '../repositorys';
 import type { UserModuleConfig } from '../types';
 
+type FindParams = Omit<QueryUserDto, 'page' | 'limit'>;
+
 @Injectable()
-export class UserService extends BaseService<UserEntity, UserRepository> implements OnModuleInit {
+export class UserService
+    extends BaseService<UserEntity, UserRepository, FindParams>
+    implements OnModuleInit
+{
+    /**
+     * 服务启动自动创建超级管理员用户
+     */
     async onModuleInit() {
         if (!(await this.configure.get<boolean>('app.start', false))) return null;
         const adminConf = await this.configure.get<UserModuleConfig['super']>('user.super');
@@ -62,7 +73,7 @@ export class UserService extends BaseService<UserEntity, UserRepository> impleme
     }
 
     async update(data: UdpateUserDto) {
-        const res = await this.repo.update(data.id, {
+        await this.repo.update(data.id, {
             ...omit(data, ['id', 'roles', 'resources']),
         });
         const user = await this.repo.findOne({
@@ -121,6 +132,49 @@ export class UserService extends BaseService<UserEntity, UserRepository> impleme
             throw new EntityNotFoundError(UserEntity, `${Object.keys(conditions).join(',')}`);
         }
         return user;
+    }
+
+    protected async buildListQB(
+        qb: SelectQueryBuilder<UserEntity>,
+        options?: FindParams,
+        callback?: QueryHook<UserEntity>,
+    ): Promise<SelectQueryBuilder<UserEntity>> {
+        const { permission, role, orderBy, search, trashed } = options ?? {};
+        if (!isNil(callback)) await callback(qb);
+
+        if (!isNil(role)) qb.andWhere('roles.id = :id', { id: role });
+        if (!isNil(permission)) qb.andWhere('permissions.id = :id', { id: permission });
+        if (!isNil(search)) {
+            qb.orWhere('user.name LIKE :search', { search })
+                .orWhere('user.nickname LIKE :search', { search })
+                .orWhere('user.summary LIKE :search', { search })
+                .orWhere('user.email LIKE :search', { search })
+                .orWhere('user.phone LIKE :search', { search });
+        }
+        if (!isNil(orderBy)) {
+            switch (orderBy) {
+                case UserOrderBy.UPDATE: {
+                    qb.orderBy('user.updatedAt', 'DESC');
+                    break;
+                }
+                default:
+                    qb.orderBy('user.createdAt', 'ASC');
+                    break;
+            }
+        }
+
+        if (trashed === SelectTrashMode.ALL || trashed === SelectTrashMode.ONLY) {
+            // 查询软删除数据
+            qb.withDeleted();
+            if (trashed === SelectTrashMode.ONLY) {
+                // 仅查询deletedAt不为null的
+                qb.andWhere({
+                    deletedAt: Not(IsNull()),
+                });
+            }
+        }
+
+        return qb;
     }
 
     protected async syncRoles(userId: string) {

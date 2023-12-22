@@ -1,4 +1,4 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import Bun from 'bun';
 import type { FastifyRequest } from 'fastify';
@@ -13,6 +13,7 @@ import { UserEntity } from '../entities';
 import { UserRepository } from '../repositorys';
 import { JwtPayload } from '../types';
 
+import { UpdatePasswordDto } from '../dtos/account.dto';
 import { UserRegisterDto } from '../dtos/auth.dto';
 
 import { UserService } from '.';
@@ -170,6 +171,18 @@ export class AuthService {
         } catch (err) {
             console.error('redis连接挂了 ', err);
         }
+    }
+
+    async updatePassword(userId: string, data: UpdatePasswordDto) {
+        const user = await this.userRepo.findOne({
+            where: {
+                id: userId,
+            },
+        });
+        const res = await Bun.password.verify(data.oldPassword, user.password);
+        if (!res) throw new BadRequestException(UserEntity, 'wrong old password!');
+        await this.userRepo.update(userId, { password: data.password });
+        return this.userService.detail(userId);
     }
 
     protected async checkIsLogout(ssid: string) {

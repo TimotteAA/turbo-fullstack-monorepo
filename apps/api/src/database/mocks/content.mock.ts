@@ -1,7 +1,6 @@
-import * as fakerJs from '@faker-js/faker';
+import { faker } from '@faker-js/faker';
 
 import { CategoryEntity, CommentEntity, PostEntity, TagEntity } from '@/modules/content/entities';
-import { getFakerLocales } from '@/modules/core/utils';
 import { defindMock } from '@/modules/database/helpers';
 
 // 用fakerjs模拟出来的数据字段
@@ -16,20 +15,19 @@ export type IPostMockOptions = Partial<{
 }>;
 export const ContentMock = defindMock<PostEntity, IPostMockOptions>(
     PostEntity,
-    async (configure, options) => {
-        const faker = new fakerJs.Faker({
-            locale: await getFakerLocales(configure),
-        });
-
+    async (_configure, options) => {
         const post = new PostEntity();
-
-        if (options.title) post.title = options.title;
+        if (options.title) {
+            post.title = options.title;
+        } else {
+            post.title = faker.lorem.words({ min: 3, max: 10 });
+        }
         if (options.summary) post.summary = options.summary;
         if (options.isPublished) post.publishedAt = new Date();
         if (options.body) {
             post.body = options.body;
         } else {
-            post.body = faker.lorem.paragraph(200);
+            post.body = faker.lorem.paragraphs(200);
         }
         if (options.comments) post.comments = options.comments;
         if (options.tags) post.tags = options.tags;

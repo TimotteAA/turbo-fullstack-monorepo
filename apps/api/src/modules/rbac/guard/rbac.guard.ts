@@ -28,12 +28,9 @@ export class RbacGuard extends JwtAuthGuard {
     async canActivate(context: ExecutionContext): Promise<boolean> {
         // jwt校验
         const authCheck = await super.canActivate(context);
-        console.log('authCheck');
         const request = context.switchToHttp().getRequest();
         const requestToken = ExtractJwt.fromAuthHeaderAsBearerToken()(request);
-        console.log('wtf 22 ', authCheck);
         if (!authCheck) return false;
-        console.log('www');
         // 匿名接口
         if (authCheck && isNil(requestToken)) return true;
         // 定义在接口上的权限

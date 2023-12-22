@@ -111,6 +111,7 @@ export class BaseSeeder implements Seeder {
             ]);
             writeFileSync(seedLockFile, JSON.stringify(locked, null, 4));
         } else {
+            console.log('wtf222');
             for (const seeder of seeders) {
                 await this.call(seeder);
             }

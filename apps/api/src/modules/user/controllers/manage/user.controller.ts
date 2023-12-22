@@ -4,7 +4,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { ResponseMessage } from '@/modules/core/decorators';
 import { BaseController } from '@/modules/restful/controller';
 import { Crud, Depends } from '@/modules/restful/decorators';
-import { DeleteDto } from '@/modules/restful/dtos';
+import { DeleteWithTrashDto } from '@/modules/restful/dtos';
 import { createOptions } from '@/modules/restful/helpers';
 
 import { BlockUserDto, CreateUserDto, QueryUserDto, UdpateUserDto } from '../../dtos';
@@ -47,6 +47,12 @@ import { UserModule } from '../../user.module';
                 async (ab) => ab.can('detail', UserEntity),
             ]),
         },
+        {
+            name: 'restore',
+            options: createOptions(false, { summary: '恢复软删除用户' }, [
+                async (ab) => ab.can('restore', UserEntity),
+            ]),
+        },
     ],
     dtos: {
         create: CreateUserDto,
@@ -70,7 +76,7 @@ export class UserController extends BaseController<UserService> {
     }
 
     @Delete()
-    async delete(@Body() { ids }: DeleteDto): Promise<any> {
-        return this.service.delete(ids, false);
+    async delete(@Body() { ids, trashed }: DeleteWithTrashDto): Promise<any> {
+        return this.service.delete(ids, trashed);
     }
 }

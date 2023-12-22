@@ -23,7 +23,6 @@ export async function runSeeder(
 ): Promise<DataSource> {
     const seeder: Seeder = new Clazz(spinner, args);
     const dataSource = new DataSource({ ...dbConfig } as DataSourceOptions);
-
     await dataSource.initialize();
     const mockMaps: DbMockMaps = {};
     for (const mock of dbConfig.mockMaps) {

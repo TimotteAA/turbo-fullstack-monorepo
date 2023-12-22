@@ -5,6 +5,7 @@ import {
     DeleteDateColumn,
     Entity,
     ManyToMany,
+    OneToMany,
     UpdateDateColumn,
 } from 'typeorm';
 import type { Relation } from 'typeorm';
@@ -12,6 +13,9 @@ import type { Relation } from 'typeorm';
 import { BaseEntity } from '@/modules/database/base';
 import { ResourceEntity, RoleEntity } from '@/modules/rbac/entities';
 import type { Route } from '@/modules/rbac/types';
+
+import { MessageReceiverEntity } from './message-receiver.entity';
+import { MessageEntity } from './message.entity';
 
 /**
  * 用户entity、考虑普通注册、手机注册、邮箱注册、github oauth2注册
@@ -74,7 +78,18 @@ export class UserEntity extends BaseEntity {
     menus: Route[];
 
     @Expose({ groups: ['user-detail'] })
-    @Expose()
     /** 用户权限码 */
     permissionCodes: string[];
+
+    /** ****************************消息相关的关联关系 */
+    /** 用户发送的所有消息 */
+    @OneToMany(() => MessageEntity, (message) => message.sender, {
+        cascade: true,
+    })
+    sends: Relation<MessageEntity[]>;
+
+    @OneToMany(() => MessageReceiverEntity, (mr) => mr.receiver, {
+        cascade: true,
+    })
+    messageToReceivers: Relation<MessageReceiverEntity>;
 }

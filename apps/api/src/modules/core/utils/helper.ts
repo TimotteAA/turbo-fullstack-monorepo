@@ -66,3 +66,12 @@ export const getFakerLocales = async (configure: Configure) => {
         locales.push(fakerjs[fallbackLocale] as fakerjs.LocaleDefinition);
     return locales;
 };
+
+export const getRandomListData = <T>(numItems: number, arr: T[]) => {
+    if (numItems < 1) return [] as T[];
+    if (numItems === 1) {
+        return arr[Math.floor(Math.random() * arr.length)] as T;
+    }
+    const shuffled = arr.slice().sort(() => 0.5 - Math.random());
+    return shuffled.slice(0, Math.min(numItems, arr.length)) as T[];
+};

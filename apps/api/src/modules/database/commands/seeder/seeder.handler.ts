@@ -21,8 +21,10 @@ export const SeederHandler = async (configure: Configure, args: SeederOptions) =
     const spinner = ora('Start run seeder');
     try {
         spinner.start();
+        console.log();
         await runSeeder(runner, args, spinner, configure, dbConfig);
         spinner.succeed(`\n 👍 ${chalk.greenBright.underline(`Finished Seeding`)}`);
+        process.exit(0);
     } catch (error) {
         panic({ spinner, message: `Run seeder failed`, error });
     }

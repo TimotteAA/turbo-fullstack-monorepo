@@ -23,10 +23,11 @@ export const createSeederCommand: CommandItem<any, SeederArguments> = async ({ c
             describe: 'Clear which tables will truncated specified by seeder class.',
             default: true,
         },
-        ignorelock: {
+        ignoreLock: {
             type: 'boolean',
             alias: 'i',
-            describe: 'Ignore seed lock and reset all seeds, not do it in production',
+            describe:
+                'Ignore seed lock and reset all seeds, not do it in production（seed跑过一次了，还跑吗？）',
             default: false,
         },
     },

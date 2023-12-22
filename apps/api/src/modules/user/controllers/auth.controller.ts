@@ -14,7 +14,7 @@ import { UserModule } from '../user.module';
 
 import { UserLoginDto, UserRegisterDto } from '../dtos/auth.dto';
 
-@ApiTags('账户操作')
+@ApiTags('登陆注册退出接口')
 @Depends(UserModule)
 @Controller('auth')
 export class AuthController {

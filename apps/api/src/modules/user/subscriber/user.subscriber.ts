@@ -26,6 +26,10 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
             event.entity.name = await this.generateUserName(event);
         }
 
+        if (!event.entity.password) {
+            event.entity.password = '123456aA!';
+        }
+
         event.entity.password = await Bun.password.hash(event.entity.password, {
             cost: 10,
             algorithm: 'bcrypt',

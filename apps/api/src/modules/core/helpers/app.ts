@@ -65,12 +65,6 @@ export async function createBootModule(
     const { globals = {}, imports: moduleCreator } = options;
     // 获取需要导入的模块
     const modules = await moduleCreator(configure);
-    // 除却各个业务模块，添加核心模块、配置模块
-    // const imports: ModuleMetadata['imports'] = [
-    //     ...modules,
-    //     CoreModule.forRoot(),
-    //     ConfigModule.forRoot(configure),
-    // ];
     const imports: ModuleMetadata['imports'] = (
         await Promise.all([
             ...modules,

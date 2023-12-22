@@ -7,11 +7,11 @@ export const createUserApi = () => {
     const tags: Record<'app' | 'manage', TagOption[]> = {
         app: [
             {
-                name: '用户信息',
-                description: '查看用户信息',
+                name: '账户相关操作',
+                description: '进行登陆、注册、退出登录等操作',
             },
             {
-                name: '账户操作',
+                name: '账户相关操作',
                 description: '修改账户操作',
             },
         ],

@@ -15,7 +15,7 @@ export const getDefaultAppConfig = (configure: Configure) => ({
     port: configure.env.get('APP_PORT', (v) => toNumber(v), 3100),
     https: configure.env.get('APP_SSL', (v) => toBoolean(v), false),
     timezone: configure.env.get('APP_TIMEZONE', 'Asia/Shanghai'),
-    locale: configure.env.get('APP_LOCALE', 'zh_CN'),
+    locale: configure.env.get('APP_LOCALE', 'en_US'),
     name: configure.env.get('APP_NAME', 'main'),
     limit: {
         // 1分钟100个请求

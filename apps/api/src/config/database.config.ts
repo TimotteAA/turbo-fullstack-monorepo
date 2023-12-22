@@ -1,5 +1,7 @@
 import { ContentMock } from '@/database/mocks/content.mock';
+import { UserMock } from '@/database/mocks/user.mock';
 import ContentSeeder from '@/database/seeders/content.seeder';
+import { UserSeeder } from '@/database/seeders/user.seeder';
 import { createDbConfig } from '@/modules/database/helpers';
 
 export const database = createDbConfig((_configure) => ({
@@ -15,8 +17,8 @@ export const database = createDbConfig((_configure) => ({
             username: 'root',
             password: 'root',
             database: 'timotte',
-            seeders: [ContentSeeder],
-            mockMaps: [ContentMock],
+            seeders: [UserSeeder, ContentSeeder],
+            mockMaps: [UserMock, ContentMock],
         },
     ],
 }));

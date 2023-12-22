@@ -23,7 +23,7 @@
     },
     "dependencies": {
         "@casl/ability": "^6.5.0",
-        "@faker-js/faker": "^8.3.1",
+        "@faker-js/faker": "^8.2.0",
         "@fastify/static": "^6.12.0",
         "@nestjs/cli": "10.2.1",
         "@nestjs/common": "^10.2.10",
@@ -35,6 +35,7 @@
         "@nestjs/platform-fastify": "^10.2.10",
         "@nestjs/swagger": "^7.1.16",
         "@nestjs/typeorm": "^10.0.1",
+        "@nestjs/websockets": "^10.3.0",
         "@sqltools/formatter": "^1.2.5",
         "@timotte-app/eslint-config": "workspace:*",
         "@timotte-app/ts-config": "workspace:*",
@@ -63,6 +64,7 @@
         "typeorm": "0.3.16",
         "uuid": "^9.0.1",
         "validator": "^13.11.0",
+        "ws": "^8.15.1",
         "yaml": "^2.3.4",
         "yargs": "^17.7.2"
     },

@@ -5,7 +5,7 @@ import { existsSync, readFileSync } from 'fs-extra';
 import { DataSource, EntityManager, In } from 'typeorm';
 
 import { CategoryEntity, CommentEntity, PostEntity, TagEntity } from '@/modules/content/entities';
-import { panic } from '@/modules/core/utils';
+import { getRandomListData, panic } from '@/modules/core/utils';
 import { BaseSeeder } from '@/modules/database/base';
 import { DbMock } from '@/modules/database/types';
 
@@ -52,6 +52,8 @@ export default class ContentSeeder extends BaseSeeder {
     }
 
     private async loadPosts(data: PostData[]) {
+        const allTags = await this.em.find(TagEntity);
+        const allCategories = await this.em.find(CategoryEntity);
         for (const item of data) {
             const filePath = resolve(__dirname, '../../assets/posts', item.contentFile);
             if (!existsSync(filePath)) {
@@ -79,28 +81,31 @@ export default class ContentSeeder extends BaseSeeder {
                 });
             }
             const post = await this.mock(PostEntity)<IPostMockOptions>(options).create();
-            await this.genRandomComments(post, 3, null);
+            await this.genRandomComments(post, 5, null);
         }
+        await this.mock(PostEntity)<IPostMockOptions>({
+            tags: getRandomListData(3, allTags) as TagEntity[],
+            category: getRandomListData(1, allCategories) as CategoryEntity,
+        }).createMany(30);
     }
 
     private async genRandomComments(post: PostEntity, count: number, parent?: CommentEntity) {
         const comments: CommentEntity[] = [];
         for (let i = 0; i < count; i++) {
             const comment = new CommentEntity();
-            comment.body = faker.lorem.paragraph(Math.floor(Math.random() * 18) + 1);
+            comment.body = faker.lorem.paragraph(Math.floor(Math.random() * 3) + 1);
             comment.post = post;
-            if (parent) {
-                comment.parent = parent;
-            }
+
+            comments.push(await this.em.save(comment));
             if (Math.random() >= 0.8) {
                 comment.children = await this.genRandomComments(
                     post,
                     Math.floor(Math.random() * 2),
                     comment,
                 );
+                await this.em.save(comment);
             }
         }
-        await this.em.save(comments);
         return comments;
     }
 

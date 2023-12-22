@@ -21,9 +21,13 @@ export enum SystemRoles {
 
 export enum PermissionAction {
     CREATE = 'create',
-    READ = 'read',
+    LIST = 'list',
+    DETAIL = 'detail',
     UPDATE = 'update',
     DELETE = 'delete',
+    RESTORE = 'restore',
     MANAGE = 'manage',
     OWNER = 'onwer',
+    // 是否可以访问特定页面、资源
+    VISIT = 'visit',
 }

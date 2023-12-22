@@ -8,7 +8,7 @@ import { deepMerge } from '../config/utils';
 import { UserEntity } from '../user/entities';
 import type { UserModuleConfig } from '../user/types';
 
-import { ResourceType as PermissionType, Status, SystemRoles } from './constants';
+import { PermissionAction, ResourceType as PermissionType, Status, SystemRoles } from './constants';
 import { ResourceEntity } from './entities';
 import { RoleEntity } from './entities/role.entity';
 import { ResourceType, Role } from './types';
@@ -51,7 +51,7 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
             label: '超级管理员权限',
             description: '管理系统的所有功能',
             rule: {
-                action: 'manage',
+                action: PermissionAction.MANAGE,
                 subject: 'all',
             } as any,
             type: PermissionType.ACTION,
@@ -75,10 +75,22 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
                     type: PermissionType.MENU,
                     customOrder: 2,
                     rule: {
-                        action: 'list',
+                        action: PermissionAction.VISIT,
                         subject: UserEntity,
                     } as any,
                     children: [
+                        {
+                            name: 'system.user.list',
+                            path: '',
+                            label: '查看用户列表',
+                            status: Status.ENABLED,
+                            type: PermissionType.ACTION,
+                            customOrder: 4,
+                            rule: {
+                                action: PermissionAction.LIST,
+                                subject: UserEntity,
+                            } as any,
+                        },
                         {
                             name: 'system.user.create',
                             path: '',
@@ -87,7 +99,7 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
                             type: PermissionType.ACTION,
                             customOrder: 4,
                             rule: {
-                                action: 'create',
+                                action: PermissionAction.CREATE,
                                 subject: UserEntity,
                             } as any,
                         },
@@ -99,7 +111,7 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
                             type: PermissionType.ACTION,
                             customOrder: 5,
                             rule: {
-                                action: 'detail',
+                                action: PermissionAction.DETAIL,
                                 subject: UserEntity,
                             } as any,
                         },
@@ -111,7 +123,7 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
                             type: PermissionType.ACTION,
                             customOrder: 6,
                             rule: {
-                                action: 'delete',
+                                action: PermissionAction.DELETE,
                                 subject: UserEntity,
                             } as any,
                         },
@@ -123,7 +135,7 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
                             type: PermissionType.ACTION,
                             customOrder: 7,
                             rule: {
-                                action: 'update',
+                                action: PermissionAction.UPDATE,
                                 subject: UserEntity,
                             } as any,
                         },
@@ -137,11 +149,23 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
                     status: Status.ENABLED,
                     type: PermissionType.MENU,
                     rule: {
-                        action: 'list',
+                        action: PermissionAction.VISIT,
                         subject: RoleEntity,
                     } as any,
                     customOrder: 3,
                     children: [
+                        {
+                            name: 'system.role.list',
+                            path: '',
+                            label: '查看角色列表',
+                            status: Status.ENABLED,
+                            type: PermissionType.ACTION,
+                            customOrder: 8,
+                            rule: {
+                                action: PermissionAction.LIST,
+                                subject: RoleEntity,
+                            } as any,
+                        },
                         {
                             name: 'system.role.create',
                             path: '',
@@ -150,7 +174,7 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
                             type: PermissionType.ACTION,
                             customOrder: 8,
                             rule: {
-                                action: 'create',
+                                action: PermissionAction.CREATE,
                                 subject: RoleEntity,
                             } as any,
                         },
@@ -162,7 +186,7 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
                             type: PermissionType.ACTION,
                             customOrder: 9,
                             rule: {
-                                action: 'detail',
+                                action: PermissionAction.DETAIL,
                                 subject: RoleEntity,
                             } as any,
                         },
@@ -174,7 +198,7 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
                             type: PermissionType.ACTION,
                             customOrder: 10,
                             rule: {
-                                action: 'delete',
+                                action: PermissionAction.DELETE,
                                 subject: RoleEntity,
                             } as any,
                         },
@@ -186,7 +210,7 @@ export class RbacResolver<A extends AbilityTuple = AbilityTuple, C extends Mongo
                             type: PermissionType.ACTION,
                             customOrder: 11,
                             rule: {
-                                action: 'update',
+                                action: PermissionAction.UPDATE,
                                 subject: UserEntity,
                             } as any,
                         },
