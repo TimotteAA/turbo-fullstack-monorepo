@@ -4,7 +4,7 @@
         "port": 3100,
         "https": false,
         "timezone": "Asia/Shanghai",
-        "locale": "zh_CN",
+        "locale": "en_US",
         "name": "main",
         "limit": {
             "interval": 60000,
