@@ -57,7 +57,6 @@ export const createData: CreateOptions = {
 export const listened: (app: App, startTime: Date) => () => Promise<void> =
     ({ configure, container }, startTime) =>
     async () => {
-        // const { default: chalk } = await import('chalk');
         console.log();
         await echoApi(configure, container);
         console.log('used time:', chalk.cyan(`${new Date().getTime() - startTime.getTime()}`));

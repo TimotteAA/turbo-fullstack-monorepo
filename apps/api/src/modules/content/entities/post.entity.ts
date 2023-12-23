@@ -14,6 +14,7 @@ import {
 import type { Relation } from 'typeorm';
 
 import { BaseEntity } from '@/modules/database/base';
+import { UserEntity } from '@/modules/user/entities';
 
 import { PostBodyType } from '../constants';
 
@@ -115,4 +116,11 @@ export class PostEntity extends BaseEntity {
     @Expose()
     // 查询时的映射字段
     commentCount: number;
+
+    /** ************** user */
+    @ManyToOne(() => UserEntity, (user) => user.posts, {
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+    })
+    author: Relation<UserEntity>;
 }

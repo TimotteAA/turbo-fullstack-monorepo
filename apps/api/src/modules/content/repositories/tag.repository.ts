@@ -13,16 +13,7 @@ export class TagRepository extends BaseRepository<TagEntity> {
             .leftJoin('tag.posts', 'p')
             .groupBy('tag.id')
             .loadRelationCountAndMap('tag.postCount', 'tag.posts')
-            .orderBy('postCount', 'DESC');
+            .orderBy('postCount', 'DESC')
+            .orderBy('customOrder', 'DESC');
     }
 }
-// buildBaseQB() {
-//     return this.createQueryBuilder('tag')
-//         .leftJoinAndSelect('tag.posts', 'posts')
-//         .addSelect(
-//             (subQuery) => subQuery.select('COUNT(p.id)', 'count').from(PostEntity, 'p'),
-//             'postCount',
-//         )
-//         .orderBy('postCount', 'DESC')
-//         .loadRelationCountAndMap('tag.postCount', 'tag.posts');
-// }

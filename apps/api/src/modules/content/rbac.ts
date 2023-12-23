@@ -32,7 +32,7 @@ export class ContentRbac implements OnModuleInit {
                         customOrder: 13,
                         rule: {
                             action: 'list',
-                            subject: PostEntity.name,
+                            subject: PostEntity,
                         } as any,
                         children: [
                             {
@@ -44,7 +44,7 @@ export class ContentRbac implements OnModuleInit {
                                 customOrder: 17,
                                 rule: {
                                     action: 'create',
-                                    subject: PostEntity.name,
+                                    subject: PostEntity,
                                 } as any,
                             },
                             {
@@ -56,7 +56,7 @@ export class ContentRbac implements OnModuleInit {
                                 customOrder: 18,
                                 rule: {
                                     action: 'detail',
-                                    subject: PostEntity.name,
+                                    subject: PostEntity,
                                 } as any,
                             },
                             {
@@ -68,7 +68,7 @@ export class ContentRbac implements OnModuleInit {
                                 customOrder: 19,
                                 rule: {
                                     action: 'delete',
-                                    subject: PostEntity.name,
+                                    subject: PostEntity,
                                 } as any,
                             },
                             {
@@ -80,7 +80,7 @@ export class ContentRbac implements OnModuleInit {
                                 customOrder: 20,
                                 rule: {
                                     action: 'update',
-                                    subject: PostEntity.name,
+                                    subject: PostEntity,
                                 } as any,
                             },
                         ],
@@ -94,7 +94,7 @@ export class ContentRbac implements OnModuleInit {
                         type: PermissionType.MENU,
                         rule: {
                             action: 'list',
-                            subject: TagEntity.name,
+                            subject: TagEntity,
                         } as any,
                         customOrder: 14,
                         children: [
@@ -107,7 +107,7 @@ export class ContentRbac implements OnModuleInit {
                                 customOrder: 21,
                                 rule: {
                                     action: 'create',
-                                    subject: TagEntity.name,
+                                    subject: TagEntity,
                                 } as any,
                             },
                             {
@@ -119,7 +119,7 @@ export class ContentRbac implements OnModuleInit {
                                 customOrder: 22,
                                 rule: {
                                     action: 'detail',
-                                    subject: TagEntity.name,
+                                    subject: TagEntity,
                                 } as any,
                             },
                             {
@@ -131,7 +131,7 @@ export class ContentRbac implements OnModuleInit {
                                 customOrder: 23,
                                 rule: {
                                     action: 'delete',
-                                    subject: TagEntity.name,
+                                    subject: TagEntity,
                                 } as any,
                             },
                             {
@@ -143,7 +143,7 @@ export class ContentRbac implements OnModuleInit {
                                 customOrder: 24,
                                 rule: {
                                     action: 'update',
-                                    subject: TagEntity.name,
+                                    subject: TagEntity,
                                 } as any,
                             },
                         ],
@@ -157,7 +157,7 @@ export class ContentRbac implements OnModuleInit {
                         type: PermissionType.MENU,
                         rule: {
                             action: 'list',
-                            subject: CommentEntity.name,
+                            subject: CommentEntity,
                         } as any,
                         customOrder: 15,
                         children: [
@@ -170,7 +170,7 @@ export class ContentRbac implements OnModuleInit {
                                 customOrder: 25,
                                 rule: {
                                     action: 'create',
-                                    subject: CommentEntity.name,
+                                    subject: CommentEntity,
                                 } as any,
                             },
                             {
@@ -182,7 +182,7 @@ export class ContentRbac implements OnModuleInit {
                                 customOrder: 26,
                                 rule: {
                                     action: 'detail',
-                                    subject: CommentEntity.name,
+                                    subject: CommentEntity,
                                 } as any,
                             },
                             {
@@ -194,7 +194,7 @@ export class ContentRbac implements OnModuleInit {
                                 customOrder: 27,
                                 rule: {
                                     action: 'delete',
-                                    subject: CommentEntity.name,
+                                    subject: CommentEntity,
                                 } as any,
                             },
                             {
@@ -206,7 +206,7 @@ export class ContentRbac implements OnModuleInit {
                                 customOrder: 28,
                                 rule: {
                                     action: 'update',
-                                    subject: CommentEntity.name,
+                                    subject: CommentEntity,
                                 } as any,
                             },
                         ],
@@ -220,7 +220,7 @@ export class ContentRbac implements OnModuleInit {
                         type: PermissionType.MENU,
                         rule: {
                             action: 'list',
-                            subject: CategoryEntity.name,
+                            subject: CategoryEntity,
                         } as any,
                         customOrder: 16,
                         children: [
@@ -233,7 +233,7 @@ export class ContentRbac implements OnModuleInit {
                                 customOrder: 29,
                                 rule: {
                                     action: 'create',
-                                    subject: CategoryEntity.name,
+                                    subject: CategoryEntity,
                                 } as any,
                             },
                             {
@@ -245,7 +245,7 @@ export class ContentRbac implements OnModuleInit {
                                 customOrder: 30,
                                 rule: {
                                     action: 'detail',
-                                    subject: CategoryEntity.name,
+                                    subject: CategoryEntity,
                                 } as any,
                             },
                             {
@@ -257,7 +257,7 @@ export class ContentRbac implements OnModuleInit {
                                 customOrder: 31,
                                 rule: {
                                     action: 'delete',
-                                    subject: CategoryEntity.name,
+                                    subject: CategoryEntity,
                                 } as any,
                             },
                             {
@@ -269,7 +269,7 @@ export class ContentRbac implements OnModuleInit {
                                 customOrder: 32,
                                 rule: {
                                     action: 'update',
-                                    subject: CategoryEntity.name,
+                                    subject: CategoryEntity,
                                 } as any,
                             },
                         ],
@@ -314,7 +314,7 @@ export class ContentRbac implements OnModuleInit {
                 name: 'comment.owner',
                 rule: {
                     action: 'owner',
-                    subject: CommentEntity.name,
+                    subject: CommentEntity,
                     conditions: (user) => ({
                         'author.id': user.id,
                     }),

@@ -15,10 +15,6 @@ import { CommentService } from '../../services';
     id: 'comment',
     enabled: [
         {
-            name: 'create',
-            options: createOptions(true, { summary: '创建评论' }),
-        },
-        {
             name: 'update',
             options: createOptions(true, { summary: '更新评论' }),
         },

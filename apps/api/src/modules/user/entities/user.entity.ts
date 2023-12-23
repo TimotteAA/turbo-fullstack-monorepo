@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import type { Relation } from 'typeorm';
 
+import { CommentEntity, PostEntity } from '@/modules/content/entities';
 import { BaseEntity } from '@/modules/database/base';
 import { ResourceEntity, RoleEntity } from '@/modules/rbac/entities';
 import type { Route } from '@/modules/rbac/types';
@@ -92,4 +93,15 @@ export class UserEntity extends BaseEntity {
         cascade: true,
     })
     messageToReceivers: Relation<MessageReceiverEntity>;
+
+    /** ************ content模块关联关系 */
+    @OneToMany(() => PostEntity, (post) => post.author, {
+        cascade: true,
+    })
+    posts: Relation<PostEntity[]>;
+
+    @OneToMany(() => CommentEntity, (comment) => comment.author, {
+        cascade: true,
+    })
+    comemnts: Relation<CommentEntity[]>;
 }

@@ -12,6 +12,7 @@ import {
 import type { Relation } from 'typeorm';
 
 import { BaseEntity } from '@/modules/database/base';
+import { UserEntity } from '@/modules/user/entities';
 
 import { PostEntity } from './post.entity';
 
@@ -55,4 +56,10 @@ export class CommentEntity extends BaseEntity {
 
     @Expose()
     depth = 0;
+
+    /** ************ 作者 */
+    @ManyToOne(() => UserEntity, (user) => user.comemnts, {
+        onDelete: 'CASCADE',
+    })
+    author: Relation<UserEntity>;
 }

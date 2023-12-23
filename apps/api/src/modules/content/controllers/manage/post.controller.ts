@@ -7,7 +7,7 @@ import { DeleteWithTrashDto } from '@/modules/restful/dtos';
 import { createOptions } from '@/modules/restful/helpers';
 
 import { ContentModule } from '../../content.module';
-import { CreatePostDto, QueryPostDto, UpdatePostDto } from '../../dtos';
+import { QueryPostDto, UpdatePostDto } from '../../dtos';
 import { PostService } from '../../services/post.service';
 
 @ApiTags('文章操作')
@@ -15,10 +15,6 @@ import { PostService } from '../../services/post.service';
 @Crud({
     id: 'post',
     enabled: [
-        {
-            name: 'create',
-            options: createOptions(true, { summary: '创建文章' }),
-        },
         {
             name: 'update',
             options: createOptions(true, { summary: '更新文章' }),
@@ -41,7 +37,6 @@ import { PostService } from '../../services/post.service';
         },
     ],
     dtos: {
-        create: CreatePostDto,
         update: UpdatePostDto,
         query: QueryPostDto,
     },
@@ -51,15 +46,6 @@ export class PostController extends BaseController<PostService> {
     constructor(protected service: PostService) {
         super(service);
     }
-
-    // @Get()
-    // @SerializeOptions({ groups: ['post-list'] })
-    // async list(
-    //     @Query()
-    //     options: QueryPostDto,
-    // ) {
-    //     return this.service.list(options);
-    // }
 
     @Delete()
     async delete(@Body() data: DeleteWithTrashDto) {

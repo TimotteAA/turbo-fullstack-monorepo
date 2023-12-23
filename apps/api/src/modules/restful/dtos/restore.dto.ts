@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { IsDefined, IsUUID } from 'class-validator';
 
 import { DTO_VALIDATION } from '@/modules/core/decorators';
@@ -7,6 +8,7 @@ import { DTO_VALIDATION } from '@/modules/core/decorators';
  */
 @DTO_VALIDATION()
 export class RestoreDto {
+    @ApiProperty({ description: '恢复的entity id数组' })
     @IsUUID(undefined, {
         each: true,
         message: 'ID格式错误',

@@ -10,6 +10,18 @@ export const createContentApi = () => {
                 name: '文章接口',
                 description: '前台文章接口',
             },
+            {
+                name: '标签接口',
+                description: '前台标签接口',
+            },
+            {
+                name: '分类接口',
+                description: '前台分类接口',
+            },
+            {
+                name: '评论接口',
+                description: '前台评论接口',
+            },
         ],
         manage: [
             { name: '分类操作', description: '对分类的增删查操作' },

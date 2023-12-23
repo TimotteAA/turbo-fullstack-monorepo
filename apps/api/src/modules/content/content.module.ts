@@ -3,6 +3,8 @@ import { Module, ModuleMetadata } from '@nestjs/common';
 import { Configure } from '../config/configure';
 import { DatabaseModule } from '../database/database.module';
 import { addEntities } from '../database/helpers';
+import { UserService } from '../user/services';
+import { UserModule } from '../user/user.module';
 
 import * as entityMaps from './entities';
 import { ContentRbac } from './rbac';
@@ -21,6 +23,7 @@ export class ContentModule {
             // TypeOrmModule.forFeature(Object.values(entityMaps)),
             addEntities(configure, [...Object.values(entityMaps)]),
             DatabaseModule.forRepository(Object.values(repoMaps)),
+            UserModule,
         ];
         // const controllers: ModuleMetadata['controllers'] = Object.values(controllerMaps);
 
@@ -39,6 +42,7 @@ export class ContentModule {
                     categoryRepo: repoMaps.CategoryRepository,
                     tagRepo: repoMaps.TagRepository,
                     searchSevice: SearchService,
+                    userService: UserService,
                 ) {
                     return new PostService(
                         postRepo,
@@ -46,6 +50,7 @@ export class ContentModule {
                         tagRepo,
                         searchSevice,
                         config.searchType,
+                        userService,
                     );
                 },
             },

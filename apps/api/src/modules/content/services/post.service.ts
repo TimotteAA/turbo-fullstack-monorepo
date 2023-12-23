@@ -6,6 +6,7 @@ import { BaseService } from '@/modules/database/base/base.service';
 import { SelectTrashMode } from '@/modules/database/constants';
 import { paginate } from '@/modules/database/helpers';
 import { QueryHook } from '@/modules/database/types';
+import { UserService } from '@/modules/user/services';
 
 import { PostOrderType } from '../constants';
 import { PostEntity } from '../entities';
@@ -27,6 +28,7 @@ export class PostService extends BaseService<PostEntity, PostRepository> {
         protected tagRepo: TagRepository,
         protected searchSevice: SearchService,
         protected searchType: SearchType,
+        protected userService: UserService,
     ) {
         super(postRepo);
     }
@@ -48,24 +50,7 @@ export class PostService extends BaseService<PostEntity, PostRepository> {
         return paginate(qb, options);
     }
 
-    // async paginate(options: QueryPostDto, callback?: QueryHook<PostEntity>) {
-    //     let qb = this.postRepo.buildBaseQB();
-    //     qb = await this.buildListQuery(qb, options, callback);
-    //     return paginate(qb, options);
-    // }
-
-    // async detail(id: string, callback?: QueryHook<PostEntity>) {
-    //     let qb = this.postRepo.buildBaseQB();
-    //     qb = qb.andWhere(`post.id = :id`, { id });
-    //     qb = !isNil(callback) ? await callback(qb) : qb;
-    //     const item = await qb.getOne();
-    //     if (isNil(item)) {
-    //         throw new BadRequestException(`post of id: ${id} does not exist`);
-    //     }
-    //     return item;
-    // }
-
-    async create(data: CreatePostDto) {
+    async create(data: CreatePostDto, userId: string) {
         const res = await this.postRepo.save({
             ...data,
             category: data.category
@@ -82,6 +67,7 @@ export class PostService extends BaseService<PostEntity, PostRepository> {
                       },
                   })
                 : [],
+            author: await this.userService.findOneById(userId),
         });
         if (this.searchType === 'meili') {
             await this.searchSevice.create(res);

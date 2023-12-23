@@ -1,6 +1,1 @@
-{
-    "default": [
-        "UserSeeder",
-        "ContentSeeder"
-    ]
-}
+{ 'default': ['UserSeeder', 'ContentSeeder'] }
