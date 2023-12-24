@@ -1,7 +1,12 @@
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
 
-import { Status, ResourceType as PermissionType, SystemRoles } from '../rbac/constants';
+import {
+    Status,
+    ResourceType as PermissionType,
+    SystemRoles,
+    PermissionAction,
+} from '../rbac/constants';
 import { RbacResolver } from '../rbac/rbac.resolver';
 
 import { CategoryEntity, CommentEntity, PostEntity, TagEntity } from './entities';
@@ -27,7 +32,7 @@ export class ContentRbac implements OnModuleInit {
                         path: '/content/post',
                         label: '文章管理',
                         description: '文章管理菜单',
-                        status: Status.DISABLED,
+                        status: Status.ENABLED,
                         type: PermissionType.MENU,
                         customOrder: 13,
                         rule: {
@@ -280,7 +285,7 @@ export class ContentRbac implements OnModuleInit {
             {
                 name: 'post.create',
                 rule: {
-                    action: 'Create',
+                    action: PermissionAction.CREATE,
                     subject: PostEntity,
                 },
                 type: PermissionType.ACTION,
@@ -290,7 +295,7 @@ export class ContentRbac implements OnModuleInit {
             {
                 name: 'post.owner',
                 rule: {
-                    action: 'owner',
+                    action: PermissionAction.OWNER,
                     subject: PostEntity,
                     conditions: (user) => ({
                         'author.id': user.id,

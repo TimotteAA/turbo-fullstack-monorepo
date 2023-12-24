@@ -1,8 +1,9 @@
-import { Controller, Get, Query, SerializeOptions } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Query, SerializeOptions } from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { BaseController } from '@/modules/restful/controller';
 import { Crud, Depends } from '@/modules/restful/decorators';
+import { DeleteDto } from '@/modules/restful/dtos';
 import { createOptions } from '@/modules/restful/helpers';
 
 import { ContentModule } from '../../content.module';
@@ -27,10 +28,6 @@ import { CommentService } from '../../services';
             options: createOptions(true, { summary: '分页查询评论' }),
         },
         {
-            name: 'restore',
-            options: createOptions(true, { summary: '恢复软删除评论' }),
-        },
-        {
             name: 'detail',
             options: createOptions(true, { summary: '查询评论详情' }),
         },
@@ -46,11 +43,7 @@ export class CommentController extends BaseController<CommentService> {
         super(service);
     }
 
-    /**
-     * 查询评论树
-     * @param query
-     * @returns
-     */
+    @ApiOperation({ summary: '查询评论树' })
     @Get('tree')
     @SerializeOptions({ groups: ['comment-tree'] })
     async tree(
@@ -58,5 +51,12 @@ export class CommentController extends BaseController<CommentService> {
         query: QueryCommentTreeDto,
     ) {
         return this.service.findTrees(query);
+    }
+
+    @ApiOperation({ summary: '删除评论' })
+    @SerializeOptions({ groups: ['comment-list'] })
+    @Delete()
+    async delete(@Body() data: DeleteDto) {
+        return this.service.delete(data.ids, false);
     }
 }

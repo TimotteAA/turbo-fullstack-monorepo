@@ -16,6 +16,7 @@ export class CategoryRepository extends BaseTreeRepository<CategoryEntity> {
     buildBaseQB() {
         return this.createQueryBuilder('category')
             .leftJoinAndSelect('category.parent', 'parent')
+            .leftJoinAndSelect('category.posts', 'posts')
             .orderBy('category.customOrder', 'ASC');
     }
 }

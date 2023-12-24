@@ -21,7 +21,7 @@ import { QueryResourceDto, UpdateResourceDto } from '../dtos/resource.dto';
         },
         {
             name: 'update',
-            options: createOptions(false, { summary: '更新单挑资源' }),
+            options: createOptions(false, { summary: '更新单条资源' }),
         },
     ],
     dtos: {
@@ -36,7 +36,7 @@ export class ResourceController extends BaseController<ResourceService> {
         super(service);
     }
 
-    @ApiOperation({ description: '获取菜单树' })
+    @ApiOperation({ summary: '获取完整的菜单树' })
     @Get('tree')
     async tree() {
         return this.service.findTrees();

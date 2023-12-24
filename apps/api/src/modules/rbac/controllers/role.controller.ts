@@ -24,19 +24,19 @@ import { RoleService } from '../services';
         },
         {
             name: 'update',
-            options: createOptions(true, { summary: '更新角色' }),
+            options: createOptions(false, { summary: '更新角色' }),
         },
         {
             name: 'delete',
-            options: createOptions(true, { summary: '删除角色' }),
+            options: createOptions(false, { summary: '删除角色' }),
         },
         {
             name: 'list',
-            options: createOptions(true, { summary: '分页查询角色' }),
+            options: createOptions(false, { summary: '分页查询角色' }),
         },
         {
             name: 'detail',
-            options: createOptions(true, { summary: '查询角色详情' }),
+            options: createOptions(false, { summary: '查询角色详情' }),
         },
     ],
     dtos: {

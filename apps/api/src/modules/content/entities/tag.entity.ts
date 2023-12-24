@@ -1,6 +1,5 @@
 import { Exclude, Expose } from 'class-transformer';
 import { Column, Entity, Index, ManyToMany } from 'typeorm';
-
 import type { Relation } from 'typeorm';
 
 import { BaseEntity } from '@/modules/database/base';
@@ -19,6 +18,7 @@ export class TagEntity extends BaseEntity {
     @Column({ comment: '标签描述', nullable: true })
     description?: string;
 
+    @Expose({ groups: ['tag-detail'] })
     @ManyToMany(() => PostEntity, (post) => post.tags)
     posts: Relation<PostEntity>;
 

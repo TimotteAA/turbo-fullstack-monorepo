@@ -14,6 +14,7 @@ export class PostRepository extends BaseRepository<PostEntity> {
         return this.createQueryBuilder('post')
             .leftJoinAndSelect('post.tags', 'tags')
             .leftJoinAndSelect('post.category', 'category')
+            .leftJoinAndSelect('post.author', 'author')
             .addSelect((subQuery) => {
                 return subQuery
                     .select('COUNT(c.id)', 'count')

@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Post } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { ResponseMessage } from '@/modules/core/decorators';
 import { BaseController } from '@/modules/restful/controller';
@@ -75,6 +75,7 @@ export class UserController extends BaseController<UserService> {
         return 'test';
     }
 
+    @ApiOperation({ summary: '删除用户' })
     @Delete()
     async delete(@Body() { ids, trashed }: DeleteWithTrashDto): Promise<any> {
         return this.service.delete(ids, trashed);

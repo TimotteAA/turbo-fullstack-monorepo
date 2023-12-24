@@ -2,6 +2,7 @@ import { faker } from '@faker-js/faker';
 
 import { CategoryEntity, CommentEntity, PostEntity, TagEntity } from '@/modules/content/entities';
 import { defindMock } from '@/modules/database/helpers';
+import { UserEntity } from '@/modules/user/entities';
 
 // 用fakerjs模拟出来的数据字段
 export type IPostMockOptions = Partial<{
@@ -12,6 +13,7 @@ export type IPostMockOptions = Partial<{
     category: CategoryEntity;
     tags: TagEntity[];
     comments: CommentEntity[];
+    author: UserEntity;
 }>;
 export const ContentMock = defindMock<PostEntity, IPostMockOptions>(
     PostEntity,
@@ -32,7 +34,7 @@ export const ContentMock = defindMock<PostEntity, IPostMockOptions>(
         if (options.comments) post.comments = options.comments;
         if (options.tags) post.tags = options.tags;
         if (options.category) post.category = options.category;
-
+        if (options.author) post.author = options.author;
         return post;
     },
 );

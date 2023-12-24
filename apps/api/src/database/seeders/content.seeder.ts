@@ -8,6 +8,7 @@ import { CategoryEntity, CommentEntity, PostEntity, TagEntity } from '@/modules/
 import { getRandomListData, panic } from '@/modules/core/utils';
 import { BaseSeeder } from '@/modules/database/base';
 import { DbMock } from '@/modules/database/types';
+import { UserEntity } from '@/modules/user/entities';
 
 import { CategoryData, PostData, TagData, categories, posts, tags } from '../mocks/content.data';
 import { IPostMockOptions } from '../mocks/content.mock';
@@ -54,6 +55,11 @@ export default class ContentSeeder extends BaseSeeder {
     private async loadPosts(data: PostData[]) {
         const allTags = await this.em.find(TagEntity);
         const allCategories = await this.em.find(CategoryEntity);
+        const superUser = await this.em.findOne(UserEntity, {
+            where: {
+                name: 'timotte',
+            },
+        });
         for (const item of data) {
             const filePath = resolve(__dirname, '../../assets/posts', item.contentFile);
             if (!existsSync(filePath)) {
@@ -67,6 +73,7 @@ export default class ContentSeeder extends BaseSeeder {
                 title: item.title,
                 summary: item.summary,
                 body: readFileSync(filePath, 'utf-8'),
+                isPublished: true,
             };
             const categroyRepo = this.em.getRepository(CategoryEntity);
             if (item.category) {
@@ -80,24 +87,33 @@ export default class ContentSeeder extends BaseSeeder {
                     name: In(item.tags),
                 });
             }
+            options.author = superUser;
             const post = await this.mock(PostEntity)<IPostMockOptions>(options).create();
             await this.genRandomComments(post, 5, null);
         }
-        await this.mock(PostEntity)<IPostMockOptions>({
-            tags: getRandomListData(3, allTags) as TagEntity[],
-            category: getRandomListData(1, allCategories) as CategoryEntity,
-        }).createMany(30);
+        const users = await this.em.find(UserEntity);
+        for (let i = 0; i < 10; i++) {
+            const user = getRandomListData(1, users) as UserEntity;
+            await this.mock(PostEntity)<IPostMockOptions>({
+                tags: getRandomListData(3, allTags) as TagEntity[],
+                category: getRandomListData(1, allCategories) as CategoryEntity,
+                author: user,
+                isPublished: Math.random() > 0.65,
+            }).create();
+        }
     }
 
     private async genRandomComments(post: PostEntity, count: number, parent?: CommentEntity) {
+        const users = await this.em.find(UserEntity);
         const comments: CommentEntity[] = [];
         for (let i = 0; i < count; i++) {
             const comment = new CommentEntity();
-            comment.body = faker.lorem.paragraph(Math.floor(Math.random() * 3) + 1);
+            comment.body = faker.lorem.paragraph(1);
             comment.post = post;
-
+            if (parent) comment.parent = parent;
+            comment.author = getRandomListData(1, users) as UserEntity;
             comments.push(await this.em.save(comment));
-            if (Math.random() >= 0.8) {
+            if (Math.random() >= 0.9) {
                 comment.children = await this.genRandomComments(
                     post,
                     Math.floor(Math.random() * 2),

@@ -18,7 +18,6 @@ export class MessageEntity extends BaseEntity {
 
     @Column({
         comment: '消息类型',
-        enum: MessageType,
         default: MessageType.MESSAGE,
         nullable: true,
     })

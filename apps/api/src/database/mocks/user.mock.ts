@@ -29,7 +29,7 @@ export const UserMock = defindMock<UserEntity, IUserMockOptions>(
         if (options.password) {
             user.password = options.password;
         } else {
-            user.password = '123456aA!';
+            user.password = Bun.password.hashSync('123456aA!');
         }
         if (options.summary) {
             user.summary = options.summary;
@@ -38,9 +38,9 @@ export const UserMock = defindMock<UserEntity, IUserMockOptions>(
 
         if (Math.random() > 0.8) {
             user.actived = false;
-            if (options.roles) user.roles = options.roles;
         } else {
             user.actived = true;
+            if (options.roles) user.roles = options.roles;
         }
         return user;
     },

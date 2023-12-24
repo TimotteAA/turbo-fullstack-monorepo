@@ -10,12 +10,12 @@ import { ListQueryDto } from '@/modules/restful/dtos';
  */
 @DTO_VALIDATION({ type: 'query' })
 export class QueryCommentListDto extends ListQueryDto {
-    @ApiPropertyOptional({
+    @ApiProperty({
         description: '某篇文章的id，用于查询特定文章下的所有评论',
     })
     @IsUUID(undefined, { message: '文章id格式错误' })
-    @IsOptional()
-    post?: string;
+    @IsNotEmpty({ always: true, message: '文章不能为空' })
+    post!: string;
 }
 
 /**

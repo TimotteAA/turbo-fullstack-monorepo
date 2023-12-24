@@ -108,6 +108,7 @@ export class PostEntity extends BaseEntity {
     @JoinTable()
     tags: Relation<TagEntity[]>;
 
+    @Expose({ groups: ['post-detail'] })
     @OneToMany(() => CommentEntity, (c) => c.post, {
         cascade: true,
     })
@@ -118,6 +119,7 @@ export class PostEntity extends BaseEntity {
     commentCount: number;
 
     /** ************** user */
+    @Expose()
     @ManyToOne(() => UserEntity, (user) => user.posts, {
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',

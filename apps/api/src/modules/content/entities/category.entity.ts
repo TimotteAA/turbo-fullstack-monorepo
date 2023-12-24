@@ -31,6 +31,7 @@ export class CategoryEntity extends BaseEntity {
     /**
      * 一个分类下有很多文章，一个文章只能有一个分类
      */
+    @Expose({ groups: ['category-detail'] })
     @OneToMany(() => PostEntity, (post) => post.category, {
         // category被删除，posts也被删除
         cascade: true,

@@ -17,23 +17,23 @@ import { SystemService } from '../services';
     enabled: [
         {
             name: 'create',
-            options: createOptions(true, { summary: '创建部门' }),
+            options: createOptions(false, { summary: '创建部门' }),
         },
         {
             name: 'update',
-            options: createOptions(true, { summary: '更新部门' }),
+            options: createOptions(false, { summary: '更新部门' }),
         },
         {
             name: 'delete',
-            options: createOptions(true, { summary: '删除部门' }),
+            options: createOptions(false, { summary: '删除部门' }),
         },
         {
             name: 'list',
-            options: createOptions(true, { summary: '分页查询部门' }),
+            options: createOptions(false, { summary: '分页查询部门' }),
         },
         {
             name: 'detail',
-            options: createOptions(true, { summary: '查询部门详情' }),
+            options: createOptions(false, { summary: '查询部门详情' }),
         },
     ],
     dtos: {

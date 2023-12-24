@@ -22,10 +22,13 @@ export function Crud(options: CrudOptions) {
     return function <T extends BaseController<any>>(Target: Type<T>) {
         const { id, enabled, dtos } = options;
         const methods: CrudItem[] = [];
+        // 对于不启用的方法返回404
+        const fixedProperties = ['constructor', 'service', 'setService'];
         // 添加启用的方法
         for (const value of enabled) {
             // 将字符串改成对象类型
             const item = (typeof value === 'string' ? { name: value } : value) as CrudItem;
+            // if (!isNil(Object.getOwnPropertyDescriptor(Target.prototype, item.)))
             if (
                 // 包含了同名方法或自己实现、改写了父类的路由方法，不处理
                 methods.map(({ name }) => name).includes(item.name) ||
@@ -44,10 +47,6 @@ export function Crud(options: CrudOptions) {
 
                 Object.defineProperty(Target.prototype, name, {
                     ...descriptor,
-                    // async [name](...args: any[]) {
-                    //     return descriptor.value.apply(this, args);
-                    // }
-                    // 上面这种不行。。。。
                     value: {
                         async [name](...args: any[]) {
                             return descriptor.value.apply(this, args);
@@ -141,19 +140,13 @@ export function Crud(options: CrudOptions) {
             if (!isNil(options.hook)) {
                 options.hook(Target, name);
             }
-
-            // if (options.allowGuest) {
-            //     // SetMetadata(ALLOW_GUEST_KEY, true)(Target.prototype, name, descriptor);
-            //     Reflect.defineMetadata(ALLOW_GUEST_KEY, true, Target.prototype, name);
-            // }
         }
-
         // 对于不启用的方法返回404
-        const fixedProperties = ['constructor', 'service', 'setService'];
         for (const key of Object.getOwnPropertyNames(BaseController.prototype)) {
             const isEnabled = options.enabled.find((v) =>
                 typeof v === 'string' ? v === key : (v as any).name === key,
             );
+
             if (!isEnabled && !fixedProperties.includes(key)) {
                 let method = Object.getOwnPropertyDescriptor(Target.prototype, key);
                 if (isNil(method))

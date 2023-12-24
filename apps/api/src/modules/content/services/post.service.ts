@@ -191,6 +191,9 @@ export class PostService extends BaseService<PostEntity, PostRepository> {
                 });
             }
         }
+        if (!isNil(options.author)) {
+            qb.andWhere('author.id = :id', { id: options.author });
+        }
 
         return this.queryOrderBy(qb, orderBy);
     }

@@ -1,9 +1,7 @@
 import { Injectable } from '@nestjs/common';
-
 import { EntityNotFoundError } from 'typeorm';
 
 import { BaseService } from '@/modules/database/base/base.service';
-
 import { QueryHook } from '@/modules/database/types';
 
 import { CreateCommentDto, QueryCommentListDto, QueryCommentTreeDto } from '../dtos';
@@ -21,7 +19,7 @@ export class CommentService extends BaseService<CommentEntity, CommentRepository
         super(repo);
     }
 
-    async findTrees(options: QueryCommentTreeDto = {}) {
+    async findTrees(options: QueryCommentTreeDto) {
         return this.repository.findTrees(options);
     }
 

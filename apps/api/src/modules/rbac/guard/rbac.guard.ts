@@ -30,13 +30,15 @@ export class RbacGuard extends JwtAuthGuard {
         const authCheck = await super.canActivate(context);
         const request = context.switchToHttp().getRequest();
         const requestToken = ExtractJwt.fromAuthHeaderAsBearerToken()(request);
+
         if (!authCheck) return false;
         // 匿名接口
         if (authCheck && isNil(requestToken)) return true;
         // 定义在接口上的权限
         const checkers = getCheckers(context, this.reflector);
+
         if (isNil(checkers) || !checkers.length) return true;
-        console.log('checkers ', checkers);
+
         return checkPermissions({
             resolver: this.resolver,
             userRepo: this.userRepo,
@@ -84,6 +86,7 @@ export const checkPermissions = async ({
         },
         relations: ['permissions', 'roles.resources'],
     });
+
     let permissions = user.permissions as ResourceEntity[];
     // 角色的权限
     for (const role of user.roles) {
@@ -95,6 +98,7 @@ export const checkPermissions = async ({
         if (o.find(({ name }) => name === n.name)) return permissions;
         return [...o, n];
     }, []);
+
     // 去resolver中创建checkers
     const ability = createMongoAbility(
         permissions.map(({ rule, name }) => {

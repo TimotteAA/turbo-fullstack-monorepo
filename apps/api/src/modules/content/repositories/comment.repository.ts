@@ -20,7 +20,8 @@ export class CommentRepository extends BaseTreeRepository<CommentEntity> {
         return this.createQueryBuilder('comment')
             .leftJoinAndSelect('comment.parent', 'parent')
             .leftJoinAndSelect('comment.post', 'post')
-            .orderBy('comment.customOrder', 'ASC');
+            .leftJoinAndSelect('comment.author', 'author')
+            .orderBy('comment.createdAt', 'ASC');
     }
 
     /**

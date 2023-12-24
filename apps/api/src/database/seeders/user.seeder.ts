@@ -1,3 +1,4 @@
+import { isNil } from 'lodash';
 import { DataSource, EntityManager } from 'typeorm';
 
 import { BaseSeeder } from '@/modules/database/base';
@@ -6,6 +7,7 @@ import { SystemRoles } from '@/modules/rbac/constants';
 import { ResourceEntity, RoleEntity } from '@/modules/rbac/entities';
 import { RbacResolver } from '@/modules/rbac/rbac.resolver';
 import { UserEntity } from '@/modules/user/entities';
+import type { UserModuleConfig } from '@/modules/user/types';
 
 import { IUserMockOptions } from '../mocks/user.mock';
 
@@ -19,6 +21,18 @@ export class UserSeeder extends BaseSeeder {
         resolver.setOptions({});
         await resolver.syncRoles(this.em);
         await resolver.syncPermissions(this.em);
+        await this.loadSuperUsers(resolver);
+    }
+
+    private async loadSuperUsers(resolver: RbacResolver) {
+        const superConf = await this.configure.get<UserModuleConfig['super']>('user.super');
+        const superUser = await this.em.findOne(UserEntity, { where: { name: superConf.name } });
+        if (isNil(superUser)) {
+            await this.mock(UserEntity)<IUserMockOptions>({
+                name: 'timotte',
+            }).create();
+            await resolver.syncSuperAdmin(this.em);
+        }
     }
 
     private async loadUsers() {
@@ -26,17 +40,14 @@ export class UserSeeder extends BaseSeeder {
             {
                 name: '小明',
                 phone: '+86.13111111111',
-                password: '123456aA!',
             },
             {
                 name: '小李',
                 phone: '+86.12343131313',
-                password: '123456aA!',
             },
         ];
         for (const option of options) {
-            const user = await this.mock(UserEntity)<IUserMockOptions>(option).create({}, 'name');
-            await this.em.save(user);
+            await this.mock(UserEntity)<IUserMockOptions>(option).create({}, 'name');
         }
         const roles = await this.em.find(RoleEntity, {
             where: {

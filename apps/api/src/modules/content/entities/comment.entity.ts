@@ -31,7 +31,7 @@ export class CommentEntity extends BaseEntity {
     })
     createdAt: Date;
 
-    @Expose()
+    @Expose({ groups: ['comment-tree', 'comment-detail'] })
     @ManyToOne(() => PostEntity, (post) => post.comments, {
         // 文章不能为空
         nullable: false,
@@ -58,6 +58,7 @@ export class CommentEntity extends BaseEntity {
     depth = 0;
 
     /** ************ 作者 */
+    @Expose()
     @ManyToOne(() => UserEntity, (user) => user.comemnts, {
         onDelete: 'CASCADE',
     })

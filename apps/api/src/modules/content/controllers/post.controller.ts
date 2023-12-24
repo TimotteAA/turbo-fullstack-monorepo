@@ -23,6 +23,7 @@ import { DeleteWithTrashDto, RestoreDto } from '@/modules/restful/dtos';
 import { reqUser } from '@/modules/user/decorators';
 import { UserEntity } from '@/modules/user/entities';
 
+import { PostOrderType } from '../constants';
 import { ContentModule } from '../content.module';
 import { CreatePostDto, QueryFrontendPostDto, QueryOwnerPostDto, UpdatePostDto } from '../dtos';
 import { PostEntity } from '../entities';
@@ -93,7 +94,13 @@ export class PostController {
     @ALLOW_GUEST(true)
     @Get()
     async list(@Query() data: QueryFrontendPostDto) {
-        return this.postService.list({ ...data, isPublished: true, trashed: SelectTrashMode.NONE });
+        const res = await this.postService.list({
+            ...data,
+            isPublished: true,
+            trashed: SelectTrashMode.NONE,
+            orderBy: PostOrderType.COMMENTCOUNT,
+        });
+        return res;
     }
 
     @ApiBearerAuth()
