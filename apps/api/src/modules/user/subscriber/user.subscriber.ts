@@ -1,11 +1,11 @@
 import { randomBytes } from 'crypto';
 
-import Bun from 'bun';
 import { DataSource, EntitySubscriberInterface, EventSubscriber, InsertEvent } from 'typeorm';
 
 import { RoleService } from '@/modules/rbac/services';
 
 import { UserEntity } from '../entities';
+import { encrypt } from '../helpers';
 
 @EventSubscriber()
 export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
@@ -30,10 +30,7 @@ export class UserSubscriber implements EntitySubscriberInterface<UserEntity> {
             event.entity.password = '123456aA!';
         }
 
-        event.entity.password = await Bun.password.hash(event.entity.password, {
-            cost: 10,
-            algorithm: 'bcrypt',
-        });
+        event.entity.password = await encrypt(event.entity.password, 10);
     }
 
     async afterLoad(entity: UserEntity): Promise<void> {

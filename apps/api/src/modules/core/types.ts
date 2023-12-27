@@ -141,6 +141,10 @@ export interface AppConfig {
         interval: number;
         rate: number;
     };
+    /**
+     * 是否启用ws
+     */
+    websockets?: boolean;
 }
 
 /**

@@ -1,10 +1,13 @@
 /* eslint-disable import/no-import-module-exports */
         
 
-class TQOYuJ1703325379438 {
-    name = 'TQOYuJ1703325379438'
+class ObBQmu1703494222813 {
+    name = 'ObBQmu1703494222813'
 
     async up(queryRunner) {
+        await queryRunner.query(`CREATE TABLE \`rbac_systems\` (\`id\` varchar(36) NOT NULL, \`name\` varchar(255) NOT NULL COMMENT '部门名称', \`description\` varchar(255) NULL COMMENT '部门描述', \`status\` varchar(255) NOT NULL COMMENT '资源状态' DEFAULT 'enabled', \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`mpath\` varchar(255) NULL DEFAULT '', \`parentId\` varchar(36) NULL, FULLTEXT INDEX \`IDX_63a1ed6d9eae1b57ab970baf01\` (\`name\`), FULLTEXT INDEX \`IDX_8c8f7efc45e11ded3c5aed4bf0\` (\`description\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`rbac_roles\` (\`id\` varchar(36) NOT NULL, \`name\` varchar(255) NOT NULL COMMENT '角色名称', \`label\` varchar(255) NULL COMMENT '角色显示名称', \`description\` varchar(255) NULL COMMENT '角色描述', \`systemed\` tinyint NOT NULL COMMENT '是否为系统角色' DEFAULT 0, \`status\` varchar(255) NOT NULL COMMENT '角色状态' DEFAULT 'enabled', \`customOrder\` int NOT NULL COMMENT '角色排序字段' DEFAULT '0', \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
+        await queryRunner.query(`CREATE TABLE \`rbac_resources\` (\`id\` varchar(36) NOT NULL, \`name\` varchar(255) NOT NULL COMMENT '资源名称', \`label\` varchar(255) NULL COMMENT '资源显示名称', \`description\` varchar(255) NULL COMMENT '资源描述', \`type\` enum ('directory', 'menu', 'action') NOT NULL COMMENT '资源类型' DEFAULT 'menu', \`icon\` varchar(255) NULL COMMENT '用于侧边栏展示icon', \`path\` varchar(255) NULL COMMENT '菜单项路由路径', \`component\` varchar(255) NULL COMMENT '目录、菜单对应前端组件地址', \`status\` varchar(255) NOT NULL COMMENT '资源状态' DEFAULT 'enabled', \`external\` tinyint NULL COMMENT '是否外链' DEFAULT 0, \`show\` tinyint NULL COMMENT '是否显示在侧边栏中，用于目录或者菜单' DEFAULT 1, \`keepAlive\` tinyint NULL COMMENT '是否缓存，用于菜单项' DEFAULT 1, \`customOrder\` int NOT NULL COMMENT '权限排序字段' DEFAULT '0', \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`rule\` text NULL COMMENT '具体的权限规则', \`mpath\` varchar(255) NULL DEFAULT '', \`parentId\` varchar(36) NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
         await queryRunner.query(`CREATE TABLE \`messages\` (\`id\` varchar(36) NOT NULL, \`title\` varchar(255) NOT NULL, \`body\` text NOT NULL COMMENT '消息内容', \`type\` varchar(255) NULL COMMENT '消息类型' DEFAULT 'message', \`createAt\` datetime(6) NOT NULL COMMENT '发送消息的日期' DEFAULT CURRENT_TIMESTAMP(6), \`senderId\` varchar(36) NOT NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
         await queryRunner.query(`CREATE TABLE \`message_receiver\` (\`id\` varchar(36) NOT NULL, \`readed\` tinyint NOT NULL, \`receiverId\` varchar(36) NULL, \`messageId\` varchar(36) NULL, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
         await queryRunner.query(`CREATE TABLE \`users\` (\`id\` varchar(36) NOT NULL, \`name\` varchar(100) NOT NULL COMMENT '用户名称', \`nickname\` varchar(100) NULL COMMENT '用户昵称', \`email\` varchar(255) NULL COMMENT '用户邮箱', \`phone\` varchar(255) NULL COMMENT '用户手机号', \`password\` varchar(255) NOT NULL COMMENT '用户密码', \`summary\` varchar(300) NULL COMMENT '用户简介', \`createtAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`deletedAt\` datetime(6) NULL, \`actived\` tinyint NOT NULL COMMENT '用户是否启用' DEFAULT 1, PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
@@ -82,8 +85,13 @@ class TQOYuJ1703325379438 {
         await queryRunner.query(`DROP TABLE \`users\``);
         await queryRunner.query(`DROP TABLE \`message_receiver\``);
         await queryRunner.query(`DROP TABLE \`messages\``);
+        await queryRunner.query(`DROP TABLE \`rbac_resources\``);
+        await queryRunner.query(`DROP TABLE \`rbac_roles\``);
+        await queryRunner.query(`DROP INDEX \`IDX_8c8f7efc45e11ded3c5aed4bf0\` ON \`rbac_systems\``);
+        await queryRunner.query(`DROP INDEX \`IDX_63a1ed6d9eae1b57ab970baf01\` ON \`rbac_systems\``);
+        await queryRunner.query(`DROP TABLE \`rbac_systems\``);
     }
 
 }
 
-module.exports = TQOYuJ1703325379438
+module.exports = ObBQmu1703494222813

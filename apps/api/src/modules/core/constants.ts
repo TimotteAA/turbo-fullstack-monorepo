@@ -22,4 +22,5 @@ export const getDefaultAppConfig = (configure: Configure) => ({
         interval: configure.env.get('APP_LIMIT_INTERVAL', (v) => toNumber(v), 60 * 1000),
         rate: configure.env.get('APP_LIMIT_RATE', (v) => toNumber(v), 100),
     },
+    websockets: true,
 });

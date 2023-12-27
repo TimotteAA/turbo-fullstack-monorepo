@@ -1,6 +1,5 @@
 import { BadRequestException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import Bun from 'bun';
 import type { FastifyRequest } from 'fastify';
 import { Redis } from 'ioredis';
 import { isNil, omit, toNumber } from 'lodash';
@@ -10,6 +9,7 @@ import { Configure } from '@/modules/config/configure';
 import { RedisService } from '@/modules/redis/services';
 
 import { UserEntity } from '../entities';
+import { decrypt } from '../helpers';
 import { UserRepository } from '../repositorys';
 import { JwtPayload } from '../types';
 
@@ -52,7 +52,8 @@ export class AuthService {
     async validateByCredential(credential: string, password: string) {
         const user = await this.userService.findOneByCredential(credential);
         if (isNil(user)) return null;
-        const res = await Bun.password.verify(password, user.password);
+        const res = await decrypt(password, user.password);
+        console.log('res ', res);
         if (res) {
             return omit(user, ['password']);
         }
@@ -100,8 +101,8 @@ export class AuthService {
         request: FastifyRequest,
         payload: JwtPayload,
     ): Promise<ClassToPlain<UserEntity>> {
-        const { ua, userId, ssid, signAt } = payload;
-        const userAgent = request.headers['user-agent'];
+        const { userId, ssid, signAt } = payload;
+        // const userAgent = request.headers['user-agent'];
         // if (userAgent !== ua) return null;
         const isLogOut = await this.checkIsLogout(ssid);
         if (isLogOut) {
@@ -179,7 +180,7 @@ export class AuthService {
                 id: userId,
             },
         });
-        const res = await Bun.password.verify(data.oldPassword, user.password);
+        const res = await decrypt(data.oldPassword, user.password);
         if (!res) throw new BadRequestException(UserEntity, 'wrong old password!');
         await this.userRepo.update(userId, { password: data.password });
         return this.userService.detail(userId);

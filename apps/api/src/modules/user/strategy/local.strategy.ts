@@ -18,6 +18,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
 
     async validate(credential: string, password: string) {
         const user = await this.authService.validateByCredential(credential, password);
+        console.log('credential ', credential);
         if (isNil(user)) throw new UnauthorizedException();
 
         // 把普通的user放到request上去

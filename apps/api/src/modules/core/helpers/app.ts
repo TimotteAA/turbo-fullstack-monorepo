@@ -1,11 +1,13 @@
 import { BadGatewayException, Global, Module, ModuleMetadata, Type } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import { WsAdapter } from '@nestjs/platform-ws';
 import { useContainer } from 'class-validator';
 import { isNil, omit } from 'lodash';
 
 import { ConfigModule } from '@/modules/config/config.module';
 import { Configure } from '@/modules/config/configure';
 import { ConfigureFactory, ConfigureRegister } from '@/modules/config/types';
+// import { WsAdapter } from '@/modules/user/gateways';
 
 import { getDefaultAppConfig } from '../constants';
 import { CoreModule } from '../core.module';
@@ -49,6 +51,11 @@ export const createApp = (name: string, options: CreateOptions) => async (): Pro
     });
     // cli命令
     apps[name].commands = await createCommands(options.commands, apps[name] as Required<App>);
+    const { configure } = apps[name];
+    if (await configure.get<boolean>('app.websockets')) {
+        const app = apps[name].container;
+        app.useWebSocketAdapter(new WsAdapter(app));
+    }
 
     return apps[name];
 };

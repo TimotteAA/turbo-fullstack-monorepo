@@ -11,6 +11,7 @@ import { RbacModule } from '../rbac/rbac.module';
 import { RedisModule } from '../redis/redis.module';
 
 import * as entityMaps from './entities';
+import * as gatewayMaps from './gateways';
 import * as guardMaps from './guards';
 import * as repoMaps from './repositorys';
 import * as serviceMaps from './services';
@@ -32,6 +33,7 @@ export class UserModule {
             // ...Object.values(stragetyMaps),
             stragetyMaps.LocalStrategy,
             ...Object.values(guardMaps),
+            ...Object.values(gatewayMaps),
             {
                 provide: 'REFRESH_TOKEN_JWT_SERVICE',
                 useFactory: () => {

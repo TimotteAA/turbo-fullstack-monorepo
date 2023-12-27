@@ -1,3 +1,4 @@
+import * as bcrypt from 'bcrypt';
 import { get, isNil, toNumber } from 'lodash';
 
 import { Configure } from '../config/configure';
@@ -47,4 +48,20 @@ export const getUserConfig = async <T>(configure: Configure, key?: string) => {
     const userConfig = await configure.get<UserModuleConfig>('user');
     if (!isNil(key)) return get(userConfig, key) as T;
     return userConfig;
+};
+
+/**
+ * 对密码hash编码
+ */
+export const encrypt = async (password: string, hash: number) => {
+    return bcrypt.hash(password, hash);
+};
+
+/**
+ * @param plainPassword 未hash的密码
+ * @param password hash后的密码
+ */
+export const decrypt = async (plainPassword: string, password: string) => {
+    const res = await bcrypt.compare(plainPassword, password);
+    return res;
 };

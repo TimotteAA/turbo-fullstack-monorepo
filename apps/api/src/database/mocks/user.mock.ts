@@ -3,6 +3,7 @@ import { faker } from '@faker-js/faker';
 import { defindMock } from '@/modules/database/helpers';
 import { RoleEntity } from '@/modules/rbac/entities';
 import { UserEntity } from '@/modules/user/entities';
+import { encrypt } from '@/modules/user/helpers';
 
 export type IUserMockOptions = Partial<{
     roles: RoleEntity[];
@@ -29,7 +30,8 @@ export const UserMock = defindMock<UserEntity, IUserMockOptions>(
         if (options.password) {
             user.password = options.password;
         } else {
-            user.password = Bun.password.hashSync('123456aA!');
+            if (user.name === 'timotte') console.log('user ', user);
+            user.password = await encrypt('123456aA!', 10);
         }
         if (options.summary) {
             user.summary = options.summary;
