@@ -10,6 +10,7 @@
             "interval": 60000,
             "rate": 100
         },
+        "websockets": true,
         "prefix": "api",
         "url": "http://127.0.0.1:3100"
     },
