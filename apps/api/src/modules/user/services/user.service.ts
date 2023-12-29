@@ -134,6 +134,10 @@ export class UserService
         return user;
     }
 
+    async test() {
+        console.log('test ');
+    }
+
     protected async buildListQB(
         qb: SelectQueryBuilder<UserEntity>,
         options?: FindParams,

@@ -10,12 +10,14 @@ import { App, CreateOptions } from './modules/core/types';
 import * as dbCommands from './modules/database/commands';
 import { DatabaseModule } from './modules/database/database.module';
 import { MeiliSearchModule } from './modules/meilisearch/meilisearch.module';
+import { QueueModule } from './modules/queue/queue.module';
 import { RbacGuard } from './modules/rbac/guard';
 import { RbacModule } from './modules/rbac/rbac.module';
 import { RedisModule } from './modules/redis/redis.module';
 import { echoApi } from './modules/restful/helpers';
 import { Restful } from './modules/restful/restful';
 import { RestfulModule } from './modules/restful/restful.module';
+import { TaskModule } from './modules/task/task.module';
 import { UserModule } from './modules/user/user.module';
 
 export const WEBAPP = 'web';
@@ -33,6 +35,8 @@ export const createData: CreateOptions = {
         RbacModule.forRoot(configure),
         UserModule.forRoot(configure),
         RedisModule.forRoot(configure),
+        QueueModule.forRoot(configure),
+        TaskModule.forRoot(configure),
     ],
     globals: { guard: RbacGuard },
     builder: async ({ configure, BootModule }) => {

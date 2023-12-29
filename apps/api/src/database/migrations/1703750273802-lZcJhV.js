@@ -1,8 +1,8 @@
 /* eslint-disable import/no-import-module-exports */
         
 
-class ObBQmu1703494222813 {
-    name = 'ObBQmu1703494222813'
+class LZcJhV1703750273802 {
+    name = 'LZcJhV1703750273802'
 
     async up(queryRunner) {
         await queryRunner.query(`CREATE TABLE \`rbac_systems\` (\`id\` varchar(36) NOT NULL, \`name\` varchar(255) NOT NULL COMMENT '部门名称', \`description\` varchar(255) NULL COMMENT '部门描述', \`status\` varchar(255) NOT NULL COMMENT '资源状态' DEFAULT 'enabled', \`createdAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6), \`updatedAt\` datetime(6) NOT NULL DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6), \`mpath\` varchar(255) NULL DEFAULT '', \`parentId\` varchar(36) NULL, FULLTEXT INDEX \`IDX_63a1ed6d9eae1b57ab970baf01\` (\`name\`), FULLTEXT INDEX \`IDX_8c8f7efc45e11ded3c5aed4bf0\` (\`description\`), PRIMARY KEY (\`id\`)) ENGINE=InnoDB`);
@@ -94,4 +94,4 @@ class ObBQmu1703494222813 {
 
 }
 
-module.exports = ObBQmu1703494222813
+module.exports = LZcJhV1703750273802
