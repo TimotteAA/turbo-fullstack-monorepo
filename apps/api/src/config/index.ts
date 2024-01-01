@@ -6,3 +6,4 @@ export * from './api';
 export * from './user.config';
 export * from './redis.config';
 export * from './queue.config';
+export * from './smtp.config';

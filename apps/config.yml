@@ -16,5 +16,14 @@
     },
     "content": {
         "searchType": "against"
+    },
+    "smtp": {
+        "host": "smtp.163.com",
+        "user": "azurlane16@163.com",
+        "password": "WGLFANGCPNEBDLMZ",
+        "secure": false,
+        "from": "azurlane16@163.com",
+        "resource": "/apps/turbo-fullstack-monorepo/apps/api/assets/emails",
+        "port": 25
     }
 }

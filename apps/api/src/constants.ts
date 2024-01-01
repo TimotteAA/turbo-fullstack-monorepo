@@ -10,6 +10,7 @@ import { App, CreateOptions } from './modules/core/types';
 import * as dbCommands from './modules/database/commands';
 import { DatabaseModule } from './modules/database/database.module';
 import { MeiliSearchModule } from './modules/meilisearch/meilisearch.module';
+import { MissionModule } from './modules/missions/mission.module';
 import { QueueModule } from './modules/queue/queue.module';
 import { RbacGuard } from './modules/rbac/guard';
 import { RbacModule } from './modules/rbac/rbac.module';
@@ -37,6 +38,7 @@ export const createData: CreateOptions = {
         RedisModule.forRoot(configure),
         QueueModule.forRoot(configure),
         TaskModule.forRoot(configure),
+        MissionModule.fooRoot(configure),
     ],
     globals: { guard: RbacGuard },
     builder: async ({ configure, BootModule }) => {

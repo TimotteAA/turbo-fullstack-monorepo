@@ -40,7 +40,7 @@ interface Onliner {
 }
 
 @Injectable()
-@WebSocketGateway(80)
+@WebSocketGateway(8080)
 @UseFilters(WsExceptionFilter)
 @UsePipes(
     new WsPipe({
