@@ -7,20 +7,18 @@ import {
     SubMenuType,
 } from 'antd/es/menu/hooks/useItems';
 import { isNil, isString } from 'lodash';
-
 import { useCallback, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import Icon from '@/components/icon/Icon';
 import { RouteOption } from '@/components/router/types';
 import { isUrl } from '@/utils';
-
 import { useResponsive } from '@/utils/hooks';
 
-import { ThemeMode } from '../../theme/constants';
 import { useLayout } from '../hooks';
-
 import { LayoutMenuState } from '../types';
+
+import { ThemeMode } from '../../theme/constants';
 
 /**
  * 对路由项中的某个item处理成组件
@@ -28,7 +26,7 @@ import { LayoutMenuState } from '../types';
  * @param {RouteOption} menu 菜单项
  * @returns
  */
-const getMenuItem = (menu: RouteOption): ItemType => {
+export const getMenuItem = (menu: RouteOption): ItemType => {
     const meta = menu.meta ?? {};
     const text = meta.name ?? menu.id ?? '';
     const item: ItemType = {
@@ -137,6 +135,7 @@ export const SideMenu: FC<{
     useUpdateEffect(() => {
         setOpens(menu.opens);
     }, [isMobile]);
+
     return (
         <div className="fixed-sidebar-content">
             <Menu
@@ -161,7 +160,6 @@ export const EmbedMenu: FC<{ theme: `${ThemeMode}`; menu: LayoutMenuState }> = (
     theme,
     menu,
 }) => {
-    // console.log(menu.split);
     return (
         <Menu
             theme={theme}

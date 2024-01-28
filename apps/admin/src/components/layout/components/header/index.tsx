@@ -1,18 +1,16 @@
-import { Layout, Space, theme as AntdTheme } from 'antd';
-
+import { Layout, Space, theme as AntdTheme, Menu } from 'antd';
 import clsx from 'clsx';
 import { CSSProperties, useCallback, useMemo } from 'react';
 
 import Icon from '@/components/icon/Icon';
-
 import Theme from '@/components/theme';
-import { useResponsive, useResponsiveMobileCheck } from '@/utils/hooks';
+import { useResponsiveMobileCheck } from '@/utils/hooks';
 
-import { useLayout, useLayoutAction, useLayoutTheme } from '../../hooks';
 import Breadcrumb from '../breadcumb';
-import { useDrawer, useDrawerChange } from '../drawer/hooks';
+import { getMenuItem } from '../menu';
 
-import { SideMenu } from '../menu';
+import { useLayout, useLayoutTheme } from '../../hooks';
+import { useDrawer, useDrawerChange } from '../drawer/hooks';
 import { Logo } from '../sidebar/logo';
 
 const Setting = () => {
@@ -26,14 +24,11 @@ const Setting = () => {
 
 export const LayoutHeader = () => {
     const { Header } = Layout;
-    const { isNotebook } = useResponsive();
+
     const isMobile = useResponsiveMobileCheck();
-    const { mode, collapsed, menu, styles: layoutStyles } = useLayout();
+    const { mode, menu, styles: layoutStyles } = useLayout();
     const theme = useLayoutTheme();
-    const { toggleCollapse, toggleMobileSide } = useLayoutAction();
-    const sideControl = useCallback(() => {
-        isMobile ? toggleMobileSide() : toggleCollapse();
-    }, [isMobile, isNotebook]);
+
     const {
         token: { colorBgContainer },
     } = AntdTheme.useToken();
@@ -51,7 +46,7 @@ export const LayoutHeader = () => {
         if (theme.header === 'dark') return '!tw-text-primary-light !tw-bg-primary-dark';
         return 'tw-bg-white';
     }, [theme.header]);
-    console.log('theme.header ', theme.header);
+
     return (
         <Header style={styles} className={clsx(`tw-flex tw-content-between !tw-px-2 ${classes}`)}>
             <Space>
@@ -61,27 +56,19 @@ export const LayoutHeader = () => {
                         <Logo />
                     </div>
                 ) : null}
-                {/* 如果当前布局模式非"top"或"embed"或当前设备为移动端，显示sider折叠、drawer抽屉 */}
-                {/* 联动侧边栏Icon */}
-                {((mode !== 'top' && mode !== 'embed') || isMobile) && (
-                    <Icon
-                        name={
-                            collapsed
-                                ? 'iconify:ant-design:menu-unfold-outlined'
-                                : 'iconify:ant-design:menu-fold-outline'
-                        }
-                        className="tw-cursor-pointer"
-                        onClick={sideControl}
-                    />
-                )}
                 {/* {(mode === 'top' || mode === 'embed') && <Breadcrumb />} */}
-                <Breadcrumb />
+                {mode !== 'top' ? <Breadcrumb /> : null}
             </Space>
             <div className="tw-flex-auto">
                 {/* top模式下的导航菜单 */}
                 {/* 移动端下不展示上面的导航 */}
                 {mode === 'top' && !isMobile ? (
-                    <SideMenu mode="horizontal" theme={theme.header} menu={menu} />
+                    <Menu
+                        inlineIndent={18}
+                        mode="horizontal"
+                        items={menu.data.map((item) => getMenuItem(item))}
+                        selectedKeys={menu.selects}
+                    />
                 ) : null}
             </div>
             <Space className="tw-flex-none">

@@ -8,11 +8,9 @@ import { LayoutTheme } from './types';
 export enum LayoutMode {
     /** 只有顶部导航，菜单项和logo都在顶部*** */
     TOP = 'top',
-    /** 侧边导航，顶栏自定义内容（keepalive)*************** */
-    SIDE = 'side',
-    /** 上面header，下面就是Layout与Content */
-    CONTENT = 'content',
-    /** 左、上导航都在，侧边折叠仅显示icon，额外导航显示menu */
+    /** 经典导航：侧边导航，logo在侧边栏上 */
+    CLASSIC = 'side',
+    /** 嵌入式导航：logo在header里，左侧两个sider */
     EMBED = 'embed',
 }
 
@@ -47,6 +45,10 @@ export enum LayoutActionType {
     CHANGE_MOBILE_SIDE = 'change_mobile_side',
     /** 反转移动模式下的侧边缩进 */
     TOGGLE_MOBILE_SIDE = 'toggle_mobile_side',
+    /**
+     * 修改menu菜单的opens数据
+     */
+    CHANGE_MENU_OPENS = 'change_menu_opens',
 }
 
 /**

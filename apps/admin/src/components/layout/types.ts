@@ -11,8 +11,6 @@ export interface LayoutConfig {
     mode?: `${LayoutMode}`;
     /** 是否折叠边栏,如果是embed模式则折叠子边栏 */
     collapsed?: boolean;
-    /** 布局组件主题色 */
-    theme?: Partial<LayoutTheme>;
     /** 布局组件固定设置 */
     fixed?: Partial<LayoutFixed>;
     /** 可用的CSS变量 */
@@ -107,12 +105,4 @@ export interface LayoutSplitMenuState {
     data: RouteOption[];
     /** 选中的菜单 */
     selects: string[];
-}
-
-export enum ColorConfig {
-    PRIMARY = 'primary',
-    INFO = 'info',
-    SUCCESS = 'success',
-    ERROR = 'error',
-    WARNING = 'warning',
 }

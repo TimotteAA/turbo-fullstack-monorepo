@@ -2,7 +2,6 @@ import clsx from 'clsx';
 import { produce } from 'immer';
 import { kebabCase, camelCase } from 'lodash';
 import { CSSProperties, Reducer } from 'react';
-
 import { matchPath, Location } from 'react-router';
 
 import { deepMerge, isUrl } from '@/utils';
@@ -50,10 +49,6 @@ export const layoutReducer: Reducer<LayoutState, LayoutAction> = produce((state,
             state.mobileSide = !state.mobileSide;
             break;
         }
-        case LayoutActionType.CHANGE_THEME: {
-            state.theme = { ...state.theme, ...action.value };
-            break;
-        }
         case LayoutActionType.CHANGE_MENU: {
             state.menu = deepMerge(state.menu, action.value, 'replace');
             break;
@@ -83,21 +78,6 @@ export const getLayoutFixed = (
         // 顶栏不固定，为了布局一致性，sidebar也不固定
         if (newFixed.sidebar) current.header = true;
         if (newFixed.header !== undefined && !newFixed.header) current.sidebar = false;
-    } else if (mode === 'embed') {
-        // 此种模式下三者联动
-        // header固定，都固定
-        if (newFixed.header) {
-            current.sidebar = true;
-            current.embed = true;
-        }
-        // 侧边栏不固定，三者都不固定
-        if (newFixed.sidebar !== undefined && !newFixed.sidebar) {
-            current.embed = false;
-            current.header = false;
-        }
-        // 子侧边栏固定，侧边栏也得固定
-        if (newFixed.embed) current.sidebar = true;
-        if (newFixed.embed !== undefined && !newFixed.embed) current.embed = false;
     }
     return current;
 };
@@ -137,13 +117,6 @@ export const getLayoutClasses = (
         }
         case 'top': {
             if (fixed.header) items.push(camelStyle.layoutTopHeaderFixed);
-            break;
-        }
-        case 'embed': {
-            items.push(camelStyle.layoutEmbed);
-            if (fixed.header) items.push(camelStyle.layoutEmbedHeaderFixed);
-            else if (fixed.embed) items.push(camelStyle.layoutEmbedEmbedFixed);
-            else if (fixed.sidebar) items.push(camelStyle.layoutEmbedSidebarFixed);
             break;
         }
         default:
@@ -192,15 +165,13 @@ export const getMenuData = (
     // 获取顶级菜单中拥有子菜单的菜单ID
     let rootSubKeys = diffKeys(data.filter((menu) => menu.children));
     // 嵌入模式仅能选择一个顶级菜单，根据顶级菜单计算展开的项
-    if (layoutMode === 'embed' && !isMobile) {
-        // data存储顶级菜单
+    if (layoutMode === 'embed') {
+        // split.data存储顶级菜单
         split.data = menus.map((item) => {
             const { children, ...meta } = item;
             return meta;
         });
-        // selects = diffKeys(getEmbedSelectMenus(data, location));
-        // opens = diffKeys(getOpenMenus(data, selects, []));
-        // split.data = menus;
+
         // 选中或者打开的的顶级菜单
         const select = data.find((item) => selects.includes(item.id) || opens.includes(item.id));
         // 没有找到选中的顶级菜单项，或者选中的顶级菜单项没有子菜单

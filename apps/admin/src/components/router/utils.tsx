@@ -1,6 +1,5 @@
 import { isNil, omit, trim } from 'lodash';
 import { ComponentType, Suspense } from 'react';
-
 import { DataRouteObject, redirect } from 'react-router';
 
 import { isUrl } from '@/utils';
@@ -9,7 +8,6 @@ import { IAuth } from '../auth/types';
 
 import { RouterStore } from './store';
 import { RouteOption, RouterConfig } from './types';
-
 import { getAsyncImport } from './views';
 
 /**

@@ -1,6 +1,5 @@
 import { omit } from 'lodash';
 import { useCallback, useContext } from 'react';
-
 import { shallow } from 'zustand/shallow';
 
 import { LayoutActionType, LayoutMode, LayoutThemeContext } from './constants';
@@ -38,6 +37,9 @@ export const useLayoutAction = () => {
         () => dispatch({ type: LayoutActionType.TOGGLE_COLLAPSE }),
         [],
     );
+    const changeMenuOpens = useCallback((opens: string[]) => {
+        () => dispatch({ type: LayoutActionType.CHANGE_MENU_OPENS, value: opens });
+    }, []);
     const changeMobileSide = useCallback(
         (visible: boolean) =>
             dispatch({ type: LayoutActionType.CHANGE_MOBILE_SIDE, value: visible }),

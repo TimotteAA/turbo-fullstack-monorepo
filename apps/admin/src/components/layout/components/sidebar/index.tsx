@@ -12,13 +12,14 @@ import { useLayout, useLayoutAction, useLayoutTheme } from '../../hooks';
 
 import { Logo } from './logo';
 
+const { Sider } = Layout;
+
 /**
  * 侧边栏组件
  *
  * @returns
  */
 export const Sidebar = () => {
-    const { Sider } = Layout;
     const isMobile = useResponsiveMobileCheck();
     const { mode, collapsed, styles: layoutStyles, mobileSide, menu } = useLayout();
     const theme = useLayoutTheme();
@@ -109,7 +110,6 @@ export const Sidebar = () => {
 };
 
 export const EmbedSidebar = () => {
-    const { Sider } = Layout;
     const { styles, menu } = useLayout();
     const theme = useLayoutTheme();
     return (

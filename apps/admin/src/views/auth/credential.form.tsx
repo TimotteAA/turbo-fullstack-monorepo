@@ -1,4 +1,4 @@
-import { ProForm, ProFormText } from '@ant-design/pro-components';
+import { PageLoading, ProForm, ProFormText } from '@ant-design/pro-components';
 import { App } from 'antd';
 import { isNil } from 'lodash';
 import { FC, useCallback, useEffect } from 'react';
@@ -41,6 +41,9 @@ const CredentialForm: FC = () => {
             navigate(redirect, { replace: true });
         }
     }, [routerReady, auth]);
+    if (!isNil(auth)) {
+        return <PageLoading />;
+    }
     return (
         <div className="tw-p-4 tw-w-full">
             <ProForm

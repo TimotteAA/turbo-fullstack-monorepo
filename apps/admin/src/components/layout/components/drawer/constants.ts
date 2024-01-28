@@ -1,5 +1,4 @@
 import { LayoutMode } from '../../constants';
-import { ColorConfig } from '../../types';
 
 /**
  * 布局组件混合主题色：侧边栏和header
@@ -13,12 +12,8 @@ export enum LayoutTheme {
 
 export const LayoutModeList: { title: string; type: `${LayoutMode}` }[] = [
     {
-        title: '左侧菜单',
-        type: LayoutMode.SIDE,
-    },
-    {
-        title: '左侧菜单，Logo在顶部',
-        type: LayoutMode.CONTENT,
+        title: '经典菜单',
+        type: LayoutMode.CLASSIC,
     },
     {
         title: '顶部菜单',
@@ -46,31 +41,5 @@ export const LayoutThemeList: { title: string; type: `${LayoutTheme}` }[] = [
     {
         title: '左侧暗-顶部暗',
         type: LayoutTheme.DARKDARK,
-    },
-];
-
-/**
- * 选择主颜色
- */
-export const ColorList: { title: string; type: `${ColorConfig}` }[] = [
-    {
-        title: '主色',
-        type: 'primary',
-    },
-    {
-        title: '信息',
-        type: 'info',
-    },
-    {
-        title: '成功',
-        type: 'success',
-    },
-    {
-        title: '错误',
-        type: 'error',
-    },
-    {
-        title: '警告',
-        type: 'warning',
     },
 ];

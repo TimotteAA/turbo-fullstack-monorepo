@@ -3,11 +3,6 @@ import { LayoutState } from './types';
 export const defaultLayoutConfig: Omit<LayoutState, 'mobileSide'> = {
     mode: 'side',
     collapsed: false,
-    theme: {
-        sidebar: 'dark',
-        header: 'light',
-        embed: 'light',
-    },
     fixed: {
         header: false,
         sidebar: false,

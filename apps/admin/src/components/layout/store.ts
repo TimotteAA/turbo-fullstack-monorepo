@@ -15,6 +15,6 @@ export const LayoutStore = createPersistReduxStore<LayoutState, LayoutAction, Pe
     { ...deepMerge(defaultLayoutConfig, config().layout ?? {}), mobileSide: false },
     {
         name: 'layout-config',
-        partialize: (state) => omit({ ...state }, ['styles', 'mobileSide', 'menu']),
+        partialize: (state) => omit({ ...state }, ['styles', 'mobileSide']),
     },
 );
