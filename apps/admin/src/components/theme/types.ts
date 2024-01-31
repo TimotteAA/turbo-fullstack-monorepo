@@ -1,5 +1,4 @@
-import DarkReader from 'darkreader';
-
+import { SeedToken } from 'antd/es/theme/internal';
 import { ThemeMode } from './constants';
 
 /**
@@ -10,30 +9,27 @@ export interface ThemeConfig {
     mode: `${ThemeMode}`;
     /** antd紧凑模式 */
     compact?: boolean;
-    /** dark-reader配置 */
-    darken?: DarkReaderConfig;
+    /** 色盲、灰色等辅助功能 */
+    auxiliary: {
+        /** 灰色 */
+        grey?: boolean;
+        /** 色盲模式 */
+        colorWeakness?: boolean;
+    };
+    /** antd5 token变量修改 */
+    seed?: Partial<SeedToken>;
 }
 
 /**
  * theme store的数据
  */
-export type ThemeState = Omit<ThemeConfig, 'darken'> & {
-    darken: DarkReaderConfig;
-};
+export type ThemeState = ThemeConfig;
 
 export interface ThemeAction {
     changeMode: (mode: `${ThemeMode}`) => void;
     toggleMode: () => void;
     changeCompact: (compact: boolean) => void;
     toggleCompact: () => void;
-    /** 改变主题色 */
-    // changePrimaryColor: (color: string) => void;
-}
-
-/**
- * darker配置类型
- */
-export interface DarkReaderConfig {
-    theme?: Partial<DarkReader.Theme>;
-    fixes?: Partial<DarkReader.DynamicThemeFix>;
+    changeAuxiliary: (aux: ThemeState['auxiliary']) => void;
+    changeSeedToken: (config: Partial<SeedToken>) => void;
 }

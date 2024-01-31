@@ -7,6 +7,7 @@ import { errors } from './routes/errors';
 import { home } from './routes/home';
 import { addLoading } from './routes/loading';
 import { media } from './routes/media';
+import { outer } from './routes/outer';
 import { setting } from './routes/setting';
 import { system } from './routes/system';
 
@@ -22,7 +23,7 @@ export const config = (): IConfig => ({
         hash: false,
         routes: [
             {
-                id: 'layout.masster',
+                id: 'layout.master',
                 menu: false,
                 path: '/',
                 page: 'layouts/master',
@@ -36,6 +37,7 @@ export const config = (): IConfig => ({
                     setting,
                     treeMenu,
                     system,
+                    outer,
                 ]),
             },
             errors,

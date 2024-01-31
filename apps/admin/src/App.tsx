@@ -1,18 +1,19 @@
+import { StyleProvider } from '@ant-design/cssinjs';
+import { App as AntdApp, ConfigProvider, MappingAlgorithm, theme } from 'antd';
+import { ThemeConfig } from 'antd/es/config-provider/context';
 import 'dayjs/locale/zh-cn';
 import { produce } from 'immer';
 import { useEffect, useState } from 'react';
-import { ThemeConfig } from 'antd/es/config-provider/context';
-import { MappingAlgorithm, App as AntdApp, ConfigProvider, theme } from 'antd';
-import { StyleProvider } from '@ant-design/cssinjs';
 
 import { Fetcher } from './components/fetcher/provider';
 import Router from './components/router/router';
-import { useTheme, useThemeListener } from './components/theme/hooks';
+import { useAuxiliaryListener, useTheme, useThemeListener } from './components/theme/hooks';
 import { customDarkAlgorithm } from './utils/customDark';
 
 const App = () => {
     useThemeListener();
-    const { mode, compact } = useTheme();
+    useAuxiliaryListener();
+    const { mode, compact, seed } = useTheme();
     const [algorithm, setAlgorithm] = useState<MappingAlgorithm[]>([theme.defaultAlgorithm]);
     const [antdTheme, setAntdTheme] = useState<ThemeConfig>({
         components: {
@@ -63,6 +64,9 @@ const App = () => {
             theme={{
                 algorithm,
                 ...antdTheme,
+                token: {
+                    ...seed,
+                },
             }}
         >
             {/* 取消 :where定义的Antd样式，并解决与tailwind的样式冲突问题 */}

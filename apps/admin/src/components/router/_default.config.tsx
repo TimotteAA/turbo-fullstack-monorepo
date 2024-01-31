@@ -7,7 +7,7 @@ import { RouterConfig } from './types';
 export const getDefaultRouterConfig: <M extends RecordNever>() => RouterConfig<M> = () => ({
     basepath: '/',
     hash: false,
-    loading: () => <div>加载中...</div>,
+    loading: () => <div>loading........</div>,
     routes: [],
     auth: { enabled: true, path: '/auth/login', page: 'auth/login' },
 });

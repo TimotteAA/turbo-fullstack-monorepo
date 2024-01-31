@@ -1,4 +1,4 @@
-@import "./mixins.css";
+@import './mixins.css';
 
 /** 内容模式，上面是header */
 :global(.layout-main) {
@@ -11,7 +11,7 @@
 
 /** sider模式下的内容区域  */
 .layoutContent {
-    @apply tw-w-full tw-flex tw-flex-col;
+    @apply tw-w-full tw-flex tw-flex-col tw-p-2;
 
     /** tabs容器 */
     & > .layoutTabs {
@@ -58,7 +58,7 @@
 
     /** sider和content模式下，layout-content的ml设定为折叠距离 */
     &.layout-side-sidebar-fixed
-    > :global(.ant-layout-sider-collapsed + .ant-layout > .ant-layout-content),
+        > :global(.ant-layout-sider-collapsed + .ant-layout > .ant-layout-content),
     &.layout-side-header-fixed
         > :global(.ant-layout-sider-collapsed + .ant-layout > .ant-layout-content),
     &.layout-content-sidebar-fixed
@@ -107,7 +107,7 @@
     @mixin fixedKeepAliveTabs;
 }
 
-/** 最外层样式通通加在最外层的Layout上 */ 
+/** 最外层样式通通加在最外层的Layout上 */
 .layout-side-header-fixed {
     & > :global(.ant-layout > .ant-layout-header) {
         /* fixedHeader修改宽度 */

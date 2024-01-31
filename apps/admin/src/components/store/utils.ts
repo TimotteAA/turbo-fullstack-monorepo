@@ -1,12 +1,12 @@
 import { capitalize } from 'lodash';
 import { create, Mutate, StateCreator, StoreApi, UseBoundStore } from 'zustand';
 import {
-    subscribeWithSelector,
     devtools,
+    DevtoolsOptions,
     persist,
     PersistOptions,
-    DevtoolsOptions,
     redux,
+    subscribeWithSelector,
 } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 
@@ -86,7 +86,7 @@ export const createPersistStore = <T extends object, P = T>(
 export const createReduxStore = <
     T extends object,
     A extends {
-        type: unknown;
+        type: string;
     },
 >(
     reducer: (state: T, action: A) => T,
@@ -104,7 +104,7 @@ export const createReduxStore = <
 export const createPersistReduxStore = <
     T extends object,
     A extends {
-        type: unknown;
+        type: string;
     },
     P = T,
 >(

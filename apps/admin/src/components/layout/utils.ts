@@ -1,8 +1,8 @@
 import clsx from 'clsx';
 import { produce } from 'immer';
-import { kebabCase, camelCase } from 'lodash';
+import { camelCase, kebabCase } from 'lodash';
 import { CSSProperties, Reducer } from 'react';
-import { matchPath, Location } from 'react-router';
+import { Location, matchPath } from 'react-router';
 
 import { deepMerge, isUrl } from '@/utils';
 
@@ -72,7 +72,7 @@ export const getLayoutFixed = (
         // 顶栏用户体验更重要
         if (newFixed.header) current.sidebar = true;
         if (newFixed.sidebar !== undefined && !newFixed.sidebar) current.header = false;
-    } else if (mode === 'content') {
+    } else if (mode === 'embed') {
         // 内容模式，导航都在侧边栏里
         // 侧边栏固定，顶栏也固定
         // 顶栏不固定，为了布局一致性，sidebar也不固定
@@ -110,7 +110,7 @@ export const getLayoutClasses = (
             else if (fixed.sidebar) items.push(camelStyle.layoutSideSidebarFixed);
             break;
         }
-        case 'content': {
+        case 'embed': {
             if (fixed.sidebar) items.push(camelStyle.layoutContentSidebarFixed);
             else if (fixed.header) items.push(camelStyle.layoutContentHeaderFixed);
             break;
@@ -151,7 +151,6 @@ export const getMenuData = (
     menus: RouteOption[],
     location: Location,
     layoutMode: `${LayoutMode}`,
-    isMobile: boolean,
 ): LayoutMenuState => {
     const split: LayoutSplitMenuState = {
         data: [],
@@ -172,7 +171,7 @@ export const getMenuData = (
             return meta;
         });
 
-        // 选中或者打开的的顶级菜单
+        // 选中或者打开的的data中的顶级菜单
         const select = data.find((item) => selects.includes(item.id) || opens.includes(item.id));
         // 没有找到选中的顶级菜单项，或者选中的顶级菜单项没有子菜单
         if (!select || !select.children) {
@@ -192,7 +191,7 @@ export const getMenuData = (
             }
         }
     }
-
+    console.log('data ', data);
     return {
         data,
         opens,

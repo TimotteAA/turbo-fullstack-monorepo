@@ -3,13 +3,14 @@ import { deepMerge } from '@/utils';
 
 import { createPersistStore } from '../store';
 
+import { SeedToken } from 'antd/es/theme/internal';
 import { defaultTheme } from './_default.config';
 import { ThemeAction, ThemeState } from './types';
 
 /**
  * 全局的theme store
  */
-export const ThemeStore = createPersistStore<ThemeState & ThemeAction, Omit<ThemeState, 'darken'>>(
+export const ThemeStore = createPersistStore<ThemeState & ThemeAction, ThemeState>(
     (set) => ({
         ...deepMerge(defaultTheme, config().theme ?? {}),
         changeMode: (mode) => {
@@ -32,9 +33,23 @@ export const ThemeStore = createPersistStore<ThemeState & ThemeAction, Omit<Them
                 state.compact = !state.compact;
             });
         },
+        changeAuxiliary: (aux: ThemeState['auxiliary']) => {
+            set((state) => {
+                state.auxiliary = aux;
+            });
+        },
+        changeSeedToken: (config: Partial<SeedToken>) => {
+            set((state) => {
+                state.seed = { ...state.seed, ...config };
+            });
+        },
     }),
     {
         name: 'theme-config',
-        partialize: (state) => ({ mode: state.mode, compact: state.compact }),
+        partialize: (state) => ({
+            mode: state.mode,
+            compact: state.compact,
+            auxiliary: state.auxiliary,
+        }),
     },
 );

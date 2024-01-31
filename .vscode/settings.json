@@ -1,8 +1,9 @@
 {
     "editor.formatOnSave": true,
     "editor.codeActionsOnSave": {
-        "source.fixAll.eslint": "explicit",
-        "source.fixAll.stylelint": "explicit"
+        "source.fixAll.eslint": true,
+        "source.fixAll.stylelint": true,
+        "source.organizeImports": true
     },
     "eslint.workingDirectories": [
         { "pattern": "./apps/*/" },
@@ -22,5 +23,5 @@
     "typescript.suggest.jsdoc.generateReturns": false,
     "typescript.tsserver.experimental.enableProjectDiagnostics": true,
     "stylelint.packageManager": "pnpm",
-    "npm.packageManager": "pnpm"
+    "npm.packageManager": "pnpm",
 }

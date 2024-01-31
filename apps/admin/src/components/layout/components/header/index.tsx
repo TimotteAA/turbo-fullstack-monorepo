@@ -1,4 +1,4 @@
-import { Layout, Space, theme as AntdTheme, Menu } from 'antd';
+import { theme as AntdTheme, Layout, Menu, Space } from 'antd';
 import clsx from 'clsx';
 import { CSSProperties, useCallback, useMemo } from 'react';
 
@@ -11,7 +11,8 @@ import { getMenuItem } from '../menu';
 
 import { useLayout, useLayoutTheme } from '../../hooks';
 import { useDrawer, useDrawerChange } from '../drawer/hooks';
-import { Logo } from '../sidebar/logo';
+
+const Logo = () => <div>Logo</div>;
 
 const Setting = () => {
     const drawer = useDrawer();
@@ -75,6 +76,7 @@ export const LayoutHeader = () => {
                 <Theme />
                 {/* 设定抽屉 */}
                 <Setting />
+                {/* 主题皮肤相关 */}
             </Space>
         </Header>
     );

@@ -62,45 +62,11 @@ const Breadcrumb: FC = () => {
         flat,
         matches.map(({ route }) => route),
     );
-
-    // const items: ItemType[] = useMemo(() => {
-    //     return matches?.slice(1).map((item) => {
-    //         const route = item.route as RouteOption;
-    //         const { name, icon } = route?.meta as MenuRouteMeta;
-    //         const classes = clsx(
-    //             { breadActive: item.pathname === location.pathname },
-    //             $styles.link,
-    //         );
-
-    //         return {
-    //             title: (
-    //                 <Link
-    //                     to={item.pathname}
-    //                     style={
-    //                         {
-    //                             '--colorPrimaryText': colorPrimaryText,
-    //                         } as Record<string, any>
-    //                     }
-    //                     className={classes}
-    //                 >
-    //                     {icon ? (
-    //                         typeof icon === 'string' ? (
-    //                             <Icon name={icon} />
-    //                         ) : (
-    //                             <Icon component={icon} />
-    //                         )
-    //                     ) : null}
-    //                     {name}
-    //                 </Link>
-    //             ),
-    //             key: item.pathname,
-    //         };
-    //     });
-    // }, [matches]);
+    // 路由数据
     const items: ItemType[] = useMemo(() => {
         return matches?.slice(1).map((matchItem, index) => {
             const route = matchItem.route as RouteOption;
-            const { name } = route?.meta as MenuRouteMeta;
+            const { name, icon } = route?.meta as MenuRouteMeta;
             const classes = clsx(
                 { breadActive: matchItem.pathname === location.pathname },
                 $styles.link,
@@ -117,13 +83,13 @@ const Breadcrumb: FC = () => {
                         }
                         className={classes}
                     >
-                        {/* {icon ? (
+                        {icon ? (
                             typeof icon === 'string' ? (
                                 <Icon name={icon} />
                             ) : (
                                 <Icon component={icon} />
                             )
-                        ) : null} */}
+                        ) : null}
                         {name}
                     </Link>
                 ),

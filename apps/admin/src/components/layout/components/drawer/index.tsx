@@ -7,6 +7,7 @@ import { FC, ReactNode, useCallback, useState } from 'react';
 import { LayoutComponent } from '../../constants';
 import { useLayout, useLayoutAction } from '../../hooks';
 
+import { useTheme, useThemeAction } from '@/components/theme/hooks';
 import { LayoutModeList, LayoutTheme, LayoutThemeList } from './constants';
 import { ChangeDrawerContext, DrawerContext, useDrawer, useDrawerChange } from './hooks';
 import $styles from './index.module.css';
@@ -46,7 +47,6 @@ const ThemeSetting: FC = () => {
                 header: theme[1],
             });
         }
-        console.log('change theme ', type);
     }, []);
     return (
         <div className={$styles.layoutTheme}>
@@ -97,6 +97,34 @@ const Feature: FC = () => {
                     checked={collapsed}
                     disabled={mode === 'embed' || mode === 'top'}
                     onChange={(checked) => changeCollapse(checked)}
+                />
+            </div>
+        </>
+    );
+};
+
+const AuxiliarySetting = () => {
+    const { auxiliary } = useTheme();
+    const { changeAuxiliary } = useThemeAction();
+
+    return (
+        <>
+            <div className="tw-flex tw-justify-between tw-items-center tw-mb-2">
+                <span>灰色模式</span>
+                <Switch
+                    checked={auxiliary.grey}
+                    onChange={(checked) => {
+                        changeAuxiliary({ grey: checked, colorWeakness: false });
+                    }}
+                />
+            </div>
+            <div className="tw-flex tw-justify-between tw-items-center tw-mb-2">
+                <span>色弱模式</span>
+                <Switch
+                    checked={auxiliary.colorWeakness}
+                    onChange={(checked) => {
+                        changeAuxiliary({ grey: false, colorWeakness: checked });
+                    }}
                 />
             </div>
         </>
@@ -193,6 +221,8 @@ const DrawerView: FC = () => {
             <ThemeSetting />
             <Divider>功能</Divider>
             <Feature />
+            <Divider>辅助模式</Divider>
+            <AuxiliarySetting />
         </Drawer>
     );
 };

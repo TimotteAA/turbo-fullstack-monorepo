@@ -30,7 +30,7 @@ export interface RouterConfig<T extends RecordAnyOrNever = RecordNever> {
     /** global window */
     window?: Window;
     /** 自定义路由组件加载loading */
-    loading?: FunctionComponent | false;
+    loading?: FunctionComponent;
     /** 某个页面的自定义包装器 */
     render?: CustomRender;
     /** 默认的登录页 */
@@ -45,11 +45,12 @@ export interface RouterConfig<T extends RecordAnyOrNever = RecordNever> {
 export interface RouteOption<T extends RecordAnyOrNever = RecordNever>
     extends Omit<DataRouteObject, 'children' | 'Component' | 'ErrorBoundary' | 'lazy' | 'id'> {
     id: string;
-    /** 默认为菜单路由，false则不是菜单路由不会出现在路由表中 */
+    /** 是否是菜单项 */
     menu?: boolean;
     divide?: boolean;
     // 父路由不需要页面，但有子路由时
     onlyGroup?: boolean;
+
     /** 路由页面，可以是组件或者组件所在路径 */
     page?: ComponentType | string | null;
     /** 异常页面,可以是组件或组件路径字符串 */
@@ -58,9 +59,7 @@ export interface RouteOption<T extends RecordAnyOrNever = RecordNever>
     pageRender?: CustomRender;
     /** 自定义异常render，覆盖全局 */
     errorRender?: CustomRender;
-    /** 是否为布局页面 */
-    // layout?: boolean;
-    /** 独立配置loadding,如果不设置则使用总配置的loading */
+    /** 独立配置loading,如果不设置则使用总配置的loading */
     loading?: FunctionComponent | false;
     /** 权限路由配置 */
     auth?: false | RouteAuth;
@@ -89,6 +88,9 @@ export type MenuRouteMeta<T extends RecordAnyOrNever = RecordNever> = RecordScal
         target?: '_parent' | '_self' | '_top' | '_blank';
         /** 父级路由，用于构成面包屑 */
         parent?: string;
+        /** iframe */
+        iframe?: boolean;
+        iframeSrc?: string;
     },
     T
 >;

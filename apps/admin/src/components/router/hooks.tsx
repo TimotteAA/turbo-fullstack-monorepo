@@ -39,7 +39,7 @@ export const useRouterSetuped = () => {
             );
             let routes = [...defaultRoutes];
             const routeIDs = routes.map(({ id }) => id);
-            // 没有陪住登录页
+            // 没有登录路由，加入登录路由
             if (!routeIDs.find((id) => id === 'auth.login')) {
                 routes.push({
                     id: 'auth.login',
@@ -49,7 +49,7 @@ export const useRouterSetuped = () => {
                     page: routerConfig.auth?.page,
                 });
             }
-            // 没有登陆
+            // 没有登录信息
             if (isNil(auth)) {
                 if (!routeIDs.find((id) => id === 'auth.redirect')) {
                     // 默认兜底页，匹配到首页
@@ -61,16 +61,19 @@ export const useRouterSetuped = () => {
                     });
                 }
             } else {
-                // 滤除没有登录导航页
+                // 滤除登录导航页
                 routes = routes.filter((route) => route.id !== 'auth.redirect');
             }
             RouterStore.setState((state) => {
+                // 根据用户权限过滤好的路由
                 state.config.routes = getAuthRoutes(routes, auth);
+                // 重新整理路由数据
                 state.ready = false;
             });
         }
     }, [auth]);
 
+    // 整理路由数据
     useEffect(() => {
         if (!ready) {
             RouterStore.setState((state) => {

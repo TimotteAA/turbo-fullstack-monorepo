@@ -1,11 +1,12 @@
 import { isNil, omit, trim } from 'lodash';
-import { ComponentType, Suspense } from 'react';
+import { ComponentType, ReactNode, Suspense } from 'react';
 import { DataRouteObject, redirect } from 'react-router';
 
 import { isUrl } from '@/utils';
 
 import { IAuth } from '../auth/types';
 
+import IFrame from '../iframe';
 import { RouterStore } from './store';
 import { RouteOption, RouterConfig } from './types';
 import { getAsyncImport } from './views';
@@ -52,7 +53,7 @@ export const getRoutes = (routes: RouteOption[]): RouteOption[] =>
         .map((route) => {
             // 路由分割线
             if (route.divide) return [];
-            // 非首页、过滤外链
+            // path没传
             if ((!route.index && isNil(route.path)) || isUrl(route.path)) {
                 return route.children?.length ? getRoutes(route.children) : [];
             }
@@ -160,7 +161,7 @@ export const getFullPathRoutes = (routes: RouteOption[], parentPath?: string): R
 export const factoryRoutes = (routes: RouteOption[]) =>
     routes.map((item) => {
         const config = RouterStore.getState();
-        let option: DataRouteObject = generateAsyncPage(config, item);
+        let option: DataRouteObject = generateAsyncPage(config.config, item);
         const { children } = option;
         option = generateAsyncPage(config, option);
         if (!isNil(children) && children.length) {
@@ -177,26 +178,31 @@ export const factoryRoutes = (routes: RouteOption[]) =>
  */
 const generateAsyncPage = (config: RouterConfig, option: RouteOption) => {
     const item = { ...omit(option, ['Component', 'ErrorBoundary']) } as DataRouteObject;
-    let fallback: JSX.Element | undefined;
+    let fallback: ReactNode;
     // 全局的loading
     if (config.loading) fallback = <config.loading />;
     // 页面自己的loading
     if (option.loading) fallback = <option.loading />;
+    const { iframe, iframeSrc } = option.meta ?? {};
     if (typeof option.page === 'string') {
-        // 导出页面的组件
-        const AsyncPage = getAsyncImport({
-            page: option.page as string,
-        });
-        if (!isNil(option.pageRender)) {
-            // 页面自己的render
-            item.Component = () => option.pageRender!(item, AsyncPage);
+        if (iframe) {
+            item.Component = () => <IFrame src={iframeSrc} />;
         } else {
-            // 全局
-            item.Component = ({ ...rest }) => (
-                <Suspense fallback={fallback}>
-                    <AsyncPage route={item} {...rest} />
-                </Suspense>
-            );
+            // 导出页面的组件
+            const AsyncPage = getAsyncImport({
+                page: option.page as string,
+            });
+            if (!isNil(option.pageRender)) {
+                // 页面自己的render
+                item.Component = () => option.pageRender!(item, AsyncPage);
+            } else {
+                // 全局
+                item.Component = ({ ...rest }) => (
+                    <Suspense fallback={fallback}>
+                        <AsyncPage route={item} {...rest} />
+                    </Suspense>
+                );
+            }
         }
     } else {
         // 直接是组件了
