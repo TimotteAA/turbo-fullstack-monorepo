@@ -1,5 +1,7 @@
 import { Spin } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
+import $styles from './index.module.css';
 
 export interface IFrameProps {
     src: string;
@@ -8,9 +10,21 @@ export interface IFrameProps {
 const IFrame: FC<IFrameProps> = ({ src }) => {
     const [loading, setLoading] = useState(true);
 
+    const handleWindowResize = () => {};
+
+    useEffect(() => {
+        return () => setLoading(true);
+    }, []);
+
     return (
         <Spin size="large" spinning={loading}>
-            <iframe onLoad={() => setLoading(false)} src={src} />
+            <div className={$styles.iframeContainer}>
+                <iframe
+                    onLoad={() => setLoading(false)}
+                    src={src}
+                    className="tw-w-full tw-h-full"
+                />
+            </div>
         </Spin>
     );
 };

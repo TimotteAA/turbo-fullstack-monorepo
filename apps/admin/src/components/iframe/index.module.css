@@ -1,0 +1,4 @@
+.iframeContainer {
+    @apply tw-w-full tw-overflow-scroll;
+    height: 684px;
+}

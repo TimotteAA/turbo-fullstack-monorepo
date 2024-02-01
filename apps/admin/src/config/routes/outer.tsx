@@ -16,9 +16,9 @@ export const outer: RouteOption = {
             path: 'doc',
             id: 'antd.inner',
             meta: {
-                name: 'antd文档（内嵌iframe）',
+                name: '阿b（内嵌iframe）',
                 iframe: true,
-                iframeSrc: 'https://ant-design.antgroup.com/',
+                iframeSrc: 'https://antdv.com/components/overview-cn',
             },
             page: 'IFRAME',
         },

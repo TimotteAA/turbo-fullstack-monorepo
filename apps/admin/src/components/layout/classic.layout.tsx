@@ -34,6 +34,10 @@ const ClassicLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
     const onOpenChange = useCallback(
         (keys: string[]) => {
             if (mode === 'top' || !opens) return;
+            if (!collapsed) {
+                setOpens(keys);
+                return;
+            }
             // 新加入的key
             const latest = keys.find((key) => opens.indexOf(key) === -1);
             if (latest && menu.rootSubKeys.indexOf(latest) === -1) {
@@ -42,7 +46,7 @@ const ClassicLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
                 setOpens(latest ? [latest] : []);
             }
         },
-        [opens, mode, menu],
+        [opens, mode, menu, collapsed],
     );
 
     // 同步别的布局模式的是否折叠、打开的菜单
