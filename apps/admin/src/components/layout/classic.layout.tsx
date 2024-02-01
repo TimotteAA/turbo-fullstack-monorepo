@@ -1,6 +1,6 @@
 import { useDebounceFn, useUpdateEffect } from 'ahooks';
 import { Layout, Menu } from 'antd';
-import { ReactNode, memo, useCallback, useRef, useState } from 'react';
+import { ReactNode, memo, useCallback, useEffect, useRef, useState } from 'react';
 
 import { useRouterStore } from '../router/hooks';
 
@@ -13,22 +13,26 @@ import { useLayout } from './hooks';
 const { Sider } = Layout;
 
 const ClassicLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const { menu, mode, collapsed: layoutCollapsed } = useLayout();
-    const [collapsed, setCollapsed] = useState(true);
+    const { menu, mode } = useLayout();
+    const [collapsed, setCollapsed] = useState(false);
 
     // 用于保存collapsed引起的opens的变化
     const ref = useRef<string[]>([]);
     const { menus } = useRouterStore();
     // 打开的
-    const [opens, setOpens] = useState<string[]>(mode === 'side' ? menu.opens : []);
+    const [opens, setOpens] = useState<string[]>([]);
     const { run: changeOpens } = useDebounceFn((data: string[]) => setOpens(data), {
-        wait: 10,
+        wait: 50,
     });
     useUpdateEffect(() => {
         // 非折叠情况下，保存打开的keys
         // 在折叠切换后还原state
-        if (!collapsed && !isNil(opens) && mode !== 'top') ref.current = opens;
+        if (!collapsed && !isNil(opens)) ref.current = opens;
     }, [opens]);
+
+    useEffect(() => {
+        changeOpens(menu.opens);
+    }, []);
 
     // 确保只能打开一个顶级菜单
     const onOpenChange = useCallback(
@@ -49,21 +53,12 @@ const ClassicLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
         [opens, mode, menu, collapsed],
     );
 
-    // 同步别的布局模式的是否折叠、打开的菜单
-    useUpdateEffect(() => {
-        setCollapsed(layoutCollapsed);
-    }, [layoutCollapsed]);
-
-    useUpdateEffect(() => {
-        setOpens(menu.opens);
-    }, [menu.opens]);
-
     useUpdateEffect(() => {
         // 打开后，重新设置下opens
         if (!collapsed) {
             changeOpens(ref.current);
         }
-    }, [collapsed, menu.opens]);
+    }, [collapsed]);
     return (
         <Layout style={{ minHeight: '100vh' }}>
             <Sider
